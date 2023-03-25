@@ -1,0 +1,37 @@
+<!--https://www.userzoom.com/ux-blog/five-ways-to-make-usable-websites-for-people-with-dyslexia/-->
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="..\static\css\style.css">
+  <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+  <title>Tekstvereenvoudiging: prototype</title>
+</head>
+
+<body>
+  <h1>Prototype voor tekstvereenvoudiging</h1>
+
+  <div class="container">
+    <div class="container-index">
+      <h2>Voor leerlingen</h2>
+      <form action="/view-pdf" method="post" enctype="multipart/form-data">
+        <label for="pdf">Voeg een PDF toe:</label>
+        <input type="file" id="pdf" name="pdf"><br><br>
+        <input type="submit" value="View PDF">
+      </form>
+    </div>
+
+    <div class="container-index">
+      <h2>Voor lectoren</h2>
+      <form action="/for-teachers" method="post" enctype="multipart/form-data">
+        <label for="pdf">Voeg een PDF toe:</label>
+        <input type="file" id="pdf" name="pdf"><br><br>
+        <input type="submit" value="View PDF">
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

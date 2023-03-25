@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Click to Call Python Function</title>
+  <meta charset="UTF-8">
+  <style>
+    span {
+      cursor: pointer;
+      border-bottom: 1px dashed blue;
+    }
+  </style>
+</head>
+
+<body>
+
+  <input type="checkbox" id="checkboxTitle">
+
+  <p>
+    <span>Adhesief</span>
+    <span>Arbitrair</span>
+    <span>Evangeliseren</span>
+    <span>sit</span>
+    <span>amet,</span>
+    <span>consectetur</span>
+    <span>adipiscing</span>
+    <span>elit.</span>
+  </p>
+
+  <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Illum, aspernatur facere? Molestiae, excepturi nobis
+    labore ipsam non incidunt asperiores mollitia nihil temporibus laborum rem dignissimos, amet eum saepe culpa
+    explicabo.</p>
+  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate cumque sed, aspernatur consequatur quae
+    repellat vitae asperiores ipsam iusto quasi nobis praesentium. Doloremque animi illum eius. Ab porro deleniti
+    quidem?</p>
+
+  <input type="button" value="Get Selection" onmousedown="getSelectedText()">
+  <div class="dazzle"></div>
+
+</body>
+
+<script>
+  /*
+  Marking titles as a teacher
+  */
+  const checkbox = document.getElementById("checkboxTitle");
+  checkbox.addEventListener("change", function () {
+    if (checkbox.checked) {
+      const ptag = document.querySelectorAll('p');
+      ptag.forEach((p) => {
+        p.addEventListener('click', async (event) => {
+          if (checkboxTitle.checked) {
+            var pTag = event.target;
+            var h1Tag = document.createElement("h1");
+            console.log(pTag, h1Tag)
+            h1Tag.innerHTML = pTag.innerHTML;
+            pTag.parentNode.replaceChild(h1Tag, pTag);
+          };
+        });
+      });
+    }
+  });
+
+  /*
+  Clicking a word and asking for more information.
+  */
+  const spans = document.querySelectorAll('span');
+  spans.forEach((span) => {
+    span.addEventListener('click', async (event) => {
+      const word = event.target.textContent;
+      const response = await callPythonFunctionLookUp(word);
+      console.log(response);
+      var dazzle = document.querySelector(".dazzle");
+      var p = document.createElement("p");
+      var text = document.createTextNode(JSON.stringify(response.result));
+      p.appendChild(text);
+      dazzle.appendChild(p);
+    });
+  });
+
+  /*
+  Highlighting information
+  */
+  async function getSelectedText() {
+    var selectedText = window.getSelection().toString();
+    const response = await callPythonFunctionSummarize(selectedText);
+    console.log(response);
+    var dazzle = document.querySelector(".dazzle");
+    var p = document.createElement("p");
+    var text = document.createTextNode(JSON.stringify(response.result));
+    p.appendChild(text);
+    dazzle.appendChild(p);
+  }
+</script>
+
+</html>

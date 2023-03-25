@@ -1,0 +1,96 @@
+h1 {
+    font-family: "Montserrat";
+    text-align: center;
+}
+
+body {
+    font-family: sans-serif;
+    font-size: 12px;
+    width: 100%;
+    margin: auto;
+    padding: 2%;
+    background-color: #EDD1B0;
+    font-size: 14pt;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+}
+
+.left-container, .right-container{
+    width:45%;
+}
+
+.text-container {
+    box-sizing: border-box;
+    padding: 10px;
+    margin: 3%;
+}
+
+.container-param {
+    display: flex;
+    border-color: black;
+    padding: 5%;
+}
+
+.param {
+    width: 10%;
+}
+
+.container-index {
+    box-sizing: border-box;
+    padding: 10px;
+    border-style: solid;
+    border-color: black;
+    margin: auto;
+}
+
+.fixed-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    background-color: aliceblue;
+    margin: auto;
+    padding: 3%;
+    font-size: 15pt;
+    overflow: scroll;
+}
+
+.page{
+    width:80%;
+}
+
+.buttons {
+    margin: auto;
+}
+
+.fixed-bottom button {
+    font-size: 14pt;
+    ;
+}
+
+.fixed-bottom::-webkit-scrollbar {
+    width: 10px;
+}
+
+.fixed-bottom::-webkit-scrollbar-track {
+    display: none;
+}
+
+.fixed-bottom::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+.dazzle p:nth-child(even){
+    background-color: chocolate;
+}
+
+.dazzle p:nth-child(uneven){
+    background-color: darkgoldenrod;
+}
