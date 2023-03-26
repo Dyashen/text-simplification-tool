@@ -10,21 +10,17 @@ from io import BytesIO
 
 # 
 from langdetect import detect
-import openai, configparser, os, spacy, re, yake
 from summarizer import Summarizer
 from spacy.matcher import PhraseMatcher
 
 #
 import Reader as read
+import Summarization as sum
 import Glossary as gloss
+import LookUp as lu
 
 app = Flask(__name__)
 
-COMPLETIONS_MODEL = "text-davinci-003"
-EMBEDDING_MODEL = "text-embedding-ada-002"
-config = configparser.ConfigParser()
-config.read('config.ini')
-openai.api_key = config['openai']['api_key']
 dutch_spacy_model = "nl_core_news_md"
 
 
@@ -51,39 +47,15 @@ def teaching_tool():
 
     """[page, page, page, ..., page]"""
     full_text = read.get_full_text_dict(all_pages)
-    full_text_new = []
-    # opbreken pagina --> paragraaf         [ptekst, pnummer]
-    
-    for i in range (len(full_text)-1):
-        page = []
-        nlp = spacy.load(dutch_spacy_model) if detect(full_text[i]) == 'nl' else spacy.load("en_core_word_md")
-        doc = nlp(full_text[i])
-        sentences = doc.sents
-
-        paragraph = []
-
-        for sent in sentences:
-            sentence = []
-            for token in sent:
-                sentence.append(token.text)
-
-            if len(paragraph) > 4:
-                page.append(paragraph)
-                paragraph = []
-                paragraph.append(sentence)
-            else:
-                paragraph.append(sentence)
-
-        page.append(paragraph)
-        full_text_new.append([page, i])
-
+    full_text_new = read.get_full_text(full_text)
     
     return render_template(
         'for-teachers.html', 
         pdf=full_text_new, 
         lang='nl', 
         title='voorbeeld titel', 
-        subject='voorbeeld van onderwerp'
+        subject='voorbeeld van onderwerp',
+        statistieken=''
     )
 
 """
@@ -100,12 +72,29 @@ def show_pdf():
         maxpages=100
     )
 
-    text = read.get_full_text_dict(all_pages)
+    full_text = read.get_full_text_dict(all_pages)
+    full_text_new = read.get_full_text(full_text)
+
     return render_template(
         'for-scholars.html',
-        full_text = "",
-        keywords  = ""
+        pdf=full_text_new, 
+        lang='nl', 
+        title='voorbeeld titel', 
+        subject='voorbeeld van onderwerp',
+        statistieken=''
     )
+
+
+"""
+"""
+@app.route('/look-up-word',methods=['GET'])
+def look_up_word():
+    word = request.args.get('word')
+    context = request.args.get('context')
+    result, prompt = lu.look_up_word(word, context)
+    return jsonify(result=result, prompt=prompt)
+
+
 
 """
 Only for tryout purposes
@@ -114,6 +103,7 @@ return
 @app.route('/foo', methods=['GET'])
 def foo():
     return render_template('tryout.html')
+
 
 """
 """

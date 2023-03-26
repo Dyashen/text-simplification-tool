@@ -20,8 +20,9 @@ body {
     height: 100%;
 }
 
-.left-container, .right-container{
-    width:45%;
+.left-container,
+.right-container {
+    width: 45%;
 }
 
 .text-container {
@@ -61,8 +62,8 @@ body {
     overflow: scroll;
 }
 
-.page{
-    width:80%;
+.page {
+    width: 80%;
 }
 
 .buttons {
@@ -87,10 +88,23 @@ body {
     border-radius: 10px;
 }
 
-.dazzle p:nth-child(even){
+.dazzle p:nth-child(even) {
     background-color: chocolate;
 }
 
-.dazzle p:nth-child(uneven){
+.dazzle p:nth-child(uneven) {
     background-color: darkgoldenrod;
+}
+
+
+#explainWord {
+    background-color: #ccc;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+#explainWord.active {
+    background-color: #333;
 }

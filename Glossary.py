@@ -13,6 +13,8 @@ def prompt_gpt(prompt, model, max_tokens, temperature):
             stream=False
         )["choices"][0]["text"].strip(" \n")
 
+
+
 def generate_glossary_for_set(set):
     words = ", ".join(set)
     prompt = f"""

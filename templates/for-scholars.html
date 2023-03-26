@@ -45,17 +45,22 @@
       console.error(error);
     }
   };
-
+  
+  //
   document.addEventListener('DOMContentLoaded', () => {
-    const spans = document.querySelectorAll('.lexical');
+    const spans = document.querySelectorAll('.word');
     spans.forEach((span) => {
       span.addEventListener('click', async (event) => {
-        sentence_of_origin = span.closest('.text');
+        console.log('test')
+        sentence_of_origin = span.closest('.sentence');
         var context = '';
         for (const child of sentence_of_origin.children) {
           context = context + ' ' + child.textContent;
         }
+
+        
         const word = event.target.textContent;
+        console.log(context, word);
         const response = await callPythonFunctionLookUp(word, context);
         console.log(response);
         var dazzle = document.querySelector(".dazzle");
@@ -74,11 +79,12 @@
 
 
   async function getSelectedText() {
+    console.log('log -- printing selected text')
     var selectedText = window.getSelection().toString();
-    console.log('printing selected text')
     var dazzle = document.querySelector(".dazzle");
     var p = document.createElement("p");
-    p.appendChild(selectedText);
+    var text = document.createTextNode(selectedText);
+    p.appendChild(text);
     dazzle.appendChild(p);
   }
 
@@ -107,6 +113,7 @@
   }
 
   async function emptyChat() {
+    console.log('log -- empty chat')
     const dazzleDiv = document.querySelector('.dazzle');
     dazzleDiv.innerHTML = '';
   }
@@ -124,7 +131,6 @@
     p2.appendChild(text);
     dazzle.appendChild(p2);
   }
-
 </script>
 
 <!DOCTYPE html>
@@ -133,23 +139,33 @@
 <head>
   <link rel="stylesheet" href="..\static\css\style.css">
   <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <title>Teksten vereenvoudigen: prototype</title>
 </head>
 
 <body>
 
   {% for kw in keywords %}
-    <span class="keyword">{{ kw }}</span>
+  <span class="keyword">{{ kw }}</span>
   {% endfor %}
 
   <div class="container">
     <div class="text-container">
-      {% for sentence in full_text %}
-      <p class="text">
-        {% for word in sentence %}
-        <span class="lexical">{{ word }}</span>
+      {% for page in pdf %}
+      <div class="page">
+        <h1>{{page[1]}}</h1>
+        {% for paragraph in page[0] %}
+        <p>
+          {% for sentence in paragraph %}
+          <span class="sentence">
+            {% for word in sentence %}
+            <span class="word">{{word}}</span>
+            {% endfor %}
+          </span>
+          {% endfor %}
+        </p>
         {% endfor %}
-      </p>
+      </div>
       {% endfor %}
     </div>
 
@@ -157,22 +173,32 @@
     <div class="fixed-bottom">
       <div class="buttons">
         <input type="button" value="Get Selection" onmousedown="getSelectedText()">
-        <!--<input type="button" value="Vertaal dit naar NL" onmousedown="getSelectedText()">-->
         <input type="button" value="Eenvoudige woordenschat" onmousedown="lexicalSimplification()">
         <input type="button" value="Eenvoudige grammatica" onmousedown="syntacticSimplification()">
         <input type="button" value="Samenvatten" onmousedown="hybridSummarization()">
         <input type="button" value="Wat zijn de belangrijkste zinnen?" onmousedown="extractiveSummarization()">
         <input type="button" value="Schrijf dit in eigen woorden" onmousedown="abstractiveSummarization()">
-        <input type="button" value="Wat betekent dit woord?" onmousedown="getSelectedText()">
-        <input type="button" value="Chat leegmaken?" onmousedown="emptyChat()">
+        <button id="explainWord" class="btn" onmousedown="getSelectedText()"><i class="fa-solid fa-book"></i></button>
+        <button class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
       </div>
+
       <!--append-div-->
       <div class="dazzle"></div>
     </div>
   </div>
-
-
-
 </body>
+
+
+<script>
+  const toggleLookupButton = document.getElementById('explainWord');
+  toggleLookupButton.addEventListener('click', () => {
+    toggleLookupButton.classList.toggle('active');
+  });
+
+  toggleLookupButton.addEventListener("change", function () {
+    console.log('test')
+  });
+
+</script>
 
 </html>

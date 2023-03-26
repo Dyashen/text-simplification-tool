@@ -36,41 +36,50 @@
         <input type="button" value="Get Selection" onmousedown="getSelectedText()">
       </div>
 
+      <div class="extra-info">
+        <p>taal: {{lang}}</p><br>
+        <p>titel: {{title}}</p><br>
+        <p>onderwerp: {{subject}}</p><br>
+      </div>
+
       <!---->
       <form action="/summarise-with-presets" method="post">
         <textarea name="" id="" cols="30" rows="10" disabled hidden></textarea>
 
+        <!--Statistieken voor de leerkracht-->
+        <h2>Statistieken voor de leerkracht</h2>
+        
+
         <!--Tools voor de leerkracht-->
         <h2>Tools voor de leerkracht</h2>
         <fieldset>
-          <label for="checkboxTitle">Titels markeren</label><input type="checkbox" id="checkboxTitle"><br>
-          <label for="checkboxDeleteSents">Zin verwijderen</label><input type="checkbox" id="checkboxDeleteSents"><br>
-          <label for="checkboxAddWordToGlossary">Woord toevoegen aan woordenlijst</label><input type="checkbox"
-            id="checkboxAddWordToGlossary"><br>
-          <label for="checkboxFullyAutomatic">Volledig document markeren</label><input type="checkbox" name=""
-            id="checkboxFullyAutomatic"><br>
-          <label for="saveMethod">Opslaan als:</label>
+          <label for="checkboxTitle">Titels markeren</label><input name="actions" type="radio" id="checkboxTitle"><br>
+          <label for="checkboxDeleteSents">Zin verwijderen</label><input type="radio" name="actions"
+            id="checkboxDeleteSents"><br>
+          <label for="checkboxAddWordToGlossary">Woord toevoegen aan woordenlijst</label><input name="actions"
+            type="radio" id="checkboxAddWordToGlossary"><br>
+          
+            <label for="saveMethod">Opslaan als:</label>
           <select multiple name="saveMethod" id="saveMethod">
             <option value="saveMethodWord">Word</option>
             <option value="saveMethodPDF">PDF</option>
-          </select>
+          </select><br>
+
+          <label for="translateMethod">Taal van uitvoerdocument:</label>
+          <select multiple name="translateMethod" id="translateMethod">
+            <option value="nl">Nederlands</option>
+            <option value="fr">Frans</option>
+          </select><br>
+
         </fieldset>
 
         <!--Lexicale vereenvoudiging-->
         <h2>Lexicale vereenvoudiging</h2>
         <fieldset>
-          <input type="checkbox" id="metric" name="metric" value="metric">
-          <label for="metric">Metriek om moeilijke zinnen te herkennen</label><br>
-
           <input type="checkbox" id="keywords" name="keywords" value="keywords">
           <label for="keywords">Belangrijke kernwoorden automatisch herkennen</label><br>
-
-          <input type="checkbox" id="language" name="language" value="language">
-          <label for="language">Automatische taalherkenning</label><br>
-
           <input type="checkbox" id="vocabulary" name="vocabulary" value="vocabulary">
           <label for="vocabulary">Moeilijke woordenschat vervangen</label><br>
-
         </fieldset>
 
         <h2>Syntactische vereenvoudiging</h2>
@@ -78,8 +87,8 @@
           <input type="checkbox" id="syntax" name="syntax" value="syntax">
           <label for="syntax">Tangconstructies aanpassen</label><br>
 
-          <input type="checkbox" id="sentence_length" name="sentence_length" value="sentence_length">
-          <label for="sentence_length">Zinnen langer dan tien woorden inkorten</label><br>
+          <input required type="number" id="length_sentence" name="length_sentence" min="5" max="15">
+          <label for="length_sentence">Zinslengte</label><br>
 
           <input type="checkbox" id="pronouns" name="pronouns" value="pronouns">
           <label for="pronouns">Verwijswoorden aanpassen</label><br>
@@ -106,24 +115,25 @@
           <input type="checkbox" id="extractive_summary" name="extractive_summary" value="extractive_summary">
           <label for="extractive_summary">Extraherende samenvatting</label><br>
 
-          <input type="checkbox" id="summary_length" name="summary_length" value="summary_length">
+          <input required type="number" id="length_summary" name="length_summary" min="50" max="500">
           <label for="summary_length">Lengte van de samenvatting</label><br>
 
           <input type="checkbox" id="keyword_summary" name="keyword_summary" value="keyword_summary">
           <label for="keyword_summary">Samenvatten op basis van kernwoorden</label>
+
+          <input required type="number" id="number_paragraphs" name="number_paragraphs" min="1" max="5">
+          <label for="number_paragraphs">Aantal paragrafen per titel</label>
+
+        </fieldset>
+
+        <h2>Woordenlijst</h2>
+        <fieldset>
+          <textarea name="glossaryList" id="glossaryList" cols="30" rows="10"></textarea>
+          <button type="submit">Glossary-lijst genereren</button>
         </fieldset>
 
         <button type="submit" value="Samenvatten" id="summarize-with-presets-button">Volledig document
           samenvatten</button>
-      </form>
-
-      <input type="checkbox" name="" id="">
-
-      <h2>Woordenlijst</h2>
-      <fieldset>
-        <textarea name="glossaryList" id="glossaryList" cols="30" rows="10"></textarea>
-        <button type="submit">Glossary-lijst genereren</button>
-      </fieldset>
       </form>
     </div>
   </div>
