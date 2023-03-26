@@ -16,7 +16,6 @@ from spacy.matcher import PhraseMatcher
 #
 import Reader as read
 import Summarization as sum
-import Glossary as gloss
 import LookUp as lu
 
 app = Flask(__name__)
@@ -95,15 +94,25 @@ def look_up_word():
     return jsonify(result=result, prompt=prompt)
 
 
-
 """
-Only for tryout purposes
-return
 """
 @app.route('/foo', methods=['GET'])
 def foo():
     return render_template('tryout.html')
 
+
+"""
+"""
+@app.route('/generate-summary', methods=['GET', 'POST'])
+def generate_summary():
+    full_text = request.args.get('fullText')
+    if True or len(full_text) > 1900:
+        result = sum.extractive_summarization(full_text=full_text)
+        # sum.summarize_with_presets()
+    else:
+        result = sum.summarize_with_presets()
+    
+    return jsonify(original=full_text, result=result)
 
 """
 """
@@ -116,13 +125,11 @@ def generate_glossary():
 
     arr = []
     for set in grouped_words:
-        arr.append(gloss.generate_glossary_for_set(set))
+        arr.append(sum.generate_glossary_for_set(set))
 
-    gloss.generate_pdf()
-    return render_template(
-        'download-pdf.html', 
+    return jsonify( 
         glossary=arr
-        )
+    )
 
 
 """
