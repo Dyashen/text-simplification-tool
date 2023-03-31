@@ -42,36 +42,22 @@ def teaching_tool():
     all_pages = extract_pages(
         pdf_data,
         page_numbers=None,
-        maxpages=100
+        maxpages=999
     )
 
     """[page, page, page, ..., page]"""
     full_text = read.get_full_text_dict(all_pages)
-    
-    print('*'*1000)
-    print(full_text)
+    full_text_new = read.get_full_text_site(full_text)
+    f = read.get_full_text_plain(all_pages)
+    stats = ta.get_statistics(f)
 
-
-    full_text_new = read.get_full_text(full_text)
-
-    print('*'*1000)
-    print(full_text_new)
-    
-    plain = read.get_full_text_plain(all_pages)
-
-    print(plain)
-
-    statistics = ta.get_statistics(plain)
-
-    print(statistics)
-    
     return render_template(
         'for-teachers.html', 
         pdf=full_text_new, 
         lang='nl', 
         title='voorbeeld titel', 
         subject='voorbeeld van onderwerp',
-        statistieken=statistics
+        statistieken=stats
     )
 
 """
@@ -79,18 +65,20 @@ def teaching_tool():
 """
 @app.route('/for-scholars', methods=['GET','POST'])
 def show_pdf():
+    """"""
     pdf = request.files['pdf']
     pdf_data = BytesIO(pdf.read())
-
     all_pages = extract_pages(
         pdf_data,
         page_numbers=None,
-        maxpages=100
+        maxpages=999
     )
 
+    """"""
     full_text = read.get_full_text_dict(all_pages)
-    full_text_new = read.get_full_text(full_text)
+    full_text_new = read.get_full_text_site(full_text)
 
+    """"""
     return render_template(
         'for-scholars.html',
         pdf=full_text_new, 

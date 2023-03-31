@@ -21,7 +21,7 @@ dict = {
 """
 """
 def get_sentence_length(sentence):
-    nlp = spacy.load(english_spacy_model)
+    nlp = spacy.load(dutch_spacy_model)
     doc = nlp(sentence)
     return len(doc)
 
@@ -31,7 +31,6 @@ def get_sentence_length(sentence):
 def text_clean(text):    
     full_text = text.strip()
     full_text = text.replace('\n', ' ')
-    
     return full_text
 
 """
@@ -43,13 +42,6 @@ def get_sentences(text):
     for sentence in doc.sents:
         sentences.append(str(sentence))
     return sentences
-
-"""
-TODO
-"""
-def get_key_sentences():
-    pass
-
 
 """
 TODO
