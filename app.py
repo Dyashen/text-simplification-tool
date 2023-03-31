@@ -17,6 +17,7 @@ from spacy.matcher import PhraseMatcher
 import Reader as read
 import Summarization as sum
 import LookUp as lu
+import TextAnalysis as ta
 
 app = Flask(__name__)
 
@@ -46,7 +47,23 @@ def teaching_tool():
 
     """[page, page, page, ..., page]"""
     full_text = read.get_full_text_dict(all_pages)
+    
+    print('*'*1000)
+    print(full_text)
+
+
     full_text_new = read.get_full_text(full_text)
+
+    print('*'*1000)
+    print(full_text_new)
+    
+    plain = read.get_full_text_plain(all_pages)
+
+    print(plain)
+
+    statistics = ta.get_statistics(plain)
+
+    print(statistics)
     
     return render_template(
         'for-teachers.html', 
@@ -54,7 +71,7 @@ def teaching_tool():
         lang='nl', 
         title='voorbeeld titel', 
         subject='voorbeeld van onderwerp',
-        statistieken=''
+        statistieken=statistics
     )
 
 """
@@ -96,22 +113,13 @@ def look_up_word():
 
 """
 """
-@app.route('/foo', methods=['GET'])
-def foo():
-    return render_template('tryout.html')
-
-
-"""
-"""
 @app.route('/generate-summary', methods=['GET', 'POST'])
 def generate_summary():
     full_text = request.args.get('fullText')
     if True or len(full_text) > 1900:
         result = sum.extractive_summarization(full_text=full_text)
-        # sum.summarize_with_presets()
     else:
         result = sum.summarize_with_presets()
-    
     return jsonify(original=full_text, result=result)
 
 """

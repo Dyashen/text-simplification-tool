@@ -48,7 +48,9 @@
 
         <!--Statistieken voor de leerkracht-->
         <h2>Statistieken voor de leerkracht</h2>
-        
+        {% for s in statistics %}
+          {{ s }}
+        {% endfor %}
 
         <!--Tools voor de leerkracht-->
         <h2>Tools voor de leerkracht</h2>

@@ -7,8 +7,26 @@ import spacy
 from langdetect import detect
 
 
+
 dutch_spacy_model = "nl_core_news_md"
 english_spacy_model = "en_core_word_md"
+
+# assert spacy.util.is_package(dutch_spacy_model)
+# assert spacy.util.is_package(english_spacy_model)
+
+"""
+"""
+def get_full_text_plain(all_pages):
+    full_text = ""
+    for page_layout in all_pages:
+        total_page = ""
+        for element in page_layout:
+            if isinstance(element, LTTextContainer):
+                for text_line in element:
+                    total_page += text_line.get_text()
+        full_text += total_page
+    return full_text
+
 
 """"""
 def get_full_text_dict(all_pages):
@@ -26,9 +44,11 @@ def get_full_text_dict(all_pages):
 
 def get_full_text(full_text):
     full_text_new = []
+
     # opbreken pagina --> paragraaf         [ptekst, pnummer]
     
-    for i in range (len(full_text)-1):
+    for i in range (len(full_text)):
+
         page = []
         nlp = spacy.load(dutch_spacy_model) if detect(full_text[i]) == 'nl' else spacy.load(english_spacy_model)
         doc = nlp(full_text[i])
@@ -52,8 +72,3 @@ def get_full_text(full_text):
         full_text_new.append([page, i])
 
     return full_text_new
-
-
-
-def get_full_text_statistics(all_pages):
-    pass

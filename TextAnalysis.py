@@ -63,7 +63,12 @@ Dataframe opbouwen voor een pdf. Hieronder wordt de zin, bron en zinlengte opges
 """
 def get_statistics(full_text):
     full_text = text_clean(full_text)
-    lang = detect(full_text)
+    
+    try:
+        lang = detect(full_text)
+    except:
+        lang = 'nl'
+        
     sentences = get_sentences(full_text)
     df = pd.DataFrame(sentences, columns=['sentence'])
     df['sentence_length'] = df['sentence'].apply(get_sentence_length)
@@ -93,6 +98,6 @@ def get_statistics(full_text):
 
     """
     """
-    avg = df[word_usage_cols].avg()
-    sum = df[sentence_beginnings_cols].sum()
+    avg = df[word_usage_cols].mean().to_dict()
+    sum = df[sentence_beginnings_cols].sum().to_dict()
     return (avg, sum)
