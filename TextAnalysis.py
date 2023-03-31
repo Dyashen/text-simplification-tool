@@ -1,12 +1,9 @@
 import pandas as pd
-
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer, LTChar
-import spacy
+import spacy, os, readability
 from langdetect import detect
 import pandas as pd
-import os
-import readability
 
 
 folder_path = 'scripts\experimenten\pdf'

@@ -1,6 +1,5 @@
 import pandoc, openai
 
-
 COMPLETIONS_MODEL = "text-davinci-003"
 
 def summarize_with_presets(full_text, presets):
