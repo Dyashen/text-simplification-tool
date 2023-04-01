@@ -2,11 +2,18 @@ import pandoc, openai
 
 COMPLETIONS_MODEL = "text-davinci-003"
 
+"""
+@retuns full-text
+"""
 def summarize_with_presets(full_text, presets):
     prompt = f"""
     Samenvat de volgende tekst in {presets[0]} paragrafen met elk {presets[1]} zinnen van max {presets[2]} lang.
     {full_text}
     """
+
+    result = 'foo'
+
+    return prompt, result
 
     result = openai.Completion.create(
             prompt=prompt,
@@ -18,12 +25,18 @@ def summarize_with_presets(full_text, presets):
     )["choices"][0]["text"].strip(" \n")
 
 
+"""
+@returns list of sentences
+"""
 def extractive_summarization(full_text):
     from summarizer import Summarizer
-    model = Summarizer('distilbert-base-uncased', hidden=[-1,-2], hidden_concat=True)
+    model = Summarizer()
     result = model(
-        full_text,
-        num_sentences=3
+        body=full_text,
+        max_length=700,
+        min_length=100,
+        num_sentences=30,
+        return_as_list=True
     )
 
     return result

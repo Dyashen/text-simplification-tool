@@ -11,6 +11,11 @@ def look_up_word(word, context):
     Leg het begrip '{word}' eenvoudig uit in de context van "{context}"? 
     Lengte: max. 1 zin. Geef 3 eenvoudigere synoniemen.
     """
+
+    result = 'foo'
+
+    return result, prompt
+
     result = openai.Completion.create(
             prompt=prompt,
             temperature=0,
@@ -19,4 +24,3 @@ def look_up_word(word, context):
             top_p=0.9,
             stream=False
         )["choices"][0]["text"].strip(" \n")
-    return result, prompt

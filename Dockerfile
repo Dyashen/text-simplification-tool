@@ -1,14 +1,9 @@
-from python:3.10-alpine
-
+FROM python:3.8-slim-buster
 WORKDIR /app
-
-COPY requirements.txt ./
-
-RUN pip3 install --upgrade pip setuptools && \
-    pip3 install -r requirements.txt
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt \
+    && python3 -m spacy download nl_core_news_md \
+    && python3 -m spacy download en_core_web_sm 
 
 COPY . .
-
-EXPOSE 5000
-
-CMD [ "flask", "run","--host","127.0.0.1","--port","5000"]
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]

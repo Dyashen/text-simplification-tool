@@ -7,18 +7,18 @@ import pandas as pd
 
 
 folder_path = 'scripts\experimenten\pdf'
-dutch_spacy_model = "nl_core_news_md"
-english_spacy_model = "en_core_web_sm"
+# dutch_spacy_model = "nl_core_news_md"
+# english_spacy_model = "en_core_web_sm"
 
 dict = {
     'nl':'nl_core_news_md',
-    'en':'en_core_web_md'
+    'en':'en_core_web_sm'
 }
 
 """
 """
 def get_sentence_length(sentence):
-    nlp = spacy.load(dutch_spacy_model)
+    nlp = spacy.load(dict.get(detect(sentence)))
     doc = nlp(sentence)
     return len(doc)
 
@@ -33,7 +33,7 @@ def text_clean(text):
 """
 """
 def get_sentences(text):
-    nlp = spacy.load(dutch_spacy_model) if detect(text) == 'nl' else spacy.load('en_core_web_sm')
+    nlp = spacy.load(dict.get(detect(sentence)))
     doc = nlp(text)
     sentences = []
     for sentence in doc.sents:

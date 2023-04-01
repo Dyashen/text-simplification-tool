@@ -127,6 +127,16 @@ def generate_glossary():
         glossary=arr
     )
 
+@app.route('/look-up-word', methods=['GET','POST'])
+def explain_word():
+    word = request.args.get('word')
+    context = request.args.get('context')
+    result, prompt = lu.look_up_word(word, context)
+
+    return jsonify(
+        result=result,
+        prompt=prompt
+    )
 
 """
 """
