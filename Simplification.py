@@ -37,7 +37,7 @@ def syntactic_simplify(text):
     {text}
     """
 
-    result = 'foo'
+    result = 'This is a very foo sentence. But what means bar?'
     return prompt, result
     
     result = openai.Completion.create(

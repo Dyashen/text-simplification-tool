@@ -47,22 +47,40 @@
   };
 
   //
+  async function syntacticSimplification() {
+    //
+    var dazzle = document.querySelector(".dazzle");
+    var p = document.createElement("p");
+    var p2 = document.createElement("p");
+
+    //
+    var text = document.createTextNode('Zinsbouw vereenvoudigen...');
+    var prompt = document.createTextNode('...');
+    p.appendChild(prompt);
+    dazzle.appendChild(p);
+    p2.appendChild(text);
+    dazzle.appendChild(p2);
+
+    //
+    var selectedText = window.getSelection().toString();
+    const response = await callPythonFunctionSyntacticSimplification(selectedText);
+    prompt.nodeValue = JSON.stringify(response.prompt);
+    text.nodeValue = JSON.stringify(response.result);
+  }
+
+  //
   document.addEventListener('DOMContentLoaded', () => {
     const spans = document.querySelectorAll('.word');
     spans.forEach((span) => {
       span.addEventListener('click', async (event) => {
-        console.log('test')
         sentence_of_origin = span.closest('.sentence');
         var context = '';
         for (const child of sentence_of_origin.children) {
           context = context + ' ' + child.textContent;
         }
 
-
         const word = event.target.textContent;
-        console.log(context, word);
         const response = await callPythonFunctionLookUp(word, context);
-        console.log(response);
         var dazzle = document.querySelector(".dazzle");
         var p = document.createElement("p");
         var p2 = document.createElement("p");
@@ -77,30 +95,74 @@
   });
 
 
-
-  async function getSelectedText() {
-    console.log('log -- printing selected text')
-    var selectedText = window.getSelection().toString();
-    var dazzle = document.querySelector(".dazzle");
-    var p = document.createElement("p");
-    var text = document.createTextNode(selectedText);
-    p.appendChild(text);
-    dazzle.appendChild(p);
+  //
+  function insertAfter(newNode, existingNode) {
+    console.log(newNode, existingNode);
+    console.log(existingNode.parent, existingNode.nextSibling)
+    existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
   }
 
+
+  // simplify sentence structure
+  document.addEventListener('DOMContentLoaded', () => {
+    const spans = document.querySelectorAll('.sentence');
+    spans.forEach((span) => {
+      span.addEventListener('click', async (event) => {
+        sentence_of_origin = span.closest('.sentence');
+        
+        //
+        var context = '';
+        for (const child of sentence_of_origin.children) {
+          context = context + ' ' + child.textContent;
+        };
+
+      
+        //
+        const response = await callPythonFunctionSyntacticSimplification(context);
+        var p = document.createElement("p");
+        newNode = document.createTextNode(JSON.stringify(response.result));
+        
+        //
+        p.append(newNode);
+        insertAfter(p, span);
+
+        //
+        sentence_of_origin.innerHTML = '<del>' + context + '</del>';
+        parent = sentence_of_origin.parent;
+
+      })
+    })
+  })
+
   async function extractiveSummarization() {
+    //
     var selectedText = window.getSelection().toString();
     if (selectedText === "") {
       selectedText = document.body.innerText;
     }
-    const response = await callPythonFunctionExtractiveSummarize(selectedText);
+
+    // dazzle ->  p-> prompt; p2 -> text
     var dazzle = document.querySelector(".dazzle");
     var p = document.createElement("p");
-    var text = document.createTextNode(JSON.stringify(response.result));
-    p.appendChild(text);
+    var p2 = document.createElement("p");
+
+    //
+    var prompt = document.createTextNode('Kernzinnen ophalen...');
+    var text = document.createTextNode('...');
+
+    //
+    p.appendChild(prompt);
     dazzle.appendChild(p);
+    p2.appendChild(text);
+    dazzle.appendChild(p2);
+
+    //
+    const response = await callPythonFunctionExtractiveSummarize(selectedText);
+    prompt.nodeValue = 'Kernzinnen uit geselecteerde tekst...';
+    text.nodeValue = JSON.stringify(response.result);
   }
 
+  //
   async function abstractiveSummarization() {
     var selectedText = window.getSelection().toString();
     const response = await callPythonFunctionAbstractiveSummarization(selectedText);
@@ -115,24 +177,10 @@
     dazzle.appendChild(p2);
   }
 
+  //
   async function emptyChat() {
-    console.log('log -- empty chat')
     const dazzleDiv = document.querySelector('.dazzle');
     dazzleDiv.innerHTML = '';
-  }
-
-  async function syntacticSimplification() {
-    var selectedText = window.getSelection().toString();
-    const response = await callPythonFunctionSyntacticSimplification(selectedText);
-    var dazzle = document.querySelector(".dazzle");
-    var p = document.createElement("p");
-    var p2 = document.createElement("p");
-    var text = document.createTextNode(JSON.stringify(response.result));
-    var prompt = document.createTextNode(JSON.stringify(response.prompt));
-    p.appendChild(prompt);
-    dazzle.appendChild(p)
-    p2.appendChild(text);
-    dazzle.appendChild(p2);
   }
 </script>
 

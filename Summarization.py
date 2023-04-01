@@ -31,12 +31,21 @@ def summarize_with_presets(full_text, presets):
 def extractive_summarization(full_text):
     from summarizer import Summarizer
     model = Summarizer()
+
+
+    """determining optimal number of sentences based on MMR"""
+    res = model.calculate_optimal_k(
+        full_text, 
+        k_max=10
+    )
+
+    """extracting key sentences"""
     result = model(
         body=full_text,
         max_length=700,
         min_length=100,
-        num_sentences=30,
-        return_as_list=True
+        num_sentences=res,
+        return_as_list=False
     )
 
     return result
