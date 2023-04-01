@@ -12,8 +12,9 @@ from pdfminer.high_level import extract_text, extract_pages
 from pdfminer.layout import LTTextContainer, LTChar
 from fpdf import FPDF
 from os.path import exists
-
-import openai
+from pdfminer.high_level import extract_text, extract_pages
+from pdfminer.layout import LTTextContainer, LTChar
+import os, fnmatch, openai
 
 COMPLETIONS_MODEL = "text-davinci-003"
 EMBEDDING_MODEL = "text-embedding-ada-002"
@@ -118,56 +119,59 @@ def extractive_summarization(full_text):
     return result
 
 def main_extractive_summary():
-    from pdfminer.high_level import extract_text, extract_pages
-    from pdfminer.layout import LTTextContainer, LTChar
-
-
-    import os
-    import fnmatch
-
     folder_path = "C:/hogeschool-gent/bachelorproef-nlp-tekstvereenvoudiging/scripts/experimenten/pdf/"
     file_list = os.listdir(folder_path)
     pdf_files = [f for f in file_list if fnmatch.fnmatch(f, "Original*.pdf")]
 
     for file in pdf_files:
-
-        all_pages = extract_pages(
-            pdf_file=folder_path + file,
-            page_numbers=None,
-            maxpages=999
-        )
-
-        t = get_full_text_dict(all_pages=all_pages)
-        t = get_full_clean_text(t)
-        t = extractive_summarization(' '.join(t))
-
-        sublist = [t[n:n+5] for n in range(0, len(t), 5)]
-
-        """
-        pdf = PDF(orientation='P', unit='mm', format='A4')
-        pdf.set_title('test')
-        pdf.set_author('test')
-        for i in range(0, len(sublist)):
-            data = io.StringIO()
-            data.write(unicode_normalize(' '.join(sublist[i])))
-            pdf.print_chapter(i+1, '', data)
-        pdf.set_author('Simply Flied')
-        pdf.output('test.pdf','F')
-        """
-
         fname = 'ExtractiveSum_' + str(file).split('_')[1]\
-                                            .split('.')[0]\
-                                            + '.txt'
+                                                .split('.')[0]\
+                                                + '.txt'
+        
+        print(f'starting ... {folder_path + fname} ...')
+        if not exists(folder_path + fname):
+            all_pages = extract_pages(
+                pdf_file=folder_path + file,
+                page_numbers=None,
+                maxpages=999
+            )
 
-        with open(fname, "w") as file:
-            for element in sublist:
-                file.write(" ".join(element) + "\n")
+            t = get_full_text_dict(all_pages=all_pages)
+            t = get_full_clean_text(t)
+            t = extractive_summarization(' '.join(t))
+
+            sublist = [t[n:n+5] for n in range(0, len(t), 5)]
+
+            """
+            pdf = PDF(orientation='P', unit='mm', format='A4')
+            pdf.set_title('test')
+            pdf.set_author('test')
+            for i in range(0, len(sublist)):
+                data = io.StringIO()
+                data.write(unicode_normalize(' '.join(sublist[i])))
+                pdf.print_chapter(i+1, '', data)
+            pdf.set_author('Simply Flied')
+            pdf.output('test.pdf','F')
+            """
+
+            
+
+            with open(fname, "w") as file:
+                for element in sublist:
+                    file.write(" ".join(element) + "\n")
 
 def prompt_gpt(text):
     prompt = f"""
     Prompt: 
     Parafraseer de zinnen in het Nederlands met eenvoudige woordenschat. De output moet aan volgende regels voldoen: zinnen zijn niet langer dan tien woorden, regelmatige woordenschat, schrijf cijfermateriaal voluit, schrijf acroniemen voluit vermijd tangconstructies, voorzetsel- en verwijswoorden
     Zinnen:
+    {text}
+    """
+
+    prompt = f"""
+    Prompt:
+    Simplify and paraphrase the next sentences in Dutch. The format is one continuous text. Don't use more than 500 Dutch words. Dutch sentences can't be longer than 10 words, use frequent Dutch vocabulary, write numbers and acronyms in full, ignore tang constructions, prepositions and pronouns.
+    Text:
     {text}
     """
 
@@ -189,26 +193,27 @@ def main_abstractive_summary():
         fname = 'AbstractiveSumm_' + str(file).split('_')[1]\
                                         .split('.')[0]\
                                         + '.txt'
-        print(f'starting ... {folder_path + fname} ...')
-        
-        all_pages = extract_pages(
-                pdf_file=folder_path + file,
-                page_numbers=None,
-                maxpages=999
-        )
+        print(f'Starting ... {folder_path + fname} ...')
 
-        t = get_full_text_dict(all_pages=all_pages)
-        t = get_full_clean_text(t)
-        
-        sublist = [t[n:n+5] for n in range(0, len(t), 5)]
+        if not exists(folder_path + fname):
+            all_pages = extract_pages(
+                    pdf_file=folder_path + file,
+                    page_numbers=None,
+                    maxpages=999
+            )
 
-        total = ""
-        for p in sublist:
-            r = prompt_gpt(' '.join(p))
-            total += r + '\n'
-        
-        with open(fname, "w", encoding="utf-8") as file:
-            file.write(str(total))
+            t = get_full_text_dict(all_pages=all_pages)
+            t = get_full_clean_text(t)
+            
+            sublist = [t[n:n+5] for n in range(0, len(t), 5)]
+
+            total = ""
+            for p in sublist:
+                r = prompt_gpt(' '.join(p))
+                total += r + '\n'
+            
+            with open(fname, "w", encoding="utf-8") as file:
+                file.write(str(total))
 
 
 
@@ -224,7 +229,7 @@ def main_hybrid_summary():
         
         print(f'starting ... {folder_path + fname} ...')
 
-        if not exists(folder_path + file):
+        if not exists(folder_path + fname):
             all_pages = extract_pages(
                 pdf_file=folder_path + file,
                 page_numbers=None,
@@ -246,6 +251,6 @@ def main_hybrid_summary():
             with open(fname, "w", encoding="utf-8") as file:
                 file.write(str(total))
     
-# main_extractive_summary()
-# main_hybrid_summary()
+main_extractive_summary()
+main_hybrid_summary()
 main_abstractive_summary()
