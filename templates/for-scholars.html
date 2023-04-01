@@ -45,7 +45,7 @@
       console.error(error);
     }
   };
-  
+
   //
   document.addEventListener('DOMContentLoaded', () => {
     const spans = document.querySelectorAll('.word');
@@ -58,7 +58,7 @@
           context = context + ' ' + child.textContent;
         }
 
-        
+
         const word = event.target.textContent;
         console.log(context, word);
         const response = await callPythonFunctionLookUp(word, context);
@@ -90,6 +90,9 @@
 
   async function extractiveSummarization() {
     var selectedText = window.getSelection().toString();
+    if (selectedText === "") {
+      selectedText = document.body.innerText;
+    }
     const response = await callPythonFunctionExtractiveSummarize(selectedText);
     var dazzle = document.querySelector(".dazzle");
     var p = document.createElement("p");
@@ -144,7 +147,6 @@
 </head>
 
 <body>
-
   {% for kw in keywords %}
   <span class="keyword">{{ kw }}</span>
   {% endfor %}
@@ -172,13 +174,10 @@
     <!--'chatbot'-->
     <div class="fixed-bottom">
       <div class="buttons">
-        <input type="button" value="Get Selection" onmousedown="getSelectedText()">
-        <input type="button" value="Eenvoudige woordenschat" onmousedown="lexicalSimplification()">
-        <input type="button" value="Eenvoudige grammatica" onmousedown="syntacticSimplification()">
-        <input type="button" value="Samenvatten" onmousedown="hybridSummarization()">
+        <input type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
         <input type="button" value="Wat zijn de belangrijkste zinnen?" onmousedown="extractiveSummarization()">
-        <input type="button" value="Schrijf dit in eigen woorden" onmousedown="abstractiveSummarization()">
-        <button id="explainWord" class="btn" onmousedown="getSelectedText()"><i class="fa-solid fa-book"></i></button>
+        <input type="button" value="Parafraseer dit" onmousedown="abstractiveSummarization()">
+        <button id="explainWord" class="btn"><i class="fa fa-book"></i></button>
         <button class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
       </div>
 
@@ -200,4 +199,5 @@
   });
 
 </script>
+
 </html>

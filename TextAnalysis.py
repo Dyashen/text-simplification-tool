@@ -33,7 +33,7 @@ def text_clean(text):
 """
 """
 def get_sentences(text):
-    nlp = spacy.load(dict.get(detect(sentence)))
+    nlp = spacy.load(dict.get(detect(text)))
     doc = nlp(text)
     sentences = []
     for sentence in doc.sents:

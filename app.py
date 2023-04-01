@@ -16,7 +16,7 @@ from spacy.matcher import PhraseMatcher
 #
 import Reader as read
 import Summarization as sum
-import LookUp as lu
+import Simplification as lu
 import TextAnalysis as ta
 
 app = Flask(__name__)
@@ -92,25 +92,68 @@ def teaching_tool():
         )
 
 """
+@returns prompt and word explanation from gpt-result
 """
 @app.route('/look-up-word',methods=['GET'])
 def look_up_word():
-    word = request.args.get('word')
-    context = request.args.get('context')
-    result, prompt = lu.look_up_word(word, context)
-    return jsonify(result=result, prompt=prompt)
+    try:
+        word = request.args.get('word')
+        context = request.args.get('context')
+        result, prompt = lu.look_up_word(word, context)
+        return jsonify(result=result, prompt=prompt)
+    except Exception as e:
+        return jsonify(
+            result='Je aanvraag kon niet verwerkt worden. :(',
+            prompt=e
+        )
 
+"""
+@returns prompt and simplified text from gpt-result
+"""
+@app.route('/syntactic-simplify', methods=['GET'])
+def syntactic_simplify():
+    try:
+        text = request.args.get('text')
+        prompt, result = lu.syntactic_simplify(text=text)
+        return jsonify(
+            result=result,
+            prompt=prompt
+        )
+    except Exception as e:
+        return jsonify(
+            result='Je aanvraag kon niet verwerkt worden :(',
+            prompt=e
+        )
+
+"""
+"""
+@app.route('/extract-text', methods=['GET'])
+def extract_sentences():
+    text = request.args.get('text')
+    prompt = 'todo'
+    result = sum.extractive_summarization(text)
+    return jsonify(prompt=prompt, result=result)
 
 """
 """
 @app.route('/generate-summary', methods=['GET', 'POST'])
 def generate_summary():
-    full_text = request.args.get('fullText')
-    if True or len(full_text) > 1900:
-        result = sum.extractive_summarization(full_text=full_text)
-    else:
-        result = sum.summarize_with_presets()
-    return jsonify(original=full_text, result=result)
+    try:
+        full_text = request.args.get('fullText')
+        if True or len(full_text) > 1900:
+            result = sum.extractive_summarization(full_text=full_text)
+        else:
+            result = sum.summarize_with_presets()
+        return jsonify(
+            original=full_text,
+            result=result
+            )
+    except Exception as e:
+        return jsonify(
+            result='Je aanvraag kon niet verwerkt worden :(',
+            prompt=e
+        )
+
 
 """
 """
@@ -127,17 +170,6 @@ def generate_glossary():
 
     return jsonify( 
         glossary=arr
-    )
-
-@app.route('/look-up-word', methods=['GET','POST'])
-def explain_word():
-    word = request.args.get('word')
-    context = request.args.get('context')
-    result, prompt = lu.look_up_word(word, context)
-
-    return jsonify(
-        result=result,
-        prompt=prompt
     )
 
 """
