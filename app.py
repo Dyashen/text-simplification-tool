@@ -21,9 +21,6 @@ import TextAnalysis as ta
 
 app = Flask(__name__)
 
-dutch_spacy_model = "nl_core_news_md"
-
-
 """
 returns homepage
 """
@@ -35,10 +32,9 @@ def home():
 returns webpage
 """
 @app.route('/for-teachers', methods=['GET','POST'])
-def teaching_tool():
+def analysing_choosing_for_teachers():
     pdf = request.files['pdf']
     pdf_data = BytesIO(pdf.read()) 
-
     all_pages = extract_pages(
         pdf_data,
         page_numbers=None,
@@ -64,30 +60,36 @@ def teaching_tool():
 @return 
 """
 @app.route('/for-scholars', methods=['GET','POST'])
-def show_pdf():
-    """"""
-    pdf = request.files['pdf']
-    pdf_data = BytesIO(pdf.read())
-    all_pages = extract_pages(
-        pdf_data,
-        page_numbers=None,
-        maxpages=999
-    )
+def teaching_tool():
+    try:    
+        """"""
+        pdf = request.files['pdf']
+        pdf_data = BytesIO(pdf.read())
+        all_pages = extract_pages(
+            pdf_data,
+            page_numbers=None,
+            maxpages=999
+        )
 
-    """"""
-    full_text = read.get_full_text_dict(all_pages)
-    full_text_new = read.get_full_text_site(full_text)
+        """"""
+        full_text = read.get_full_text_dict(all_pages)
+        full_text_new = read.get_full_text_site(full_text)
 
-    """"""
-    return render_template(
-        'for-scholars.html',
-        pdf=full_text_new, 
-        lang='nl', 
-        title='voorbeeld titel', 
-        subject='voorbeeld van onderwerp',
-        statistieken=''
-    )
-
+        """"""
+        return render_template(
+            'for-scholars.html',
+            pdf=full_text_new, 
+            lang='nl', 
+            title='voorbeeld titel', 
+            subject='voorbeeld van onderwerp',
+            statistieken=''
+        )
+    except Exception as e:
+        return render_template(
+            'error.html',
+            error=e
+            
+        )
 
 """
 """
