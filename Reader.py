@@ -9,7 +9,12 @@ from langdetect import detect
 
 
 dutch_spacy_model = "nl_core_news_md"
-english_spacy_model = "en_core_word_md"
+english_spacy_model = "en_core_web_sm"
+
+dict = {
+    'nl':'nl_core_news_md',
+    'en':'en_core_web_sm'
+}
 
 """
 input: generator-object
@@ -33,7 +38,7 @@ def get_full_text_plain(all_pages):
 def get_full_clean_text(full_text):
     cleaned_text = []
     for i in full_text:
-        nlp = spacy.load(dutch_spacy_model) if detect(i) == 'nl' else spacy.load(english_spacy_model)
+        nlp = spacy.load(dict.get(detect(i)))
         doc = nlp(i)
         sentences = doc.sents
         for s in sentences:
@@ -67,9 +72,8 @@ def get_full_text_site(full_text):
     for i in range (len(full_text)):
 
         page = []
-        nlp = spacy.load(dutch_spacy_model) if detect(full_text[i]) == 'nl' else spacy.load(english_spacy_model)
+        nlp = spacy.load(dict.get(detect(full_text[i])))
         doc = nlp(full_text[i])
-
         sentences = doc.sents
 
         paragraph = []

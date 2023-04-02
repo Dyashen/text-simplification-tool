@@ -7,9 +7,6 @@ import pandas as pd
 
 
 folder_path = 'scripts\experimenten\pdf'
-# dutch_spacy_model = "nl_core_news_md"
-# english_spacy_model = "en_core_web_sm"
-
 dict = {
     'nl':'nl_core_news_md',
     'en':'en_core_web_sm'
@@ -39,13 +36,6 @@ def get_sentences(text):
     for sentence in doc.sents:
         sentences.append(str(sentence))
     return sentences
-
-"""
-TODO
-"""
-def get_key_words():
-    pass
-
 
 """
 Dataframe opbouwen voor een pdf. Hieronder wordt de zin, bron en zinlengte opgeslaan.
