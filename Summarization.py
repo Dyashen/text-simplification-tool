@@ -1,5 +1,8 @@
 import configparser, openai
+from googletrans import Translator
+from langdetect import detect
 
+""""""
 COMPLETIONS_MODEL = "text-davinci-003"
 EMBEDDING_MODEL = "text-embedding-ada-002"
 try:
@@ -8,6 +11,12 @@ try:
     openai.api_key = config['openai']['api_key']
 except:
     openai.api_key = 'demo'
+
+""""""
+try:
+    LANG = 'nl'
+except:
+    LANG = 'nl'
 
 """
 @retuns full-text
@@ -33,6 +42,13 @@ def summarize_with_presets(full_text, presets):
         return 'Open AI outage of problemen met API-sleutel', e
         
 
+"""
+@returns 
+"""
+def translate_sentence(sentence):
+    translator  = Translator()
+    result = translator.translate(text=sentence, dest=LANG)
+    return result.text # result.origin
 
 
 """
@@ -56,9 +72,20 @@ def extractive_summarization(full_text):
             max_length=700,
             min_length=100,
             num_sentences=res,
-            return_as_list=False
+            return_as_list=True
         )
-        return result
+
+        new = []
+        try:
+            for i in result:
+                if detect(i) != 'nl':
+                    new.append(translate_sentence(i))
+                else:
+                    new.append(i)
+            return ' '.join(new)
+        except Exception as e:
+            return f'Problemen met Google Translate {e}'
+
     
     except Exception as e:
         return f'Problemen met BERT {e}'

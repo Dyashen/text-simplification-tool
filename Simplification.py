@@ -55,9 +55,8 @@ def syntactic_simplify(text):
                 top_p=0.9,
                 stream=False
         )["choices"][0]["text"].strip(" \n")
-
-        return prompt, result
+        return result
     except Exception as e:
-        return 'Open AI outage of problemen met API-sleutel', e
+        return f'Open AI outage of problemen met API-sleutel {e}'
 
     

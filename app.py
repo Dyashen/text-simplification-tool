@@ -114,15 +114,13 @@ def look_up_word():
 def syntactic_simplify():
     try:
         text = request.args.get('text')
-        prompt, result = lu.syntactic_simplify(text=text)
+        result = lu.syntactic_simplify(text=text)
         return jsonify(
-            result=result,
-            prompt=prompt
+            result=result
         )
     except Exception as e:
         return jsonify(
-            result='Je aanvraag kon niet verwerkt worden :(',
-            prompt=e
+            result=f'Je aanvraag kon niet verwerkt worden :( {e}'
         )
 
 """
