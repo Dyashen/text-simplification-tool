@@ -17,8 +17,9 @@ except:
 def look_up_word(word, context):
     try:
         prompt = f"""
-        Leg het begrip '{word}' eenvoudig uit in de context van "{context}"? 
-        Lengte: max. 1 zin. Geef 3 eenvoudigere synoniemen.
+        Provide a 10-word Dutch definition and 3 Dutch synonyms for the Dutch word: {word}
+        context:
+        {context}
         """
 
         result = openai.Completion.create(
@@ -43,7 +44,7 @@ def syntactic_simplify(text):
         max_words = 10
         prompt = f"""
         prompt:
-        Make the sentences shorter than {max_words} words. Remove pronouns, separable words, tang constructions en proverb expressions. Translate these to Dutch. Simplify the sentences without losing the meaning of each. The format is one Dutch continuous text.
+        Simplify this sentence by removing tangential constructions, proverbs, separable words, and pronouns, and ensure that the resulting sentence is under {max_words} words. Afterwards, translate this sentence to Dutch.
         context:
         {text}
         """
