@@ -54,14 +54,11 @@ def translate_sentence(sentence):
 """
 @returns list of sentences
 """
-def extractive_summarization(full_text):
+def extractive_summarization(full_text, summarizer):
 
     try:    
-        from summarizer import Summarizer
-        model = Summarizer()
-
         """determining optimal number of sentences based on MMR"""
-        res = model.calculate_optimal_k(
+        res = summarizer.calculate_optimal_k(
             full_text, 
             k_max=10
         )

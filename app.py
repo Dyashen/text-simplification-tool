@@ -12,6 +12,7 @@ from io import BytesIO
 from langdetect import detect
 from summarizer import Summarizer
 from spacy.matcher import PhraseMatcher
+from transformers import XLMRobertaTokenizer, XLMRobertaModel
 
 #
 import Reader as read
@@ -27,6 +28,18 @@ returns homepage
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
+
+
+""""""
+tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-base')
+model = XLMRobertaModel.from_pretrained('pytorch_model.bin')
+summarizer = Summarizer(custom_model=model, custom_tokenizer=tokenizer)
+
+@app.before_first_request
+def load_model():
+    global summarizer
+    summarizer = Summarizer(custom_model=model, custom_tokenizer=tokenizer)
+
 
 """
 returns webpage
@@ -128,8 +141,7 @@ def syntactic_simplify():
 @app.route('/extract-text', methods=['GET'])
 def extract_sentences():
     text = request.args.get('text')
-    prompt = 'todo'
-    result = sum.extractive_summarization(text)
+    result = sum.extractive_summarization(full_text=text, summarizer=summarizer)
     return jsonify(prompt=prompt, result=result)
 
 """
