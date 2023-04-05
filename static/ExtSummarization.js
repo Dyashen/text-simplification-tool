@@ -33,6 +33,9 @@ async function extractiveSummarization() {
 
   //
   const response = await callPythonFunctionExtractiveSummarize(selectedText);
+
+  console.log(response);
+
   prompt.nodeValue = "Kernzinnen uit geselecteerde tekst...";
   text.nodeValue = JSON.stringify(response.result);
 }

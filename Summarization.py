@@ -64,7 +64,7 @@ def extractive_summarization(full_text, summarizer):
         )
 
         """extracting key sentences"""
-        result = model(
+        result = summarizer(
             body=full_text,
             max_length=700,
             min_length=100,

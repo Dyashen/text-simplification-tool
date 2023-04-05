@@ -31,14 +31,10 @@ def home():
 
 
 """"""
-tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-base')
-model = XLMRobertaModel.from_pretrained('pytorch_model.bin')
-summarizer = Summarizer(custom_model=model, custom_tokenizer=tokenizer)
-
 @app.before_first_request
 def load_model():
     global summarizer
-    summarizer = Summarizer(custom_model=model, custom_tokenizer=tokenizer)
+    summarizer = Summarizer()
 
 
 """
@@ -141,8 +137,11 @@ def syntactic_simplify():
 @app.route('/extract-text', methods=['GET'])
 def extract_sentences():
     text = request.args.get('text')
-    result = sum.extractive_summarization(full_text=text, summarizer=summarizer)
-    return jsonify(prompt=prompt, result=result)
+    result = sum.extractive_summarization(
+        full_text=text, 
+        summarizer=summarizer
+    )
+    return jsonify(result=result)
 
 """
 """
