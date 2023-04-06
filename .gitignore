@@ -152,3 +152,4 @@ cython_debug/
 #.idea/
 config.ini
 pytorch_model.bin
+.pyc

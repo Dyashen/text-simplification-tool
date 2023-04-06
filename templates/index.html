@@ -11,6 +11,11 @@
 </head>
 
 <body>
+
+  <div class="buttons">
+    <input type="button" value="Kleur wijzigen" onmousedown="changeBackgroundColor('red')">
+  </div>
+
   <h1>Prototype voor tekstvereenvoudiging</h1>
 
   <div class="container">
@@ -33,5 +38,29 @@
     </div>
   </div>
 </body>
+
+<script>
+
+//
+const callPythonFunctionChangeColor = async (text) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/change-color?color=${text}`
+    );
+
+    console.log('change-', response)
+    return (result = await response.json());
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+//
+async function changeBackgroundColor(color) {
+  const response = await callPythonFunctionChangeColor(color);
+  document.body.style.backgroundColor = response.color;
+}
+
+</script>
 
 </html>

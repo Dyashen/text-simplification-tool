@@ -31,10 +31,11 @@
 
     <!---->
     <div class="right-container">
-      <!---->
+      <!--
       <div class="buttons">
         <input type="button" value="Get Selection" onmousedown="getSelectedText()">
       </div>
+    -->
 
       <div class="extra-info">
         <p>taal: {{lang}}</p><br>
@@ -48,9 +49,6 @@
 
         <!--Statistieken voor de leerkracht-->
         <h2>Statistieken voor de leerkracht</h2>
-        {% for s in statistics %}
-          {{ s }}
-        {% endfor %}
 
         <!--Tools voor de leerkracht-->
         <h2>Tools voor de leerkracht</h2>
@@ -60,8 +58,8 @@
             id="checkboxDeleteSents"><br>
           <label for="checkboxAddWordToGlossary">Woord toevoegen aan woordenlijst</label><input name="actions"
             type="radio" id="checkboxAddWordToGlossary"><br>
-          
-            <label for="saveMethod">Opslaan als:</label>
+
+          <label for="saveMethod">Opslaan als:</label>
           <select multiple name="saveMethod" id="saveMethod">
             <option value="saveMethodWord">Word</option>
             <option value="saveMethodPDF">PDF</option>

@@ -1,5 +1,5 @@
 # Web-app imports
-from flask import Flask, render_template,request,jsonify
+from flask import Flask, render_template,request,jsonify,session
 
 # PDF Miner
 from pdfminer.high_level import extract_pages
@@ -12,7 +12,6 @@ from io import BytesIO
 from langdetect import detect
 from summarizer import Summarizer
 from spacy.matcher import PhraseMatcher
-from transformers import XLMRobertaTokenizer, XLMRobertaModel
 
 #
 import Reader as read
@@ -30,12 +29,23 @@ def home():
     return render_template('index.html')
 
 
+@app.route('/change-color', methods=['GET'])
+def change_color():
+    try:
+        if 'color' in session:
+            session['color'] = 'red'
+            print(session['color'])
+        return jsonify(color=session['color'])
+    except:
+        return jsonify(color='white')
+
+
 """"""
 @app.before_first_request
 def load_model():
+    print('--- first load ---')
     global summarizer
     summarizer = Summarizer()
-
 
 """
 returns webpage
@@ -53,16 +63,20 @@ def analysing_choosing_for_teachers():
     """[page, page, page, ..., page]"""
     full_text = read.get_full_text_dict(all_pages)
     full_text_new = read.get_full_text_site(full_text)
+
+    """
     f = read.get_full_text_plain(all_pages)
     stats = ta.get_statistics(f)
+    """
 
     return render_template(
         'for-teachers.html', 
         pdf=full_text_new, 
         lang='nl', 
         title='voorbeeld titel', 
-        subject='voorbeeld van onderwerp',
-        statistieken=stats
+        subject='voorbeeld van onderwerp'
+        #, statistics=test
+        #, statistieken=stats
     )
 
 """
@@ -97,7 +111,6 @@ def teaching_tool():
         return render_template(
             'error.html',
             error=e
-            
         )
 
 """
@@ -152,7 +165,8 @@ def generate_summary():
         if True or len(full_text) > 1900:
             result = sum.extractive_summarization(full_text=full_text)
         else:
-            result = sum.summarize_with_presets()
+            extracted_text = sum.extractive_summarization(full_text=full_text)
+            result = sum.summarize_with_presets(full_text=extracted_text)
         return jsonify(
             original=full_text,
             result=result
