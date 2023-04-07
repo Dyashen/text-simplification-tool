@@ -15,7 +15,7 @@ from spacy.matcher import PhraseMatcher
 
 #
 import Reader as read
-import Summarization as sum
+from Summarization import Summarization
 from Simplification import Simplification
 import TextAnalysis as ta
 
@@ -82,18 +82,19 @@ def analysing_choosing_for_teachers():
     full_text = read.get_full_text_dict(all_pages)
     full_text_new = read.get_full_text_site(full_text)
 
-    """
-    f = read.get_full_text_plain(all_pages)
-    stats = ta.get_statistics(f)
-    """
+    try:
+        f = read.get_full_text_plain(all_pages)
+        stats = ta.get_statistics(f)
+    except:
+        stats = ['test','test']
 
     return render_template(
         'for-teachers.html', 
         pdf=full_text_new, 
         lang='nl', 
         title='voorbeeld titel', 
-        subject='voorbeeld van onderwerp'
-        #, statistics=test
+        subject='voorbeeld van onderwerp',
+        statistics=stats
         #, statistieken=stats
     )
 
@@ -115,6 +116,7 @@ def teaching_tool():
         """"""
         full_text = read.get_full_text_dict(all_pages)
         full_text_new = read.get_full_text_site(full_text)
+        print('ok')
 
         """"""
         return render_template(
@@ -138,14 +140,19 @@ def teaching_tool():
 def look_up_word():
     try:
         api_key = session.get(API_KEY_SESSION_NAME, None) 
+        lu = Simplification(api_key)
 
         word = request.args.get('word')
         context = request.args.get('context')
-        result, prompt = lu.look_up_word(
-            word=word, 
-            context=context, 
-            api_key=api_key
-        )
+
+        result = lu.look_up_word_rapidapi()
+
+        if result is None:
+            result, prompt = lu.look_up_word_gpt(
+                word=word, 
+                context=context, 
+                api_key=api_key
+            )
         return jsonify(result=result, prompt=prompt)
     except Exception as e:
         return jsonify(
@@ -182,6 +189,20 @@ def extract_sentences():
         summarizer=summarizer
     )
     return jsonify(result=result)
+
+
+"""
+"""
+@app.route('/summarise-with-presets',methods=['GET','POST'])
+def summarise_text():
+    try:
+        full_text = request.args
+        for i in full_text:
+            print(i)
+    except:
+        print('shame')
+
+    return render_template(full_text)
 
 """
 """

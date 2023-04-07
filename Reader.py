@@ -38,7 +38,14 @@ def get_full_text_plain(all_pages):
 def get_full_clean_text(full_text):
     cleaned_text = []
     for i in full_text:
-        nlp = spacy.load(dict.get(detect(i)))
+
+        lang = detect(full_text[i])
+
+        if lang in dict:
+            nlp = spacy.load(dict.get(lang))
+        else:
+            nlp = spacy.load(english_spacy_model)
+
         doc = nlp(i)
         sentences = doc.sents
         for s in sentences:
@@ -56,11 +63,11 @@ def get_full_text_dict(all_pages):
     for page_layout in all_pages:
         total_page = ""
         for element in page_layout:
+
             if isinstance(element, LTTextContainer):
                 for text_line in element:
                     total_page += text_line.get_text()
         full_text.append(total_page)
-
     return full_text
 
 
@@ -72,7 +79,14 @@ def get_full_text_site(full_text):
     for i in range (len(full_text)):
 
         page = []
-        nlp = spacy.load(dict.get(detect(full_text[i])))
+        
+        lang = detect(full_text[i])
+
+        if lang in dict:
+            nlp = spacy.load(dict.get(lang))
+        else:
+            nlp = spacy.load(english_spacy_model)
+
         doc = nlp(full_text[i])
         sentences = doc.sents
 

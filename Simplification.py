@@ -1,4 +1,5 @@
-import configparser, openai
+import configparser, openai, requests, json
+
 """"""
 COMPLETIONS_MODEL = "text-davinci-003"
 EMBEDDING_MODEL = "text-embedding-ada-002"
@@ -16,12 +17,16 @@ class Simplification:
         else:
             openai.api_key = key
 
-        print(openai.api_key)
+        global rapidapikey
+        try:
+            rapidapikey = config['rapidapi']['api_key']
+        except:
+            rapidapikey = 'no_key_submitted'
 
     """
     @returns prompt, result from gpt 
     """
-    def look_up_word(self, word, context):
+    def look_up_word_gpt(self, word, context):
         try:
             prompt = f"""
             Provide a 10-word Dutch definition and 3 Dutch synonyms for the Dutch word: {word}
@@ -41,6 +46,37 @@ class Simplification:
         
         except Exception as e:
             return 'Open AI outage of problemen met API-sleutel', e 
+        
+
+    """
+    """
+    def look_up_word_rapidapi(word, sentence, nlp_model):
+        try:
+            url = "https://lexicala1.p.rapidapi.com/search"
+            doc = nlp_model(sentence)
+            for token in doc:
+                if word == token.text:
+                    tag = token.pos_
+
+            querystring = {
+                "text":str(word),
+                "monosemous":"true",
+                "language":"nl",
+                "pos":str(tag).lower()
+            }
+
+            headers = {
+                "X-RapidAPI-Key": str(rapidapikey),
+                "X-RapidAPI-Host": "lexicala1.p.rapidapi.com"
+            }
+
+            response = requests.request("GET", url, headers=headers, params=querystring)
+            data = json.loads(json.dumps(response))
+            return data['results'][0]['senses'][0]['definition']
+        except:
+            return None
+        
+    
 
         
     """
@@ -67,5 +103,3 @@ class Simplification:
             return result
         except Exception as e:
             return f'Open AI outage of problemen met API-sleutel {e}'
-
-    
