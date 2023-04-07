@@ -152,5 +152,5 @@ cython_debug/
 #.idea/
 config.ini
 pytorch_model.bin
-.pyc
-__pycache__
+*.pyc
+*.cpython-310.pyc
