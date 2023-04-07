@@ -16,10 +16,15 @@ from spacy.matcher import PhraseMatcher
 #
 import Reader as read
 import Summarization as sum
-import Simplification as lu
+from Simplification import Simplification
 import TextAnalysis as ta
 
+MODEL_PATH = "pytorch_model.bin"
+API_KEY_SESSION_NAME = 'api_key'
+COLOR_SESSION_NAME = 'color'
+
 app = Flask(__name__)
+app.secret_key = "super secret key"
 
 """
 returns homepage
@@ -32,20 +37,33 @@ def home():
 @app.route('/change-color', methods=['GET'])
 def change_color():
     try:
-        if 'color' in session:
-            session['color'] = 'red'
-            print(session['color'])
-        return jsonify(color=session['color'])
-    except:
+        color = request.args.get(COLOR_SESSION_NAME)
+        session['color'] = color
+        return jsonify(color=session[COLOR_SESSION_NAME])
+    except Exception as e:
         return jsonify(color='white')
 
+"""
+"""
+@app.route('/set-gpt-api-key', methods=['GET'])
+def change_api_key():
+    try:
+        api_key = request.args.get('key')
+        session[API_KEY_SESSION_NAME] = api_key
+        return jsonify(api_key=session[API_KEY_SESSION_NAME])
+    except Exception as e:
+        return jsonify(error=e)
 
-""""""
+
+"""
+"""
 @app.before_first_request
 def load_model():
     print('--- first load ---')
     global summarizer
-    summarizer = Summarizer()
+    summarizer = Summarizer(
+        #MODEL_PATH
+    )
 
 """
 returns webpage
@@ -119,13 +137,19 @@ def teaching_tool():
 @app.route('/look-up-word',methods=['GET'])
 def look_up_word():
     try:
+        api_key = session.get(API_KEY_SESSION_NAME, None) 
+
         word = request.args.get('word')
         context = request.args.get('context')
-        result, prompt = lu.look_up_word(word, context)
+        result, prompt = lu.look_up_word(
+            word=word, 
+            context=context, 
+            api_key=api_key
+        )
         return jsonify(result=result, prompt=prompt)
     except Exception as e:
         return jsonify(
-            result='Je aanvraag kon niet verwerkt worden. :(',
+            result=f'Error {e}.',
             prompt=e
         )
 
@@ -135,14 +159,17 @@ def look_up_word():
 @app.route('/syntactic-simplify', methods=['GET'])
 def syntactic_simplify():
     try:
+        api_key = session.get(API_KEY_SESSION_NAME, None) 
         text = request.args.get('text')
-        result = lu.syntactic_simplify(text=text)
+
+        sim = Simplification(api_key)
+        result = sim.syntactic_simplify(text)
         return jsonify(
             result=result
         )
     except Exception as e:
         return jsonify(
-            result=f'Je aanvraag kon niet verwerkt worden :( {e}'
+            result=f'Error: {e}'
         )
 
 """

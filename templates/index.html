@@ -13,8 +13,11 @@
 <body>
 
   <div class="buttons">
-    <input type="button" value="Kleur wijzigen" onmousedown="changeBackgroundColor('red')">
+    <!--<input type="button" value="Kleur wijzigen" onmousedown="changeBackgroundColor('red')">-->
+    <input type="color" id="favcolor" name="favcolor" value="#ff0000" onmousedown="changeBackgroundColor(this.value)">
   </div>
+
+  
 
   <h1>Prototype voor tekstvereenvoudiging</h1>
 
@@ -26,6 +29,10 @@
         <input type="file" id="pdf" name="pdf"><br><br>
         <input type="submit" value="View PDF">
       </form>
+
+      <form action="/for-teachers" method="post">
+        <textarea name="" id="" cols="30" rows="10"></textarea>
+      </form>
     </div>
 
     <div class="container-index">
@@ -35,10 +42,20 @@
         <input type="file" id="pdf" name="pdf"><br><br>
         <input type="submit" value="View PDF">
       </form>
+
+      <form action="/for-teachers" method="post">
+        <textarea name="" id="" cols="30" rows="10"></textarea>
+      </form>
+
     </div>
+
+    <div class="container-index">
+      <h2>Instellingen</h2>
+      <button onclick="setGPTAPIKey()">GPT API KEY</button>
+    </div>
+
   </div>
 </body>
-
 <script>
 
 //
@@ -59,6 +76,28 @@ const callPythonFunctionChangeColor = async (text) => {
 async function changeBackgroundColor(color) {
   const response = await callPythonFunctionChangeColor(color);
   document.body.style.backgroundColor = response.color;
+}
+
+//
+const callPythonFunctionChangeKey = async (key) => {
+  try{
+    const response = await fetch(
+      `http://localhost:5000/set-gpt-api-key?key=${key}`
+    );
+    console.log('change-', response);
+    return (result = await response.json());
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+async function setGPTAPIKey(){
+  var key = prompt('geef sleutel in');
+  if(key != null){
+    const response = await callPythonFunctionChangeKey(key);
+    console.log('gekregen antwoord'+response.api_key)
+  }
 }
 
 </script>
