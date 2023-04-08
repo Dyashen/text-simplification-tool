@@ -3,12 +3,16 @@ import subprocess, io, os, pypandoc
 class Creator():
 
     """"""
-    def create_header(self, title):
+    def create_header(self, title, margin=0.5, fontsize=14):
         with open('file.md', 'w', encoding='utf-8') as f:
             f.write("---\n")
             f.write(f"title: Simplified version of {title}\n")
             f.write("mainfont: Montserrat-Regular.ttf\n")
             f.write("titlefont: Montserrat-Black.ttf\n")
+            f.write(f'date: June 1, 2022\n')
+            f.write(f'document: article\n')
+            f.write(f'geometry: margin={margin}in\n')
+            f.write(f'fontsize: {fontsize}pt\n')
             f.write("---\n")
 
     """"""
