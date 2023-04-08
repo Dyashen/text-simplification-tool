@@ -33,14 +33,17 @@
 
     <!---->
     <div class="right-container">
-      <div class="extra-info">
-        <p>taal: {{lang}}</p><br>
-        <p>titel: {{title}}</p><br>
-        <p>onderwerp: {{subject}}</p><br>
-      </div>
+
 
       <!---->
       <form action="/generate-summary" method="post">
+
+        <div class="extra-info">
+          <p>taal: {{lang}}</p><br>
+          <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10">titel: {{title}}</textarea>
+          <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="10">onderwerp: {{subject}}</textarea>
+        </div>
+
         <!--Statistieken voor de leerkracht-->
         <h2>Statistieken voor de leerkracht</h2>
         {% for s in statistics %}
@@ -132,7 +135,7 @@
 
         <textarea hidden name="fullText" id="fullText" cols="30" rows="10"></textarea>
 
-        <button type="submit" value="Samenvatten" id="summarize-with-presets-button">
+        <button disabled  type="submit" value="Samenvatten" id="summarize-with-presets-button">
           Volledig document samenvatten
         </button>
 
@@ -146,6 +149,20 @@
   </div>
 </body>
 <script>
+
+  /*
+  POS-tag
+  */
+const callPythonCallPOSTag = async (word, context) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/get-pos-tag?word=${word}&context=${context}`
+    );
+    return (result = await response.json());
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   /*
   Glossary-lijst aanvullen met woord
@@ -165,7 +182,9 @@
               context = context + " " + child.textContent;
             };
 
-            console.log('context');
+            const response = await callPythonCallPOSTag(pTag.innerHTML, context);
+            var pos_tag = JSON.stringify(response.pos);
+            console.log(pos_tag);
 
             var textarea = document.getElementById("glossaryList");
             pTag.style.backgroundColor = "black";
@@ -173,7 +192,7 @@
             pTag.style.fontWeight = "bold";
             var page = pTag.parentNode.parentNode.parentNode;
             var pageNumber = page.querySelector('h1').textContent;
-            textarea.value += pTag.innerHTML + ':' + pageNumber + ':' + context + "\n";
+            textarea.value += pTag.innerHTML + ':' + pageNumber + ':' + pos_tag + "\n";
           }
         })
       })
