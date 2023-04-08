@@ -13,6 +13,7 @@ try:
 except:
     openai.api_key = 'demo'
 
+
 """"""
 try:
     LANG = 'nl'
@@ -30,6 +31,12 @@ class Summarization:
             openai.api_key = config['openai']['api_key']
         else:
             openai.api_key = key
+
+        global rapidapikey
+        try:
+            rapidapikey = config['rapidapi']['api_key']
+        except:
+            rapidapikey = 'no_key_submitted'
 
     """
     @retuns full-text
@@ -75,7 +82,7 @@ class Summarization:
             }
             headers = {
                 "content-type": "application/json",
-                "X-RapidAPI-Key": "0f0d0ed940msh8d37fb211aa7318p1a2bacjsn7c8a4868c477",
+                "X-RapidAPI-Key": str(rapidapikey),
                 "X-RapidAPI-Host": "gpt-summarization.p.rapidapi.com"
             }
             response = requests.request("POST", url, json=payload, headers=headers)
@@ -194,7 +201,7 @@ class Summarization:
             querystring = {"text":str(word[0]),"language":"nl","pos":str(word[1])}
 
             headers = {
-                "X-RapidAPI-Key": "0f0d0ed940msh8d37fb211aa7318p1a2bacjsn7c8a4868c477",
+                "X-RapidAPI-Key": str(rapidapikey),
                 "X-RapidAPI-Host": "lexicala1.p.rapidapi.com"
             }
 
