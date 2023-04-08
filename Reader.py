@@ -80,7 +80,10 @@ def get_full_text_site(full_text):
 
         page = []
         
-        lang = detect(full_text[i])
+        try:
+            lang = detect(full_text[i])
+        except:
+            pass
 
         if lang in dict:
             nlp = spacy.load(dict.get(lang))

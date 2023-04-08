@@ -12,11 +12,28 @@ dict = {
     'en':'en_core_web_sm'
 }
 
-
+"""
+"""
 def get_spacy_nlp_model(sentence):
     return spacy.load(
         dict.get(detect(sentence))
     )
+
+
+"""
+"""
+def get_spacy_pos_tag(word, sentence):
+    nlp_model = get_spacy_nlp_model(sentence=sentence)
+    doc = nlp_model(sentence)
+    for token in doc:
+        if word == token.text:
+            tag = token.pos_
+    
+    if tag is None:
+        return 'noun'
+    else:
+        return tag
+
 
 
 """

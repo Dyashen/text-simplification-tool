@@ -119,7 +119,6 @@ def teaching_tool():
         """"""
         full_text = read.get_full_text_dict(all_pages)
         full_text_new = read.get_full_text_site(full_text)
-        print('ok')
 
         """"""
         return render_template(
@@ -194,104 +193,76 @@ def extract_sentences():
     return jsonify(result=result)
 
 
+@app.route('/get-pos-tag', methods=['GET','POST'])
+def get_pos_tag():
+    try:
+        word = request.args.get('word')
+        sentence = request.args.get('context')
+        pos_tag = ta.get_spacy_pos_tag(
+            word=word,
+            sentence=sentence
+        ).lower()
+        return jsonify(pos=pos_tag)
+    except Exception as e:
+        return jsonify(pos='noun')
+
+
+
 """
 """
 @app.route('/generate-summary', methods=['GET', 'POST'])
 def generate_summary():
     try:
+        api_key = session.get(API_KEY_SESSION_NAME, None) 
+        sum = Summarization(api_key)
 
         """
+        #title
         """
         title = request.form.get('title')
 
         """
-        glossary
+        #glossary
         """
         wordlist = request.form.get('glossaryList')
-        wordlist = wordlist.strip(' ').split('\n')
-
-        arr = []
-        for field in wordlist:
-            word = field.split(':')[0]
-            position = field.split(':')[1]
-            sentence = field.split(':')[2]
-            
-            # TODO zin bekijken en kijken welke tag er moet worden gebruikt
-            pos_tag = ''
-            arr.append(word, pos_tag)
-
-
-        glossary = sum.generate_glossary(list=wordlist)
-
-        
+        wordlist = wordlist.strip(' ')\
+                           .split('\n')
 
         """
-        volledige tekst
         """
-        full_text = request.args.post('fullText')
-        result_full_text = sum.generate_summary(fullText=full_text, summarizer=summarizer)
+        if len(wordlist) != 0:
+            arr = []
+            for field in wordlist:
+                if len(field.split(':'))>1:
+                    word = field.split(':')[0]
+                    pos = field.split(':')[2]
+                    arr.append([word, pos])
+            glossary = sum.generate_glossary(list=arr)
+        else:
+            glossary = [[]]
+
+        """
+        #volledige tekst
+        """
+        full_text = request.form.get('fullText')
+        full_text = sum.generate_summary(fullText=full_text, summarizer=summarizer)
 
         Creator().create_pdf(
             title=title, 
             list=glossary, 
-            full_text=result_full_text
+            full_text=full_text
         )
 
         return send_file(
             path_or_file='output.pdf', 
             as_attachment=True
         )
+    
     except Exception as e:
-        return jsonify(
-            result='Je aanvraag kon niet verwerkt worden :(',
-            prompt=e
+        return render_template(
+            'error.html',
+            error=f'Problem app.py: {e}'
         )
-
-
-"""
-"""
-@app.route('/generate-glossary', methods=['GET','POST'])
-def generate_glossary():
-    glossary = request.form.get('glossaryList')
-
-    words = glossary.split('\n')
-    grouped_words = [words[i:i+5] for i in range(0, len(words), 5)]
-
-    arr = []
-    for set in grouped_words:
-        arr.append(sum.generate_glossary_for_set(set))
-
-    return jsonify( 
-        glossary=arr
-)
-
-
-"""
-"""
-@app.route('/convert', methods=['GET','POST'])
-def generate_pdf():
-
-    # title = request.form.get('title')
-    # wordlist = request.form.get('glossaryList')
-
-    title = 'AI voor tekstvereenvoudiging'
-    wordlist = [['test','foo'],['foo','bar'], ['bar','test']]
-    full_text = """
-    Mijn droom is dat dit stuk software werkt. Ik wil absoluut niets anders. Dat is mijn laatste wens. \n
-    Als tweede wens hoop ik om ooit mijn PhD te behalen, ongeacht mijn achtergrond en gebrekkerige steun. Ik ga nooit mijn hoofddoel vergeten. \n
-    """
-
-    Creator().create_pdf(
-        title=title, 
-        list=wordlist, 
-        full_text=full_text
-    )
-
-    return send_file(
-        path_or_file='output.pdf', 
-        as_attachment=True
-    )
-
 
 """
 """

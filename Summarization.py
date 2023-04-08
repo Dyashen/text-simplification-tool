@@ -67,7 +67,9 @@ class Summarization:
     """
     def translate_sentence(self, sentence):
         translator  = Translator()
-        result = translator.translate(text=sentence, dest=LANG)
+        result = translator.translate(
+            text=sentence,
+            dest=LANG)
         return result.text # result.origin
 
 
@@ -85,7 +87,9 @@ class Summarization:
                 "X-RapidAPI-Key": str(rapidapikey),
                 "X-RapidAPI-Host": "gpt-summarization.p.rapidapi.com"
             }
+
             response = requests.request("POST", url, json=payload, headers=headers)
+
             return response.json()['summary']
         except Exception as e:
             return f'{e}'
@@ -129,9 +133,6 @@ class Summarization:
             
 
     def generate_summary(self, fullText, summarizer):
-        fullText = str(fullText)
-        fullText = fullText.encode('ascii', 'ignore').decode('ascii')
-
         """cleaning"""
         patterns = {
             '<h1>': '',
@@ -147,50 +148,39 @@ class Summarization:
             '</p>':'',
             '<span class="sentence">':' ',
             '[':'',
-            ']':''
+            ']':'',
+            '\r':''
         }
         regex = re.compile('|'.join(map(re.escape, patterns.keys())))
         fullText = fullText.strip('\n')
         text = regex.sub(lambda match : patterns[match.group(0)], fullText)
 
-
         """per gekozen titel"""
         text = text.split('<h3>')
         new_text = []
 
+        """tekst doorlopen"""
         for i in range(len(text)):
             try:
-
-                title = text[i].split('</h3>')[0],
-                paragraph = text[i].split('</h3>')[1]
                 
+                title = text[i].split('</h3>')[0], #ervoor
+                paragraph = text[i].split('</h3>')[1] #erna
+
                 if (len(paragraph) > 3000):
-                    # extractive
-                    paragraph = self.extractive_summarization(
-                        full_text=paragraph, 
-                        summarizer=summarizer
-                    )
-
-                    # abstractive
-                    paragraph = self.abstractive_summarization_rapidapi(
-                        text=paragraph,
-                        num_sentences=5
-                    )
-
+                    paragraph = self.extractive_summarization(full_text=paragraph,summarizer=summarizer)
+                    paragraph = self.abstractive_summarization_rapidapi(text=paragraph,num_sentences=3)
                 else:
-                    # abstractive
-                    paragraph = self.abstractive_summarization_rapidapi(
-                        text=paragraph,
-                        num_sentences=5
-                    )
+                    # paragraph = self.extractive_summarization(full_text=paragraph,summarizer=summarizer)
+                    paragraph = self.abstractive_summarization_rapidapi(text=paragraph,num_sentences=3)
 
                 new_text.append([
                     title, paragraph
                 ])
 
-            except:
-                new_text.append(text[i])
+            except Exception as e:
+                new_text.append(str(e))
         return new_text
+
 
 
     def generate_glossary(self, list):
@@ -207,7 +197,8 @@ class Summarization:
 
             response = requests.request("GET", url, headers=headers, params=querystring)
             try:
-                definition = response.json()['results'][0]['senses'][0]['definition']
+                # definition = response.json()['results'][0]['senses'][0]['definition']
+                definition = response.json()
             except Exception as e:
                 definition = e
 
