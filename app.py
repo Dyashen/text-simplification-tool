@@ -196,30 +196,13 @@ def extract_sentences():
 
 """
 """
-@app.route('/summarise-with-presets',methods=['GET','POST'])
-def summarise_text():
-    try:
-        full_text = request.args
-        for i in full_text:
-            print(i)
-    except:
-        print('shame')
-
-    return render_template(full_text)
-
-"""
-"""
 @app.route('/generate-summary', methods=['GET', 'POST'])
 def generate_summary():
     try:
 
-        for key, value in request.form.items():
-            print(f'{key}: {value}')
-
         """
         """
         title = request.form.get('title')
-
 
         """
         glossary
@@ -233,34 +216,25 @@ def generate_summary():
             position = field.split(':')[1]
             sentence = field.split(':')[2]
             
-            lu = Simplification()
-            definition = lu.look_up_word_rapidapi(
-                word=word,
-                sentence=sentence,
-                nlp_model=ta.get_spacy_nlp_model(sentence)
-            )
-
-            arr.append(word, definition)
+            # TODO zin bekijken en kijken welke tag er moet worden gebruikt
+            pos_tag = ''
+            arr.append(word, pos_tag)
 
 
+        glossary = sum.generate_glossary(list=wordlist)
+
+        
 
         """
         volledige tekst
         """
         full_text = request.args.post('fullText')
-        if True or len(full_text) > 1900:
-            result = sum.extractive_summarization(full_text=full_text)
-        else:
-            extracted_text = sum.extractive_summarization(full_text=full_text)
-            result = sum.summarize_with_presets(full_text=extracted_text)
-
-        
-
+        result_full_text = sum.generate_summary(fullText=full_text, summarizer=summarizer)
 
         Creator().create_pdf(
             title=title, 
-            list=wordlist, 
-            full_text=full_text
+            list=glossary, 
+            full_text=result_full_text
         )
 
         return send_file(
@@ -303,11 +277,8 @@ def generate_pdf():
     title = 'AI voor tekstvereenvoudiging'
     wordlist = [['test','foo'],['foo','bar'], ['bar','test']]
     full_text = """
-    
     Mijn droom is dat dit stuk software werkt. Ik wil absoluut niets anders. Dat is mijn laatste wens. \n
-
     Als tweede wens hoop ik om ooit mijn PhD te behalen, ongeacht mijn achtergrond en gebrekkerige steun. Ik ga nooit mijn hoofddoel vergeten. \n
-    
     """
 
     Creator().create_pdf(

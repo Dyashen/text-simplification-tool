@@ -23,9 +23,12 @@ class Creator():
     """"""
     def generate_text(self, full_text):
         with open('file.md','a') as f:
-            f.write("# Title\n")
-            for i in full_text:
-                f.write(f"{i}\n")
+            for i in range(len(full_text)):
+                if len(full_text[i]) > 1:
+                    f.write(f"\n\n## {full_text[i][0]}\n\n")
+                    f.write(f"\n\n{full_text[i][1]}\n\n")
+                else:
+                    f.write(f'\n\n{full_text[i]}\n\n')
 
 
     def create_pdf(self, title, list, full_text):
@@ -36,7 +39,7 @@ class Creator():
             self.create_header('Simplified text')
 
         """"""
-        if len(list) is not 0:
+        if len(list) != 0:
             self.generate_glossary(list=list)
 
         """"""

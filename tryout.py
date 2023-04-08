@@ -1,256 +1,110 @@
-from pdfminer.high_level import extract_text, extract_pages
-import TextAnalysis as tu
-import Reader as ra
-from pdfminer.layout import LTTextContainer, LTChar
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
-from io import BytesIO
-import io, os, spacy, numpy, configparser, fnmatch
-from langdetect import detect
-import unicodedata
-from pdfminer.high_level import extract_text, extract_pages
-from pdfminer.layout import LTTextContainer, LTChar
-from fpdf import FPDF
-from os.path import exists
-from pdfminer.high_level import extract_text, extract_pages
-from pdfminer.layout import LTTextContainer, LTChar
-import os, fnmatch, openai
+import re
+from Creator import Creator
+from Summarization import Summarization
+from summarizer import Summarizer
 
-COMPLETIONS_MODEL = "text-davinci-003"
-EMBEDDING_MODEL = "text-embedding-ada-002"
-config = configparser.ConfigParser()
-config.read('config.ini')
-openai.api_key = config['openai']['api_key']
+sum = Summarization('test')
+
+summarizer = Summarizer(
+        #MODEL_PATH
+)
 
 
-dutch_spacy_model = "nl_core_news_md"
-english_spacy_model = "en_core_web_sm"
+with open('output.txt', 'r', encoding='latin-1') as f:
+    fullText = f.read()
 
 
-""""""
-def unicode_normalize(s):
-    return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
+list_of_words = [
+    ['appel','noun'],
+    ['reviseren','verb']
+]
 
 
-""""""
-pdf_w=210
-pdf_h=297
-class PDF(FPDF):
-    def header(self):
-        self.set_font('Arial', 'B', 15)
-        w = self.get_string_width('') + 6
-        self.set_x((210 - w) / 2)
-        self.set_draw_color(0, 80, 180)
-        self.set_fill_color(230, 230, 0)
-        self.set_text_color(220, 50, 50)
-        self.set_line_width(1)
-        self.cell(w, 9, '', 1, 1, 'C', 1)
-        self.ln(10)
-
-    def footer(self):
-        self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.set_text_color(128)
-        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
-
-    def chapter_title(self, num, label):
-        self.set_font('Arial', '', 12)
-        self.set_fill_color(200, 220, 255)
-        self.cell(0, 6, 'Chapter %d : %s' % (num, label), 0, 1, 'L', 1)
-        self.ln(4)
-
-    def chapter_body(self, text):
-        txt = text
-        self.set_font('Arial', '', 12)
-        self.multi_cell(0, 5, txt)
-        self.ln()
-        self.set_font('', 'I')
-        self.cell(0, 5, '(end of excerpt)')
-
-    def print_chapter(self, num, title, name):
-        self.add_page()
-        self.chapter_title(num, title)
-        self.chapter_body(name)
+glossary = sum.generate_glossary(list=list_of_words)
+result = sum.generate_summary(fullText=fullText, summarizer=summarizer)
 
 
-""""""
-def get_full_text_dict(all_pages):
-    full_text = []
-    for page_layout in all_pages:
-        total_page = ""
-        for element in page_layout:
-            if isinstance(element, LTTextContainer):
-                for text_line in element:
-                    total_page += text_line.get_text()
-        full_text.append(total_page)
+Creator().create_pdf(
+    title='Test text simplification', 
+    list=glossary, 
+    full_text=result # formaat: [ titel, tekst ]
+)
 
-    return full_text
+# start
+fullText = str(fullText)
+fullText = fullText.encode('ascii', 'ignore').decode('ascii')
+
+"""cleaning"""
+patterns = {
+    '<h1>': '',
+    '</h1>': '',
+    '<div class="page">':'',
+    '</div>':'',
+    '<span class="word">': ' ',
+    '</span>' : '',
+    '\n' : '',
+    ' ' : '',
+    '<p>': '',
+    '</p><p>':'',
+    '</p>':'',
+    '<span class="sentence">':' ',
+    '[':'',
+    ']':''
+}
+regex = re.compile('|'.join(map(re.escape, patterns.keys())))
+fullText = fullText.strip('\n')
+text = regex.sub(lambda match : patterns[match.group(0)], fullText)
 
 
-def get_full_clean_text(full_text):
-    cleaned_text = []
-    for i in full_text:
-        nlp = spacy.load(dutch_spacy_model) if detect(i) == 'nl' else spacy.load(english_spacy_model)
-        doc = nlp(i)
-        sentences = doc.sents
-        for s in sentences:
-            if(len(s)>=6):
-                cleaned_text.append(str(s).strip() \
-                                    .replace('\n',' '))
-    return cleaned_text
+"""per gekozen titel"""
+text = text.split('<h3>')
+new_text = []
 
-def get_sentence_length():
-    pass
+for i in range(len(text)):
+    try:
 
-def get_stats_per_sentence(sentence):
-    pass
-
-def extractive_summarization(full_text):
-    from summarizer import Summarizer
-    from transformers import AutoTokenizer, AutoModel, TFAutoModel
-    model = Summarizer()
-    result = model(
-        body=full_text,
-        max_length=700,
-        min_length=100,
-        num_sentences=30,
-        return_as_list=True
-        )
-    return result
-
-def main_extractive_summary():
-    folder_path = "C:/hogeschool-gent/bachelorproef-nlp-tekstvereenvoudiging/scripts/experimenten/pdf/"
-    file_list = os.listdir(folder_path)
-    pdf_files = [f for f in file_list if fnmatch.fnmatch(f, "Original*.pdf")]
-
-    for file in pdf_files:
-        fname = 'ExtractiveSum_' + str(file).split('_')[1]\
-                                                .split('.')[0]\
-                                                + '.txt'
+        title = text[i].split('</h3>')[0],
+        paragraph = text[i].split('</h3>')[1]
         
-        print(f'starting ... {folder_path + fname} ...')
-        if not exists(folder_path + fname):
-            all_pages = extract_pages(
-                pdf_file=folder_path + file,
-                page_numbers=None,
-                maxpages=999
+        if (len(paragraph) > 3000):
+            # extractive
+            paragraph = sum.extractive_summarization(
+                full_text=paragraph, 
+                summarizer=summarizer
             )
 
-            t = get_full_text_dict(all_pages=all_pages)
-            t = get_full_clean_text(t)
-            t = extractive_summarization(' '.join(t))
-
-            sublist = [t[n:n+5] for n in range(0, len(t), 5)]
-
-            """
-            pdf = PDF(orientation='P', unit='mm', format='A4')
-            pdf.set_title('test')
-            pdf.set_author('test')
-            for i in range(0, len(sublist)):
-                data = io.StringIO()
-                data.write(unicode_normalize(' '.join(sublist[i])))
-                pdf.print_chapter(i+1, '', data)
-            pdf.set_author('Simply Flied')
-            pdf.output('test.pdf','F')
-            """
-
-            
-
-            with open(fname, "w") as file:
-                for element in sublist:
-                    file.write(" ".join(element) + "\n")
-
-def prompt_gpt(text):
-    prompt = f"""
-    Prompt: 
-    Parafraseer de zinnen in het Nederlands met eenvoudige woordenschat. De output moet aan volgende regels voldoen: zinnen zijn niet langer dan tien woorden, regelmatige woordenschat, schrijf cijfermateriaal voluit, schrijf acroniemen voluit vermijd tangconstructies, voorzetsel- en verwijswoorden
-    Zinnen:
-    {text}
-    """
-
-    prompt = f"""
-    Prompt:
-    Simplify and paraphrase the next sentences in Dutch. The format is one continuous text. Don't use more than 500 Dutch words. Dutch sentences can't be longer than 10 words, use frequent Dutch vocabulary, write numbers and acronyms in full, ignore tang constructions, prepositions and pronouns.
-    Text:
-    {text}
-    """
-
-    return openai.Completion.create(
-            prompt=prompt,
-            temperature=0,
-            max_tokens=1000,
-            model=COMPLETIONS_MODEL,
-            top_p=0.9,
-            stream=False
-    )["choices"][0]["text"].strip(" \n")
-
-def main_abstractive_summary():
-    folder_path = "C:/hogeschool-gent/bachelorproef-nlp-tekstvereenvoudiging/scripts/experimenten/pdf/"
-    file_list = os.listdir(folder_path)
-    pdf_files = [f for f in file_list if fnmatch.fnmatch(f, "Original*.pdf")]
-
-    for file in pdf_files:
-        fname = 'AbstractiveSumm_' + str(file).split('_')[1]\
-                                        .split('.')[0]\
-                                        + '.txt'
-        print(f'Starting ... {folder_path + fname} ...')
-
-        if not exists(folder_path + fname):
-            all_pages = extract_pages(
-                    pdf_file=folder_path + file,
-                    page_numbers=None,
-                    maxpages=999
+            # abstractive
+            paragraph = sum.abstractive_summarization_rapidapi(
+                text=paragraph,
+                num_sentences=5
             )
 
-            t = get_full_text_dict(all_pages=all_pages)
-            t = get_full_clean_text(t)
-            
-            sublist = [t[n:n+5] for n in range(0, len(t), 5)]
-
-            total = ""
-            for p in sublist:
-                r = prompt_gpt(' '.join(p))
-                total += r + '\n'
-            
-            with open(fname, "w", encoding="utf-8") as file:
-                file.write(str(total))
-
-
-
-def main_hybrid_summary():
-    folder_path = "C:/hogeschool-gent/bachelorproef-nlp-tekstvereenvoudiging/scripts/experimenten/pdf/"
-    file_list = os.listdir(folder_path)
-    pdf_files = [f for f in file_list if fnmatch.fnmatch(f, "Original*.pdf")]
-
-    for file in pdf_files:
-        fname = 'HybridSum_' + str(file).split('_')[1]\
-                                        .split('.')[0]\
-                                        + '.txt'
-        
-        print(f'starting ... {folder_path + fname} ...')
-
-        if not exists(folder_path + fname):
-            all_pages = extract_pages(
-                pdf_file=folder_path + file,
-                page_numbers=None,
-                maxpages=999
+        else:
+            # abstractive
+            paragraph = sum.abstractive_summarization_rapidapi(
+                text=paragraph,
+                num_sentences=5
             )
 
-            t = get_full_text_dict(all_pages=all_pages)
-            t = get_full_clean_text(t)
-            t = extractive_summarization(' '.join(t))
 
-            sublist = [t[n:n+5] for n in range(0, len(t), 5)]
+        new_text.append([
+            title, paragraph
+        ])
+    except:
+        new_text.append(text[i])
 
-            total = ""
+Creator().create_pdf(
+    title='test', 
+    list=[['foo','bar']], 
+    full_text=new_text # formaat: [ titel, tekst ]
+    )
 
-            for i in range(0, len(sublist)):
-                result = prompt_gpt(sublist[i])
-                total += result + '\n'
-            
-            with open(fname, "w", encoding="utf-8") as file:
-                file.write(str(total))
-    
-main_extractive_summary()
-main_hybrid_summary()
-main_abstractive_summary()
+
+
+
+
+
+
+
+
+
