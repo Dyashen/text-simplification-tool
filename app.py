@@ -1,5 +1,5 @@
 # Web-app imports
-from flask import Flask, render_template,request,jsonify,session
+from flask import Flask, render_template,request,jsonify,session, send_file
 
 # PDF Miner
 from pdfminer.high_level import extract_pages
@@ -18,6 +18,7 @@ import Reader as read
 from Summarization import Summarization
 from Simplification import Simplification
 import TextAnalysis as ta
+from Creator import Creator
 
 MODEL_PATH = "pytorch_model.bin"
 API_KEY_SESSION_NAME = 'api_key'
@@ -241,7 +242,38 @@ def generate_glossary():
 
     return jsonify( 
         glossary=arr
+)
+
+
+"""
+"""
+@app.route('/convert', methods=['GET','POST'])
+def generate_pdf():
+
+    # title = request.form.get('title')
+    # wordlist = request.form.get('glossaryList')
+
+    title = 'AI voor tekstvereenvoudiging'
+    wordlist = [['test','foo'],['foo','bar'], ['bar','test']]
+    full_text = """
+    
+    Mijn droom is dat dit stuk software werkt. Ik wil absoluut niets anders. Dat is mijn laatste wens. \n
+
+    Als tweede wens hoop ik om ooit mijn PhD te behalen, ongeacht mijn achtergrond en gebrekkerige steun. Ik ga nooit mijn hoofddoel vergeten. \n
+    
+    """
+
+    Creator().create_pdf(
+        title=title, 
+        list=wordlist, 
+        full_text=full_text
     )
+
+    return send_file(
+        path_or_file='output.pdf', 
+        as_attachment=True
+    )
+
 
 """
 """
