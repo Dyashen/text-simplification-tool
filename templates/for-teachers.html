@@ -10,6 +10,8 @@
 
   <div class="container">
 
+
+
     <div class="left-container">
       {% for page in pdf %}
       <div class="page">
@@ -31,12 +33,6 @@
 
     <!---->
     <div class="right-container">
-      <!--
-      <div class="buttons">
-        <input type="button" value="Get Selection" onmousedown="getSelectedText()">
-      </div>
-    -->
-
       <div class="extra-info">
         <p>taal: {{lang}}</p><br>
         <p>titel: {{title}}</p><br>
@@ -44,9 +40,7 @@
       </div>
 
       <!---->
-      <form action="/summarise-with-presets" method="post">
-        <textarea name="" id="" cols="30" rows="10" disabled hidden></textarea>
-
+      <form action="/generate-summary" method="post">
         <!--Statistieken voor de leerkracht-->
         <h2>Statistieken voor de leerkracht</h2>
         {% for s in statistics %}
@@ -104,6 +98,7 @@
         </fieldset>
 
 
+        <!--Samenvatten-->
         <h2>Samenvatten</h2>
         <fieldset>
           <input type="checkbox" id="citation" name="citation" value="citation">
@@ -126,18 +121,27 @@
 
           <input required type="number" id="number_paragraphs" name="number_paragraphs" min="1" max="5">
           <label for="number_paragraphs">Aantal paragrafen per titel</label>
-
         </fieldset>
 
+        <!--Glossary-->
         <h2>Woordenlijst</h2>
-        <fieldset>
+        <fieldset hidden>
           <textarea name="glossaryList" id="glossaryList" cols="30" rows="10"></textarea>
           <button type="submit">Glossary-lijst genereren</button>
         </fieldset>
 
-        <button type="submit" value="Samenvatten" id="summarize-with-presets-button">Volledig document
-          samenvatten</button>
+        <textarea hidden name="fullText" id="fullText" cols="30" rows="10"></textarea>
+
+        <button type="submit" value="Samenvatten" id="summarize-with-presets-button">
+          Volledig document samenvatten
+        </button>
+
       </form>
+
+      <button value="Tekst toevoegen" onmousedown="addTextToTextArea()">
+        Tekst indienen
+      </button>
+
     </div>
   </div>
 </body>
@@ -154,13 +158,22 @@
         w.addEventListener('click', async (event) => {
           if (checkboxAddWordToGlossary.checked) {
             var pTag = event.target;
+
+            sentence_of_origin = w.closest("span.sentence");
+            var context = "";
+            for (const child of sentence_of_origin.children) {
+              context = context + " " + child.textContent;
+            };
+
+            console.log('context');
+
             var textarea = document.getElementById("glossaryList");
             pTag.style.backgroundColor = "black";
             pTag.style.color = "white";
             pTag.style.fontWeight = "bold";
             var page = pTag.parentNode.parentNode.parentNode;
             var pageNumber = page.querySelector('h1').textContent;
-            textarea.value += "\n" + pTag.innerHTML + ':' + pageNumber;
+            textarea.value += pTag.innerHTML + ':' + pageNumber + ':' + context + "\n";
           }
         })
       })
@@ -182,6 +195,7 @@
     }
   });
 
+
   /*
   Marking titles as a teacher
   */
@@ -201,15 +215,38 @@
     }
   });
 
+
+  /*
+
+  */
+  function addTextToTextArea() {
+    console.log(document.querySelector('.left-container').innerHTML);
+    const fullTextBox = document.querySelector('.left-container').innerHTML
+    var textarea = document.getElementById("fullText");
+    textarea.value = fullTextBox;
+  };
+
+  /*
+  */
+  var fullText = document.getElementById('fullText');
+  const button = document.getElementById('summarize-with-presets-button');
+  fullText.addEventListener('input', () => {
+    if (fullText.value.trim() === '') {
+      button.disabled = true;
+    } else {
+      button.disabled = false;
+    }
+  });
+
+
   /*
   Tekst ophalen
   */
   async function getSelectedText() {
     var selectedText = window.getSelection().toString();
-    console.log('printing selected text')
     const textarea = document.querySelector('textarea');
     textarea.value = selectedText;
-  }
+  };
 </script>
 
 </html>

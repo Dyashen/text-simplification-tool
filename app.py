@@ -19,6 +19,7 @@ from Summarization import Summarization
 from Simplification import Simplification
 import TextAnalysis as ta
 from Creator import Creator
+import os
 
 MODEL_PATH = "pytorch_model.bin"
 API_KEY_SESSION_NAME = 'api_key'
@@ -26,6 +27,7 @@ COLOR_SESSION_NAME = 'color'
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
+os.environ['PYPANDOC_PANDOC_ARGS'] = '--pdf-engine=xelatex'
 
 """
 returns homepage
@@ -210,16 +212,61 @@ def summarise_text():
 @app.route('/generate-summary', methods=['GET', 'POST'])
 def generate_summary():
     try:
-        full_text = request.args.get('fullText')
+
+        for key, value in request.form.items():
+            print(f'{key}: {value}')
+
+        """
+        """
+        title = request.form.get('title')
+
+
+        """
+        glossary
+        """
+        wordlist = request.form.get('glossaryList')
+        wordlist = wordlist.strip(' ').split('\n')
+
+        arr = []
+        for field in wordlist:
+            word = field.split(':')[0]
+            position = field.split(':')[1]
+            sentence = field.split(':')[2]
+            
+            lu = Simplification()
+            definition = lu.look_up_word_rapidapi(
+                word=word,
+                sentence=sentence,
+                nlp_model=ta.get_spacy_nlp_model(sentence)
+            )
+
+            arr.append(word, definition)
+
+
+
+        """
+        volledige tekst
+        """
+        full_text = request.args.post('fullText')
         if True or len(full_text) > 1900:
             result = sum.extractive_summarization(full_text=full_text)
         else:
             extracted_text = sum.extractive_summarization(full_text=full_text)
             result = sum.summarize_with_presets(full_text=extracted_text)
-        return jsonify(
-            original=full_text,
-            result=result
-            )
+
+        
+
+
+        Creator().create_pdf(
+            title=title, 
+            list=wordlist, 
+            full_text=full_text
+        )
+
+        return send_file(
+            path_or_file='output.pdf', 
+            as_attachment=True
+        )
     except Exception as e:
         return jsonify(
             result='Je aanvraag kon niet verwerkt worden :(',

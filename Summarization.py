@@ -116,5 +116,6 @@ class Summarization:
                 model=COMPLETIONS_MODEL,
                 top_p=0.9,
                 stream=False
+                
         )["choices"][0]["text"].strip(" \n")
         return result.split('\n')

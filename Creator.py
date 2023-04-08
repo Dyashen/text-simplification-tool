@@ -2,8 +2,6 @@ import subprocess, io, os, pypandoc
 
 class Creator():
 
-    os.environ['PYPANDOC_PANDOC_ARGS'] = '--pdf-engine=xelatex'
-
     """"""
     def create_header(self, title):
         with open('file.md', 'w') as f:

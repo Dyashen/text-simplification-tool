@@ -1,4 +1,4 @@
-import configparser, openai, requests, json
+import configparser, openai, requests, json, spacy
 
 """"""
 COMPLETIONS_MODEL = "text-davinci-003"
@@ -50,9 +50,10 @@ class Simplification:
 
     """
     """
-    def look_up_word_rapidapi(word, sentence, nlp_model):
+    def look_up_word_rapidapi(self, word, sentence, nlp_model):
         try:
             url = "https://lexicala1.p.rapidapi.com/search"
+            spacy.load
             doc = nlp_model(sentence)
             for token in doc:
                 if word == token.text:

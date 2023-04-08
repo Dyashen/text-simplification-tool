@@ -12,6 +12,13 @@ dict = {
     'en':'en_core_web_sm'
 }
 
+
+def get_spacy_nlp_model(sentence):
+    return spacy.load(
+        dict.get(detect(sentence))
+    )
+
+
 """
 """
 def get_sentence_length(sentence):
