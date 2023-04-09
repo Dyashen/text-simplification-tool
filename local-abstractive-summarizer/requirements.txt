@@ -1,0 +1,4 @@
+Flask==2.2.2
+summarizer==0.0.7
+transformers==4.25.1
+googletrans==4.0.0-rc1

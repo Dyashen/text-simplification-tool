@@ -60,17 +60,6 @@ def change_api_key():
 
 
 """
-
-@app.before_first_request
-def load_model():
-    print('--- first load ---')
-    global summarizer
-    summarizer = Summarizer(
-        #MODEL_PATH
-    )
-"""
-
-"""
 returns webpage
 """
 @app.route('/for-teachers', methods=['GET','POST'])
@@ -188,19 +177,11 @@ def syntactic_simplify():
 @app.route('/extract-text', methods=['GET'])
 def extract_sentences():
     text = request.args.get('text')
-
-    # ping here
-
-    """
-    json post
-    
-    """
-
-    result = sum.extractive_summarization(
-        full_text=text, 
-        # summarizer=summarizer
-    )
-    return jsonify(result=result)
+    n = request.args.get('number')
+    url = 'http://172.18.0.3:5000/summarize'
+    data = {'text': {str(text)},'n':{n}}
+    response = requests.post(url, json=data)
+    return jsonify(result=response.result)
 
 
 @app.route('/get-pos-tag', methods=['GET','POST'])
@@ -255,9 +236,7 @@ def generate_summary():
         #volledige tekst
         """
         full_text = request.form.get('fullText')
-        full_text = sum.generate_summary(fullText=full_text 
-                                         #summarizer=summarizer
-                                         )
+        full_text = sum.generate_summary(fullText=full_text)
 
         Creator().create_pdf(
             title=title, 
