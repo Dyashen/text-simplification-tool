@@ -4,16 +4,14 @@ WORKDIR /app
 
 COPY requirements.txt requirements.txt
 
-
 RUN apt-get update \
     && apt-get install -y pandoc \
     && apt-get install -y texlive
 
 RUN pip3 install -r requirements.txt \
     && python3 -m spacy download nl_core_news_md \
-    && python3 -m spacy download en_core_web_sm \
-    && pip3 install bert-extractive-summarizer torch
+    && python3 -m spacy download en_core_web_sm
 
 COPY . .
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=5000"]

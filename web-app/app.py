@@ -1,5 +1,6 @@
 # Web-app imports
-from flask import Flask, render_template,request,jsonify,session, send_file
+from flask import Flask, render_template, render_template_string, request, jsonify, session, send_file
+import requests
 
 # PDF Miner
 from pdfminer.high_level import extract_pages
@@ -59,7 +60,7 @@ def change_api_key():
 
 
 """
-"""
+
 @app.before_first_request
 def load_model():
     print('--- first load ---')
@@ -67,6 +68,7 @@ def load_model():
     summarizer = Summarizer(
         #MODEL_PATH
     )
+"""
 
 """
 returns webpage
@@ -186,9 +188,17 @@ def syntactic_simplify():
 @app.route('/extract-text', methods=['GET'])
 def extract_sentences():
     text = request.args.get('text')
+
+    # ping here
+
+    """
+    json post
+    
+    """
+
     result = sum.extractive_summarization(
         full_text=text, 
-        summarizer=summarizer
+        # summarizer=summarizer
     )
     return jsonify(result=result)
 
@@ -245,7 +255,9 @@ def generate_summary():
         #volledige tekst
         """
         full_text = request.form.get('fullText')
-        full_text = sum.generate_summary(fullText=full_text, summarizer=summarizer)
+        full_text = sum.generate_summary(fullText=full_text 
+                                         #summarizer=summarizer
+                                         )
 
         Creator().create_pdf(
             title=title, 
@@ -263,6 +275,13 @@ def generate_summary():
             'error.html',
             error=f'Problem app.py: {e}'
         )
+    
+@app.route('/foo', methods=['GET'])
+def tryout():
+    url = 'http://172.18.0.3:5000/summarize'
+    data = {'text': 'Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder.','n':4}
+    response = requests.post(url, json=data)
+    return render_template_string(f'{response}')
 
 """
 """
