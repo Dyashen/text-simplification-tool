@@ -30,6 +30,18 @@ app = Flask(__name__)
 app.secret_key = "super secret key"
 os.environ['PYPANDOC_PANDOC_ARGS'] = '--pdf-engine=xelatex'
 
+
+@app.before_first_request
+def load_model():
+    print('--- test connection ---')
+    try:
+        url = 'http://172.18.0.3:5000/'
+        response = requests.get(url)
+    except Exception as e:
+        response = e
+    
+
+
 """
 returns homepage
 """
@@ -178,7 +190,7 @@ def syntactic_simplify():
 def extract_sentences():
     text = request.args.get('text')
     n = request.args.get('number')
-    url = 'http://172.18.0.3:5000/summarize'
+    url = 'http://172.18.0.3:5001/extractive-summarization'
     data = {'text': {str(text)},'n':{n}}
     response = requests.post(url, json=data)
     return jsonify(result=response.result)
@@ -254,13 +266,33 @@ def generate_summary():
             'error.html',
             error=f'Problem app.py: {e}'
         )
-    
+
+"""    
 @app.route('/foo', methods=['GET'])
-def tryout():
-    url = 'http://172.18.0.3:5000/summarize'
-    data = {'text': 'Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder.','n':4}
-    response = requests.post(url, json=data)
+def tryout_foo():
+
+    try:
+        url = 'http://172.18.0.3:5000/extractive-summarize'
+        data = {'text': 'Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder.','n':4}
+        response = requests.post(url, json=data)
+    except Exception as e:
+        response = e
+
     return render_template_string(f'{response}')
+
+
+@app.route('/bar', methods=['GET'])
+def tryout_bar():
+
+    try:        
+        url = 'http://172.18.0.3:5000/abstractive-summarize'
+        data = {'text': 'Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder.','n':50, 'lang':'nl'}
+        response2 = requests.post(url, json=data)
+    except Exception as e:
+        response2 = e
+    
+    return render_template_string(f'{response2}')
+"""
 
 """
 """
