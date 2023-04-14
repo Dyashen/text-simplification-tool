@@ -13,7 +13,6 @@
 <body>
 
   <div class="buttons">
-    <!--<input type="button" value="Kleur wijzigen" onmousedown="changeBackgroundColor('red')">-->
     <input type="color" id="favcolor" name="favcolor" value="#ff0000" onmousedown="changeBackgroundColor(this.value)">
   </div>
 
@@ -29,10 +28,6 @@
         <input type="file" id="pdf" name="pdf"><br><br>
         <input type="submit" value="View PDF">
       </form>
-
-      <form action="/for-teachers" method="post">
-        <textarea name="" id="" cols="30" rows="10"></textarea>
-      </form>
     </div>
 
     <div class="container-index">
@@ -42,11 +37,6 @@
         <input type="file" id="pdf" name="pdf"><br><br>
         <input type="submit" value="View PDF">
       </form>
-
-      <form action="/for-teachers" method="post">
-        <textarea name="" id="" cols="30" rows="10"></textarea>
-      </form>
-
     </div>
 
     <div class="container-index">
@@ -58,12 +48,40 @@
 </body>
 <script>
 
-//
-const callPythonFunctionChangeColor = async (text) => {
+const callPythonFunctionGetColor = async () => {
   try {
-    const response = await fetch(
-      `http://localhost:5000/change-color?color=${text}`
-    );
+    var url = `http://localhost:5000/get-background-color`;
+    console.log(url);
+    const response = await fetch(url, {method: 'POST'});
+    return (result = await response.json());
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+window.onload = async function(){
+  var url = `http://localhost:5000/get-background-color`;
+  const response = await callPythonFunctionGetColor();
+  color = response;
+  console.log(color);
+  document.body.style.transition = "background-color 1s";
+  document.body.style.backgroundColor = response.color;
+}
+
+
+//
+const callPythonFunctionChangeColor = async (color) => {
+  try {
+    var url = `http://localhost:5000/change-color`;
+    console.log(url);
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ color: color })
+    });
 
     console.log('change-', response)
     return (result = await response.json());
@@ -74,7 +92,9 @@ const callPythonFunctionChangeColor = async (text) => {
 
 //
 async function changeBackgroundColor(color) {
-  const response = await callPythonFunctionChangeColor(color);
+  var favcolor = document.getElementById('favcolor').value;
+  console.log(favcolor);
+  const response = await callPythonFunctionChangeColor(favcolor);
   document.body.style.backgroundColor = response.color;
 }
 

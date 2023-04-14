@@ -1,38 +1,45 @@
-const callPythonFunctionSummarize = async (text) => {
+const callPythonFunctionExtractiveSummarize = async (text) => {
   try {
-    const response = await fetch(
-      `http://localhost:5000/summarize?text=${text}`
-    );
+    const response = await fetch(`http://localhost:5000/extract-text`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ text, key: 'sc' })
+    });
     return (result = await response.json());
   } catch (error) {
     console.error(error);
   }
 };
 
-const callPythonFunctionAbstractiveSummarization = async (text) => {
-  try {
-    const response = await fetch(
-      `http://localhost:5000/summarize?text=${text}`
-    );
-    return (result = await response.json());
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-//
-async function abstractiveSummarization() {
+async function extractiveSummarization() {
+  //
   var selectedText = window.getSelection().toString();
-  const response = await callPythonFunctionAbstractiveSummarization(
-    selectedText
-  );
+  if (selectedText === "") {
+    selectedText = document.body.innerText;
+  }
+
+  // dazzle ->  p-> prompt; p2 -> text
   var dazzle = document.querySelector(".dazzle");
   var p = document.createElement("p");
   var p2 = document.createElement("p");
-  var text = document.createTextNode(JSON.stringify(response.result));
-  var prompt = document.createTextNode(JSON.stringify(response.prompt));
+
+  //
+  var prompt = document.createTextNode("Kernzinnen ophalen...");
+  var text = document.createTextNode("...");
+
+  //
   p.appendChild(prompt);
   dazzle.appendChild(p);
   p2.appendChild(text);
   dazzle.appendChild(p2);
+
+  //
+  const response = await callPythonFunctionExtractiveSummarize(selectedText);
+
+  console.log(response);
+
+  prompt.nodeValue = "Kernzinnen uit geselecteerde tekst...";
+  text.nodeValue = JSON.stringify(response.result);
 }

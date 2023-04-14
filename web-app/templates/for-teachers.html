@@ -135,7 +135,7 @@
 
         <textarea hidden name="fullText" id="fullText" cols="30" rows="10"></textarea>
 
-        <button disabled  type="submit" value="Samenvatten" id="summarize-with-presets-button">
+        <button disabled type="submit" value="Samenvatten" id="summarize-with-presets-button">
           Volledig document samenvatten
         </button>
 
@@ -243,20 +243,8 @@ const callPythonCallPOSTag = async (word, context) => {
     const fullTextBox = document.querySelector('.left-container').innerHTML
     var textarea = document.getElementById("fullText");
     textarea.value = fullTextBox;
+    document.getElementById('summarize-with-presets-button').disabled = false;
   };
-
-  /*
-  */
-  var fullText = document.getElementById('fullText');
-  const button = document.getElementById('summarize-with-presets-button');
-  fullText.addEventListener('input', () => {
-    if (fullText.value.trim() === '') {
-      button.disabled = true;
-    } else {
-      button.disabled = false;
-    }
-  });
-
 
   /*
   Tekst ophalen

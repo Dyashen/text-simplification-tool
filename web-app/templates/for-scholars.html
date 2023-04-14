@@ -1,5 +1,24 @@
 <script>
   //
+  window.onload = async function () {
+    var url = `http://localhost:5000/change-color`;
+    console.log(url);
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ color: color })
+    });
+
+    result = await response.json()
+    color = result.color;
+    console.log(color);
+    document.body.style.transition = "background-color 1s";
+    document.body.style.backgroundColor = response.color;
+  }
+
+  //
   async function emptyChat() {
     const dazzleDiv = document.querySelector('.dazzle');
     dazzleDiv.innerHTML = '';
@@ -13,14 +32,20 @@
   <link rel="stylesheet" href="..\static\css\style.css">
   <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <script type="text/javascript" src={{ url_for('static', filename='ExtSummarization.js')}}></script>
-  <!--<script type="text/javascript" src={{ url_for('static', filename='LookUpWord.js')}}></script>-->
-  <script type="text/javascript" src={{ url_for('static', filename='Summarization.js')}}></script>
-  <script type="text/javascript" src={{ url_for('static', filename='SynSimplification.js')}}></script>
+  <script type="text/javascript" src={{ url_for('static', filename='Summarization.js' )}}></script>
+  <script type="text/javascript" src={{ url_for('static', filename='Simplification.js' )}}></script>
   <title>Teksten vereenvoudigen: prototype</title>
 </head>
 
 <body>
+  
+  <fieldset id="colors">
+    <div><label>Naamwoorden</label><input type="color" id="colorForNouns"  name="favcolor" value="#ff0000"></div>
+    <div><label>Werkwoorden</label><input type="color" id="colorForVerbs"  name="favcolor" value="#ff0000"></div>
+    <div><label>Adjectieven</label><input type="color" id="colorForAdjs"   name="favcolor" value="#ff0000"></div>
+  </fieldset>
+
+
   {% for kw in keywords %}
   <span class="keyword">{{ kw }}</span>
   {% endfor %}
@@ -35,7 +60,9 @@
           {% for sentence in paragraph %}
           <span class="sentence">
             {% for word in sentence %}
-            <span class="word">{{word}}</span>
+            {% if sentence[word] != 'space' %}
+            <span class={{sentence[word]}}>{{word}}</span>
+            {% endif %}
             {% endfor %}
           </span>
           {% endfor %}
@@ -48,15 +75,37 @@
     <!--'chatbot'-->
     <div class="fixed-bottom">
       <div class="buttons">
-        <input type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
-        <input type="button" value="Wat zijn de belangrijkste zinnen?" onmousedown="extractiveSummarization()">
-        <input type="button" value="Parafraseer dit" onmousedown="abstractiveSummarization()">
+        <input class="btn" type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
+        <input class="btn" type="button" value="Schrijf dit eenvoudiger naar mijn goesting."
+          onmousedown="personalizedSimplification()">
+        <input class="btn" type="button" value="Wat zijn de belangrijkste zinnen?"
+          onmousedown="extractiveSummarization()">
+        <input class="btn" type="button" value="Laat adjectieven vallen." onmousedown="removeAdjectives()">
+        <input class="btn" type="button" value="Parafraseer dit" onmousedown="abstractiveSummarization()">
         <button id="explainWord" class="btn"><i class="fa fa-book"></i></button>
-        <button class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
+        <button id="explainSentence" class="btn"><i class="fa fa-pencil"></i></button>
+        <button id="deleteChat" class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
+        <input type="checkbox" id="verb-show">WW's tonen
+        <input type="checkbox" id="noun-show">ZN's tonen
+        <input type="checkbox" id="adj-show">Adjs tonen
       </div>
 
       <!--append-div-->
       <div class="dazzle"></div>
+
+      <div class="personalisation">
+        <input type="checkbox" id="checkbox1" name="tang constructions">
+        <label for="checkbox1">Tangconstructies</label><br>
+        <input type="checkbox" id="checkbox2" name="difficult-to-read words">
+        <label for="checkbox2">Moeilijke woorden</label><br>
+        <input type="checkbox" id="checkbox3" name="">
+        <label for="checkbox3"></label><br>
+        <input type="checkbox" id="checkbox4" name="pronouns">
+        <label for="checkbox4">Voornaamwoorden</label><br>
+        <input type="checkbox" id="checkbox5" name="preposition">
+        <label for="checkbox5">Voorzetsels</label><br>
+      </div>
+
     </div>
   </div>
 </body>
@@ -68,10 +117,69 @@
     toggleLookupButton.classList.toggle('active');
   });
 
-  toggleLookupButton.addEventListener("change", function () {
-    console.log('change')
+  const toggleExplainSentence = document.getElementById('explainSentence');
+  toggleExplainSentence.addEventListener('click', () => {
+    toggleExplainSentence.classList.toggle('active');
   });
 
+  function removeAdjectives() {
+    const elements = document.querySelectorAll(".adj");
+    elements.forEach(function (element) {
+      element.remove();
+    });
+  }
+
+  // checkboxes
+  const nouns = document.getElementById('noun-show');
+  const verbs = document.getElementById('verb-show');
+  const adjs = document.getElementById('adj-show');
+
+  nouns.addEventListener('change', function () {
+    if (this.checked) {
+      const color = document.getElementById('colorForNouns').value;
+      console.log(color);
+      const elements = document.querySelectorAll("span.noun");
+      elements.forEach(function (element) {
+        element.style.color = color;
+      });
+    } else {
+      const elements = document.querySelectorAll("span.noun");
+      elements.forEach(function (element) {
+        element.style.color = "black";
+      });
+    }
+  });
+
+  verbs.addEventListener('change', function () {
+    if (this.checked) {
+      const color = document.getElementById('colorForVerbs').value;
+      const elements = document.querySelectorAll("span.verb");
+      elements.forEach(function (element) {
+        element.style.color = color;
+      });
+    } else {
+      const elements = document.querySelectorAll("span.verb");
+      elements.forEach(function (element) {
+        element.style.color = "black";
+      });
+    }
+  });
+
+
+  adjs.addEventListener('change', function () {
+    if (this.checked) {
+      const color = document.getElementById('colorForAdjs').value;
+      const elements = document.querySelectorAll("span.adj");
+      elements.forEach(function (element) {
+        element.style.color = color;
+      });
+    } else {
+      const elements = document.querySelectorAll("span.adj");
+      elements.forEach(function (element) {
+        element.style.color = "black";
+      });
+    }
+  });
 </script>
 
 </html>

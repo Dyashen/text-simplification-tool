@@ -1,112 +1,43 @@
-# Web-app imports
+"""flask"""
 from flask import Flask, render_template, render_template_string, request, jsonify, session, send_file
-import requests
 
-# PDF Miner
-from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTTextContainer, LTChar
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
+
+"""pdf"""
+from Reader import Reader
 from io import BytesIO
+from pdfminer.high_level import extract_pages
 
-# 
-from langdetect import detect
-from summarizer import Summarizer
-from spacy.matcher import PhraseMatcher
+""""""
+from datetime import timedelta
 
-#
-import Reader as read
-from Summarization import Summarization
-from Simplification import Simplification
-import TextAnalysis as ta
-from Creator import Creator
-import os
 
-MODEL_PATH = "pytorch_model.bin"
-API_KEY_SESSION_NAME = 'api_key'
-COLOR_SESSION_NAME = 'color'
+""""""
+from Summarization import HuggingFaceModels
+from Lexicala import Lexicala
+from GPT import GPT
 
+
+""""""
 app = Flask(__name__)
 app.secret_key = "super secret key"
-os.environ['PYPANDOC_PANDOC_ARGS'] = '--pdf-engine=xelatex'
+COLOR_SESSION_NAME = 'color'
 
-
-@app.before_first_request
-def load_model():
-    print('--- test connection ---')
-    try:
-        url = 'http://172.18.0.3:5000/'
-        response = requests.get(url)
-    except Exception as e:
-        response = e
+""""""
+@app.before_request
+def pre_boot_up():
+    session.permanent = True
+    global simplifier, lexi
+    simplifier = HuggingFaceModels()
+    lexi = Lexicala(None) 
     
 
-
-"""
-returns homepage
-"""
+""""""
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
 
 
-@app.route('/change-color', methods=['GET'])
-def change_color():
-    try:
-        color = request.args.get(COLOR_SESSION_NAME)
-        session['color'] = color
-        return jsonify(color=session[COLOR_SESSION_NAME])
-    except Exception as e:
-        return jsonify(color='white')
-
-"""
-"""
-@app.route('/set-gpt-api-key', methods=['GET'])
-def change_api_key():
-    try:
-        api_key = request.args.get('key')
-        session[API_KEY_SESSION_NAME] = api_key
-        return jsonify(api_key=session[API_KEY_SESSION_NAME])
-    except Exception as e:
-        return jsonify(error=e)
-
-
-"""
-returns webpage
-"""
-@app.route('/for-teachers', methods=['GET','POST'])
-def analysing_choosing_for_teachers():
-    pdf = request.files['pdf']
-    pdf_data = BytesIO(pdf.read()) 
-    all_pages = extract_pages(
-        pdf_data,
-        page_numbers=None,
-        maxpages=999
-    )
-
-    """[page, page, page, ..., page]"""
-    full_text = read.get_full_text_dict(all_pages)
-    full_text_new = read.get_full_text_site(full_text)
-
-    try:
-        f = read.get_full_text_plain(all_pages)
-        stats = ta.get_statistics(f)
-    except:
-        stats = ['test','test']
-
-    return render_template(
-        'for-teachers.html', 
-        pdf=full_text_new, 
-        lang='nl', 
-        title='voorbeeld titel', 
-        subject='voorbeeld van onderwerp',
-        statistics=stats
-        #, statistieken=stats
-    )
-
-"""
-@return 
-"""
+""""""
 @app.route('/for-scholars', methods=['GET','POST'])
 def teaching_tool():
     try:    
@@ -120,8 +51,9 @@ def teaching_tool():
         )
 
         """"""
-        full_text = read.get_full_text_dict(all_pages)
-        full_text_new = read.get_full_text_site(full_text)
+        reader = Reader()
+        full_text = reader.get_full_text_dict(all_pages)
+        full_text_new = reader.get_full_text_site(full_text)
 
         """"""
         return render_template(
@@ -138,163 +70,95 @@ def teaching_tool():
             error=e
         )
 
+
+
+# TEXT FUNCTIONS
+@app.route('/extract-text', methods=['POST'])
+def extract_sentences():
+    text = request.json['text']
+    key = request.json['key']
+    result = simplifier.summarize(text=text, key=key)
+    return jsonify(result=result)
+
+"""
+"""
+@app.route('/simplify', methods=['POST'])
+def scientific_simplify():
+    text = request.json['text']
+    key = request.json['key']
+    result = simplifier.summarize(text=text, key=key)
+    return jsonify(result=result)
+
+"""
+"""
+@app.route('/personalized-simplify', methods=['POST'])
+def personalized_simplify():
+    try:
+        api_key = session['api_key']
+    except:
+        api_key = None
+
+    
+
+    gpt = GPT(api_key)
+    text = request.json['text']
+    choices = request.json['choices']
+    result, prompt = gpt.personalised_simplify(sentence=text, personalisation=choices)
+    return jsonify(prompt=prompt, result=result)
+
 """
 @returns prompt and word explanation from gpt-result
 """
-@app.route('/look-up-word',methods=['GET'])
+@app.route('/look-up-word',methods=['POST'])
 def look_up_word():
-    try:
-        api_key = session.get(API_KEY_SESSION_NAME, None) 
-        lu = Simplification(api_key)
-
-        word = request.args.get('word')
-        context = request.args.get('context')
-
-        result = lu.look_up_word_rapidapi()
-
-        if result is None:
-            result, prompt = lu.look_up_word_gpt(
-                word=word, 
-                context=context, 
-                api_key=api_key
-            )
-        return jsonify(result=result, prompt=prompt)
-    except Exception as e:
-        return jsonify(
-            result=f'Error {e}.',
-            prompt=e
-        )
-
-"""
-@returns prompt and simplified text from gpt-result
-"""
-@app.route('/syntactic-simplify', methods=['GET'])
-def syntactic_simplify():
-    try:
-        api_key = session.get(API_KEY_SESSION_NAME, None) 
-        text = request.args.get('text')
-
-        sim = Simplification(api_key)
-        result = sim.syntactic_simplify(text)
-        return jsonify(
-            result=result
-        )
-    except Exception as e:
-        return jsonify(
-            result=f'Error: {e}'
-        )
-
-"""
-"""
-@app.route('/extract-text', methods=['GET'])
-def extract_sentences():
-    text = request.args.get('text')
-    n = request.args.get('number')
-    url = 'http://172.18.0.3:5001/extractive-summarization'
-    data = {'text': {str(text)},'n':{n}}
-    response = requests.post(url, json=data)
-    return jsonify(result=response.result)
-
-
-@app.route('/get-pos-tag', methods=['GET','POST'])
-def get_pos_tag():
-    try:
-        word = request.args.get('word')
-        sentence = request.args.get('context')
-        pos_tag = ta.get_spacy_pos_tag(
-            word=word,
-            sentence=sentence
-        ).lower()
-        return jsonify(pos=pos_tag)
-    except Exception as e:
-        return jsonify(pos='noun')
-
-
-
-"""
-"""
-@app.route('/generate-summary', methods=['GET', 'POST'])
-def generate_summary():
-    try:
-        api_key = session.get(API_KEY_SESSION_NAME, None) 
-        sum = Summarization(api_key)
-
-        """
-        #title
-        """
-        title = request.form.get('title')
-
-        """
-        #glossary
-        """
-        wordlist = request.form.get('glossaryList')
-        wordlist = wordlist.strip(' ')\
-                           .split('\n')
-
-        """
-        """
-        if len(wordlist) != 0:
-            arr = []
-            for field in wordlist:
-                if len(field.split(':'))>1:
-                    word = field.split(':')[0]
-                    pos = field.split(':')[2]
-                    arr.append([word, pos])
-            glossary = sum.generate_glossary(list=arr)
-        else:
-            glossary = [[]]
-
-        """
-        #volledige tekst
-        """
-        full_text = request.form.get('fullText')
-        full_text = sum.generate_summary(fullText=full_text)
-
-        Creator().create_pdf(
-            title=title, 
-            list=glossary, 
-            full_text=full_text
-        )
-
-        return send_file(
-            path_or_file='output.pdf', 
-            as_attachment=True
-        )
     
-    except Exception as e:
-        return render_template(
-            'error.html',
-            error=f'Problem app.py: {e}'
+        sentence = request.json['sentence']
+        word = request.json['word']
+        
+        result = lexi.look_up_word_rapidapi(
+            sentence=sentence, 
+            word=word
         )
 
-"""    
-@app.route('/foo', methods=['GET'])
-def tryout_foo():
+        # if no result, try again here with gpt-3
+        if 'n_results' in result:
+            if False and result['n_results'] > 0:
+                return jsonify(result=result, source='Lexicala')
+        
+        try:
+            api_key = session['api_key']
+        except:
+            api_key = None
 
+        gpt = GPT(api_key)
+        result, prompt = gpt.look_up_word_gpt(word=word,context=sentence)
+        return jsonify(result=result, source='gpt', prompt=prompt)
+
+# Color changes
+""""""
+@app.route('/change-color', methods=['POST'])
+def change_color():
     try:
-        url = 'http://172.18.0.3:5000/extractive-summarize'
-        data = {'text': 'Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder.','n':4}
-        response = requests.post(url, json=data)
+        data = request.get_json()
+        color = data['color']
+        session['color'] = color
+        return jsonify(color=session[COLOR_SESSION_NAME])
     except Exception as e:
-        response = e
+        return jsonify(color='white')
 
-    return render_template_string(f'{response}')
+@app.route('/get-background-color', methods=['POST'])
+def get_color():
+    try:
+        color = session['color']
+        return jsonify(color=color)
+    except:
+        return jsonify(color='white')
 
 
-@app.route('/bar', methods=['GET'])
-def tryout_bar():
 
-    try:        
-        url = 'http://172.18.0.3:5000/abstractive-summarize'
-        data = {'text': 'Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder. Het grote zwijn huppelt. Al denkt het na, waarom ben ik hier? Het grote zwijn huppelt verder.','n':50, 'lang':'nl'}
-        response2 = requests.post(url, json=data)
-    except Exception as e:
-        response2 = e
-    
-    return render_template_string(f'{response2}')
-"""
 
-"""
-"""
+
+# Flask-App RunTime-related
+app.permanent_session_lifetime = timedelta(minutes=20)
 if __name__ == "__main__":
     app.run()

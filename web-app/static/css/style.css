@@ -96,8 +96,12 @@ body {
     background-color: darkgoldenrod;
 }
 
+.buttons{
+    width: 100%;
+    margin:auto;
+}
 
-#explainWord {
+.btn{
     background-color: #ccc;
     color: #fff;
     padding: 10px 20px;
@@ -105,7 +109,16 @@ body {
     cursor: pointer;
 }
 
-#explainWord.active {
+#explainWord.active, #explainSentence.active {
     background-color: #333;
 }
 
+span.verb:hover, span.propn:hover, span.noun:hover, span.adj:hover{
+    background-color: grey;
+    color:black
+}
+
+#colors {
+    display: flex;
+    justify-content: space-between;
+  }

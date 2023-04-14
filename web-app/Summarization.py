@@ -1,227 +1,86 @@
-import configparser, openai, re
-from googletrans import Translator
+import configparser
+import time, json, requests
 from langdetect import detect
-import requests
+from googletrans import Translator
 
-""""""
-COMPLETIONS_MODEL = "text-davinci-003"
-EMBEDDING_MODEL = "text-embedding-ada-002"
-try:
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    openai.api_key = config['openai']['api_key']
-except:
-    openai.api_key = 'demo'
+dict = {
+    'sc':"https://api-inference.huggingface.co/models/haining/scientific_abstract_simplification",
+    'bart':"https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+    'bart-sc': "https://api-inference.huggingface.co/models/sambydlo/bart-large-scientific-lay-summarisation",
+    't5':"https://api-inference.huggingface.co/models/mrm8488/t5-base-finetuned-summarize-news",
+    'kis': "https://api-inference.huggingface.co/models/philippelaban/keep_it_simple",
+    'gpt-2':'https://api-inference.huggingface.co/models/gpt2',
+    'gpt-2-ft': "https://api-inference.huggingface.co/models/gavin124/gpt2-finetuned-cnn-summarization-v2"
+}
 
+max_length = 2000
 
-""""""
-try:
-    LANG = 'nl'
-except:
-    LANG = 'nl'
-
-class Summarization:
-    """
-    @sets openai.api_key
-    """
-    def __init__(self, key):
-        if key is None:
+class HuggingFaceModels:
+    def __init__(self):
+        try:
             config = configparser.ConfigParser()
             config.read('config.ini')
-            openai.api_key = config['openai']['api_key']
-        else:
-            openai.api_key = key
-
-        global rapidapikey
-        try:
-            rapidapikey = config['rapidapi']['api_key']
-        except:
-            rapidapikey = 'no_key_submitted'
-
-    """
-    @retuns full-text
-    """
-    def summarize_with_presets(self, full_text, presets):
-        try:    
-            prompt = f"""
-            Samenvat de volgende tekst in {presets[0]} paragrafen met elk {presets[1]} zinnen van max {presets[2]} lang.
-            {full_text}
-            """
-
-            result = openai.Completion.create(
-                    prompt=prompt,
-                    temperature=0,
-                    max_tokens=1000,
-                    model=COMPLETIONS_MODEL,
-                    top_p=0.9,
-                    stream=False
-            )["choices"][0]["text"].strip(" \n")
-            return prompt, result
-        
+            global huggingface_api_key
+            huggingface_api_key = config['huggingface']['api_key']
         except Exception as e:
-            return 'Open AI outage of problemen met API-sleutel', e
+            huggingface_api_key = 'not_submitted'
+
+
+    """
+    
+    """
+    def query(self, payload, API_URL):
+        headers = {"Authorization": f"Bearer {huggingface_api_key}"}
+        response = requests.post(API_URL, headers=headers, json=payload)
+        return response.json()
+    
+
+    """
+    1) translate to english
+    2) extract/abstractive summarization
+    3) translate to original language
+    """
+    def summarize(self, text, key):
+        origin_lang = detect(text)
+
+        if origin_lang in ['fr','nl','de']:
+            text = Translator().translate(text=text,src=origin_lang,dest='en').text
+        elif origin_lang not in ['fr','nl','de','en']:
+            text = Translator.translate(text=text,src='en',dest='en').text
+
+        length = len(text)
+
+        API_URL = dict.get(key)
+        i = 0
+        while True and i < 3:
+            output = self.query({
+                "inputs": text,
+                "parameters": {
+                    "repetition_penalty": 4.0,
+                    "max_length": length+10
+                }
+            }, API_URL)
+
+            response = output
             
-
-    """
-    @returns 
-    """
-    def translate_sentence(self, sentence):
-        translator  = Translator()
-        result = translator.translate(
-            text=sentence,
-            dest=LANG)
-        return result.text # result.origin
-
-
-    """
-    """
-    def abstractive_summarization_rapidapi(self, text, num_sentences):
-        try:
-            url = "https://gpt-summarization.p.rapidapi.com/summarize"
-            payload = {
-	            "text": text,
-	            "num_sentences": num_sentences
-            }
-            headers = {
-                "content-type": "application/json",
-                "X-RapidAPI-Key": str(rapidapikey),
-                "X-RapidAPI-Host": "gpt-summarization.p.rapidapi.com"
-            }
-
-            response = requests.request("POST", url, json=payload, headers=headers)
-
-            return response.json()['summary']
-        except Exception as e:
-            return f'{e}'
-
-
-    """
-    @returns list of sentences
-    """
-    def extractive_summarization(self, full_text, summarizer):
-
-        try:    
-            """determining optimal number of sentences based on MMR"""
-            res = summarizer.calculate_optimal_k(
-                full_text, 
-                k_max=10
-            )
-
-            """extracting key sentences"""
-            result = summarizer(
-                body=full_text,
-                max_length=700,
-                min_length=100,
-                num_sentences=res,
-                return_as_list=True
-            )
-
-            new = []
-            try:
-                for i in result:
-                    if detect(i) != 'nl':
-                        new.append(self.translate_sentence(i))
-                    else:
-                        new.append(i)
-                return ' '.join(new)
-            except Exception as e:
-                return f'Problemen met Google Translate {e}'
-
+            if 'error' not in response:
+                break
+            else:
+                i += 1
+                try:
+                    time.sleep(float(response.get('estimated_time')))
+                except:
+                    time.sleep(20)
         
-        except Exception as e:
-            return f'Problemen met BERT {e}'
-            
-
-    def generate_summary(self, fullText, summarizer):
-        """cleaning"""
-        patterns = {
-            '<h1>': '',
-            '</h1>': '',
-            '<div class="page">':'',
-            '</div>':'',
-            '<span class="word">': ' ',
-            '</span>' : '',
-            '\n' : '',
-            ' ' : '',
-            '<p>': '',
-            '</p><p>':'',
-            '</p>':'',
-            '<span class="sentence">':' ',
-            '[':'',
-            ']':'',
-            '\r':''
-        }
-        regex = re.compile('|'.join(map(re.escape, patterns.keys())))
-        fullText = fullText.strip('\n')
-        text = regex.sub(lambda match : patterns[match.group(0)], fullText)
-
-        """per gekozen titel"""
-        text = text.split('<h3>')
-        new_text = []
-
-        """tekst doorlopen"""
-        for i in range(len(text)):
-            try:
+        response = output[0]
                 
-                title = text[i].split('</h3>')[0], #ervoor
-                paragraph = text[i].split('</h3>')[1] #erna
+        if 'generated_text' in output[0]:
+            text = output[0].get('generated_text')
 
-                if (len(paragraph) > 3000):
-                    paragraph = self.extractive_summarization(full_text=paragraph,summarizer=summarizer)
-                    paragraph = self.abstractive_summarization_rapidapi(text=paragraph,num_sentences=3)
-                else:
-                    # paragraph = self.extractive_summarization(full_text=paragraph,summarizer=summarizer)
-                    paragraph = self.abstractive_summarization_rapidapi(text=paragraph,num_sentences=3)
+        if 'summary_text' in output[0]:
+            text = output[0].get('summary_text')
 
-                new_text.append([
-                    title, paragraph
-                ])
+        if origin_lang != 'en':
+            text = Translator().translate(text=text,src="en", dest=origin_lang).text
 
-            except Exception as e:
-                new_text.append(str(e))
-        return new_text
-
-
-
-    def generate_glossary(self, list):
-        # [ [woord, betekenis], [woord, betekenis], ... [woord, betekenis] ]
-        url = "https://lexicala1.p.rapidapi.com/search-entries"
-        result = []
-        for word in list:
-            querystring = {"text":str(word[0]),"language":"nl","pos":str(word[1])}
-
-            headers = {
-                "X-RapidAPI-Key": str(rapidapikey),
-                "X-RapidAPI-Host": "lexicala1.p.rapidapi.com"
-            }
-
-            response = requests.request("GET", url, headers=headers, params=querystring)
-            try:
-                # definition = response.json()['results'][0]['senses'][0]['definition']
-                definition = response.json()
-            except Exception as e:
-                definition = e
-
-            result.append([word, definition])
-        return result
-
-
-
-    def generate_glossary_for_set(self, set):
-        words = ", ".join(set)
-        prompt = f"""
-        Geef voor de volgende woorden een eenvoudige uitleg van hoogstens twee zinnen: {words}.
-        formaat:
-        woord: uitleg. synoniemen: ...\n
-        """
-
-        result = openai.Completion.create(
-                prompt=prompt,
-                temperature=0,
-                max_tokens=1000,
-                model=COMPLETIONS_MODEL,
-                top_p=0.9,
-                stream=False
-                
-        )["choices"][0]["text"].strip(" \n")
-        return result.split('\n')
+        return text
