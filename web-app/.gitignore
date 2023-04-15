@@ -151,6 +151,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 config.ini
+.env
 pytorch_model.bin
 *.pyc
 *.cpython-310.pyc

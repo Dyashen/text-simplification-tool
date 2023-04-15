@@ -122,3 +122,7 @@ span.verb:hover, span.propn:hover, span.noun:hover, span.adj:hover{
     display: flex;
     justify-content: space-between;
   }
+
+.personalized{
+    display: none;
+}

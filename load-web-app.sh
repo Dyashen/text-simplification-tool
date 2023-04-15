@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd web-app
+cd web-app || exit
 docker stop text-application-prototype
 docker rm text-application-prototype
 

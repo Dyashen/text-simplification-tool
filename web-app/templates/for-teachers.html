@@ -8,6 +8,12 @@
 
 <body>
 
+  <fieldset id="colors">
+    <div><label>Naamwoorden</label><input type="color" id="colorForNouns" name="favcolor" value="#ff0000"></div>
+    <div><label>Werkwoorden</label><input type="color" id="colorForVerbs" name="favcolor" value="#ff0000"></div>
+    <div><label>Adjectieven</label><input type="color" id="colorForAdjs" name="favcolor" value="#ff0000"></div>
+  </fieldset>
+
   <div class="container">
 
 
@@ -21,7 +27,9 @@
           {% for sentence in paragraph %}
           <span class="sentence">
             {% for word in sentence %}
-            <span class="word">{{word}}</span>
+            {% if sentence[word] != 'space' %}
+            <span class={{sentence[word]}}>{{word}}</span>
+            {% endif %}
             {% endfor %}
           </span>
           {% endfor %}
@@ -53,6 +61,9 @@
         <!--Tools voor de leerkracht-->
         <h2>Tools voor de leerkracht</h2>
         <fieldset>
+          <input type="checkbox" id="verb-show">WW's tonen
+          <input type="checkbox" id="noun-show">ZN's tonen
+          <input type="checkbox" id="adj-show">Adjs tonen
           <label for="checkboxTitle">Titels markeren</label><input name="actions" type="radio" id="checkboxTitle"><br>
           <label for="checkboxDeleteSents">Zin verwijderen</label><input type="radio" name="actions"
             id="checkboxDeleteSents"><br>
@@ -70,24 +81,28 @@
             <option value="nl">Nederlands</option>
             <option value="fr">Frans</option>
           </select><br>
-
         </fieldset>
 
+        <input type="checkbox" id="personalizedSummary" name="personalizedSummary" value="personalizedSummary"><label
+          for="personalizedSummary">Samenvatting op maat</label>
+
         <!--Lexicale vereenvoudiging-->
-        <h2>Lexicale vereenvoudiging</h2>
-        <fieldset>
+        
+        <fieldset class="personalized">
+          <h2>Lexicale vereenvoudiging</h2>
           <input type="checkbox" id="keywords" name="keywords" value="keywords">
           <label for="keywords">Belangrijke kernwoorden automatisch herkennen</label><br>
           <input type="checkbox" id="vocabulary" name="vocabulary" value="vocabulary">
           <label for="vocabulary">Moeilijke woordenschat vervangen</label><br>
         </fieldset>
 
-        <h2>Syntactische vereenvoudiging</h2>
-        <fieldset>
+        
+        <fieldset class="personalized">
+          <h2>Syntactische vereenvoudiging</h2>
           <input type="checkbox" id="syntax" name="syntax" value="syntax">
           <label for="syntax">Tangconstructies aanpassen</label><br>
 
-          <input required type="number" id="length_sentence" name="length_sentence" min="5" max="15">
+          <input type="number" id="length_sentence" name="length_sentence" min="5" max="15">
           <label for="length_sentence">Zinslengte</label><br>
 
           <input type="checkbox" id="pronouns" name="pronouns" value="pronouns">
@@ -102,8 +117,9 @@
 
 
         <!--Samenvatten-->
-        <h2>Samenvatten</h2>
-        <fieldset>
+        
+        <fieldset class="personalized">
+          <h2>Samenvatten</h2>
           <input type="checkbox" id="citation" name="citation" value="citation">
           <label for="citation">Bronvermelding</label><br>
 
@@ -116,13 +132,13 @@
           <input type="checkbox" id="extractive_summary" name="extractive_summary" value="extractive_summary">
           <label for="extractive_summary">Extraherende samenvatting</label><br>
 
-          <input required type="number" id="length_summary" name="length_summary" min="50" max="500">
+          <input type="number" id="length_summary" name="length_summary" min="50" max="500">
           <label for="summary_length">Lengte van de samenvatting</label><br>
 
           <input type="checkbox" id="keyword_summary" name="keyword_summary" value="keyword_summary">
           <label for="keyword_summary">Samenvatten op basis van kernwoorden</label>
 
-          <input required type="number" id="number_paragraphs" name="number_paragraphs" min="1" max="5">
+          <input type="number" id="number_paragraphs" name="number_paragraphs" min="1" max="5">
           <label for="number_paragraphs">Aantal paragrafen per titel</label>
         </fieldset>
 
@@ -151,18 +167,19 @@
 <script>
 
   /*
-  POS-tag
+  
   */
-const callPythonCallPOSTag = async (word, context) => {
-  try {
-    const response = await fetch(
-      `http://localhost:5000/get-pos-tag?word=${word}&context=${context}`
-    );
-    return (result = await response.json());
-  } catch (error) {
-    console.error(error);
-  }
-};
+  const checkbox = document.querySelector('#personalizedSummary');
+  const fieldsets = document.querySelectorAll('.personalized');
+  checkbox.addEventListener('change', () => {
+    fieldsets.forEach(fieldset => {
+      if (checkbox.checked) {
+        fieldset.style.display = 'block';
+      } else {
+        fieldset.style.display = 'none';
+      }
+    });
+  });
 
   /*
   Glossary-lijst aanvullen met woord
@@ -170,7 +187,7 @@ const callPythonCallPOSTag = async (word, context) => {
   const checkboxAddWordToGlossary = document.getElementById("checkboxAddWordToGlossary");
   checkboxAddWordToGlossary.addEventListener("change", function () {
     if (checkboxAddWordToGlossary.checked) {
-      const words = document.querySelectorAll('span.word');
+      const words = document.querySelectorAll('span.noun', 'span.verb', 'span.adj');
       words.forEach((w) => {
         w.addEventListener('click', async (event) => {
           if (checkboxAddWordToGlossary.checked) {
@@ -182,7 +199,10 @@ const callPythonCallPOSTag = async (word, context) => {
               context = context + " " + child.textContent;
             };
 
-            const response = await callPythonCallPOSTag(pTag.innerHTML, context);
+            // const response = await callPythonCallPOSTag(pTag.innerHTML, context);
+            const response = await fetch(`http://localhost:5000/get-pos-tag?word=${word}&context=${context}`);
+            result = await response.json();
+
             var pos_tag = JSON.stringify(response.pos);
             console.log(pos_tag);
 
@@ -236,7 +256,7 @@ const callPythonCallPOSTag = async (word, context) => {
 
 
   /*
-
+  Tekst toevoegen
   */
   function addTextToTextArea() {
     console.log(document.querySelector('.left-container').innerHTML);
@@ -254,6 +274,66 @@ const callPythonCallPOSTag = async (word, context) => {
     const textarea = document.querySelector('textarea');
     textarea.value = selectedText;
   };
+
+
+  function removeAdjectives() {
+    const elements = document.querySelectorAll(".adj");
+    elements.forEach(function (element) {
+      element.remove();
+    });
+  }
+
+  // checkboxes
+  const nouns = document.getElementById('noun-show');
+  const verbs = document.getElementById('verb-show');
+  const adjs = document.getElementById('adj-show');
+
+  nouns.addEventListener('change', function () {
+    if (this.checked) {
+      const color = document.getElementById('colorForNouns').value;
+      console.log(color);
+      const elements = document.querySelectorAll("span.noun");
+      elements.forEach(function (element) {
+        element.style.color = color;
+      });
+    } else {
+      const elements = document.querySelectorAll("span.noun");
+      elements.forEach(function (element) {
+        element.style.color = "black";
+      });
+    }
+  });
+
+  verbs.addEventListener('change', function () {
+    if (this.checked) {
+      const color = document.getElementById('colorForVerbs').value;
+      const elements = document.querySelectorAll("span.verb");
+      elements.forEach(function (element) {
+        element.style.color = color;
+      });
+    } else {
+      const elements = document.querySelectorAll("span.verb");
+      elements.forEach(function (element) {
+        element.style.color = "black";
+      });
+    }
+  });
+
+
+  adjs.addEventListener('change', function () {
+    if (this.checked) {
+      const color = document.getElementById('colorForAdjs').value;
+      const elements = document.querySelectorAll("span.adj");
+      elements.forEach(function (element) {
+        element.style.color = color;
+      });
+    } else {
+      const elements = document.querySelectorAll("span.adj");
+      elements.forEach(function (element) {
+        element.style.color = "black";
+      });
+    }
+  });
 </script>
 
 </html>

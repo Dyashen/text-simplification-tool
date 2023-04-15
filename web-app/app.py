@@ -1,6 +1,8 @@
 """flask"""
 from flask import Flask, render_template, render_template_string, request, jsonify, session, send_file
 
+from langdetect import detect_langs, detect
+
 
 """pdf"""
 from Reader import Reader
@@ -12,23 +14,26 @@ from datetime import timedelta
 
 
 """"""
-from Summarization import HuggingFaceModels
-from Lexicala import Lexicala
-from GPT import GPT
+from Summarization import HuggingFaceModels, GPT, Lexicala
+from Writer import Creator
+import Analysis as an
+
 
 
 """"""
 app = Flask(__name__)
 app.secret_key = "super secret key"
+API_KEY_SESSION_NAME = 'api_key'
 COLOR_SESSION_NAME = 'color'
 
 """"""
 @app.before_request
 def pre_boot_up():
-    session.permanent = True
+    session.permanent=True
     global simplifier, lexi
     simplifier = HuggingFaceModels()
-    lexi = Lexicala(None) 
+    lexi = Lexicala(None)
+
     
 
 """"""
@@ -71,6 +76,70 @@ def teaching_tool():
         )
 
 
+""""""
+@app.route('/for-teachers', methods=['GET','POST'])
+def analysing_choosing_for_teachers():
+    pdf = request.files['pdf']
+    pdf_data = BytesIO(pdf.read()) 
+    all_pages = extract_pages(
+        pdf_data,
+        page_numbers=None,
+        maxpages=999
+    )
+
+    """[page, page, page, ..., page]"""
+    reader = Reader()
+    full_text = reader.get_full_text_dict(all_pages)
+    full_text_new = reader.get_full_text_site(full_text)
+
+    return render_template(
+        'for-teachers.html', 
+        pdf=full_text_new, 
+        lang='lang',
+        title='Test', 
+        subject='Test'
+    )
+
+"""
+"""
+@app.route('/generate-summary', methods=['GET','POST'])
+def generate_summary():
+        api_key = session.get(API_KEY_SESSION_NAME, None) 
+
+        personalized = request.form.get('personalizedSummary')
+
+        if personalized is None:        
+            sum = HuggingFaceModels(api_key)
+
+            title = request.form.get('title')
+            wordlist = request.form.get('glossaryList')
+            wordlist = wordlist.strip(' ').split('\n')
+
+            """
+            """
+            if len(wordlist) != 0:
+                arr = []
+                for field in wordlist:
+                    if len(field.split(':'))>1:
+                        word = field.split(':')[0]
+                        pos = field.split(':')[2]
+                        arr.append([word, pos])
+                glossary = sum.generate_glossary(list=arr)
+            else:
+                glossary = [[]]
+
+            full_text = request.form.get('fullText')
+            full_text = simplifier.summarize(text='summarize: ' + full_text, key='gpt-2-ft')
+
+            
+
+            Creator().create_pdf(title=title, list=glossary, full_text=full_text)
+
+            return send_file(path_or_file='output.pdf', as_attachment=True)
+
+        else:
+            return jsonify(result='aangevinkt')
+
 
 # TEXT FUNCTIONS
 @app.route('/extract-text', methods=['POST'])
@@ -91,14 +160,27 @@ def scientific_simplify():
 
 """
 """
+@app.route('/get-pos-tag', methods=['GET','POST'])
+def get_pos_tag():
+    try:
+        word = request.args.get('word')
+        sentence = request.args.get('context')
+        pos_tag = an.get_spacy_pos_tag(
+            word=word,
+            sentence=sentence
+        ).lower()
+        return jsonify(pos=pos_tag)
+    except Exception as e:
+        return jsonify(pos='noun')
+
+"""
+"""
 @app.route('/personalized-simplify', methods=['POST'])
 def personalized_simplify():
     try:
         api_key = session['api_key']
     except:
         api_key = None
-
-    
 
     gpt = GPT(api_key)
     text = request.json['text']
@@ -153,8 +235,6 @@ def get_color():
         return jsonify(color=color)
     except:
         return jsonify(color='white')
-
-
 
 
 
