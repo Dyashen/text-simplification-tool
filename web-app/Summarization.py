@@ -58,30 +58,49 @@ class HuggingFaceModels:
         doc = nlp(text)
 
         sentences = []
+
+        gt = Translator()
+
         for s in doc.sents:
             try:
-                print(s)
                 if origin_lang in ['fr','nl','de']:
-                    text = Translator().translate(text=s,src=origin_lang,dest='en').text
+                    text = gt.translate(text=str(s),src=origin_lang,dest='en').text
                 elif origin_lang not in ['fr','nl','de','en']:
-                    text = Translator.translate(text=s,src='en',dest='en').text
+                    text = gt.translate(text=s,src='en',dest='en').text
                 else:
                     text = text
+                
                 sentences.append(text)
             except Exception as e:
-                sentences.append(e)
+                continue
 
-        length = len(text)
+        length = len(sentences)
         API_URL = huggingfacemodels.get(key)
 
-        print(sentences)    
 
+        sentences = np.array(sentences)
+        pad_size = 5 - (sentences.size % 5)
+        padded_a = np.pad(sentences, (0, pad_size), mode='constant')
+        paragraphs = padded_a.reshape(-1, 5)
+        
+        output = []
+        for i in paragraphs:
+            result = self.query({"inputs": " ".join(i),"parameters": {"repetition_penalty": 4.0,"max_length": length/2}}, API_URL)
 
+            text = "Tryout."
 
-        sentences = np.reshape(4,5)
+            print(result)
+            
+            if 'generated_text' in result[0]:
+                text = result[0].get('generated_text')
 
+            if 'summary_text' in result[0]:
+                text = result[0].get('summary_text')
 
-        output = self.query({"inputs": text,"parameters": {"repetition_penalty": 4.0,"max_length": length/2}}, API_URL)
+            if origin_lang != 'en':
+                text = gt.translate(text=str(text),src="en", dest=origin_lang).text 
+
+            output.append(text)
 
         """
         for key in ['sc','kis','gpt-2-ft']:
@@ -89,19 +108,8 @@ class HuggingFaceModels:
             output = self.query({"inputs": text,"parameters": {"repetition_penalty": 4.0,"max_length": length/2}}, API_URL)
             print(output)
         """
-
-        print(output)
                     
-        if 'generated_text' in output[0]:
-            text = output[0].get('generated_text')
-
-        if 'summary_text' in output[0]:
-            text = output[0].get('summary_text')
-
-        if origin_lang != 'en':
-            text = Translator().translate(text=text,src="en", dest=origin_lang).text
-
-        return text
+        return output
     
 
     def generate_glossary(self, list):
@@ -263,7 +271,7 @@ class Lexicala():
             }
 
             headers = {
-                "X-RapidAPI-Key": str(rapidapikey),
+                "X-RapidAPI-Key": str(rapidapi_api_key),
                 "X-RapidAPI-Host": "lexicala1.p.rapidapi.com"
             }
 

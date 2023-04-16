@@ -131,7 +131,7 @@ def generate_summary():
             full_text = request.form.get('fullText')
             full_text = simplifier.summarize(text='summarize: ' + full_text, key='gpt-2-ft')
 
-            
+            print(full_text)
 
             Creator().create_pdf(title=title, list=glossary, full_text=full_text)
 

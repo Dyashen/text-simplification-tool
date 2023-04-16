@@ -28,11 +28,12 @@ class Creator():
 
     """"""
     def generate_summary(self, full_text):
-        with open(markdown_file,'a', encoding='utf-8') as f:
+        with open(markdown_file,'a', encoding="ascii", errors="surrogateescape") as f:
+            print(full_text)
             for i in range(len(full_text)):
                 if len(full_text[i]) > 1:
-                    title = full_text[i][0]
-                    text = full_text[i][1]
+                    title = full_text[i]
+                    text = str(full_text[i])
                     f.write('\n\n')
                     f.write(f'## {title}')
                     f.write('\n\n')
@@ -64,7 +65,6 @@ class Creator():
                               outputfile='output.pdf', 
                               extra_args=['--pdf-engine=xelatex'])
         
-
 
 """
 os.chdir(os.getcwd()+'/web-app/saved_files')
