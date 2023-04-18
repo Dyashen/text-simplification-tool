@@ -129,13 +129,12 @@ def generate_summary():
                 glossary = [[]]
 
             full_text = request.form.get('fullText')
-            full_text = simplifier.summarize(text='summarize: ' + full_text, key='gpt-2-ft')
 
-            print(full_text)
+            full_text = simplifier.summarize(text=full_text, lm_key='peg') # pegasus model --> dict structure
 
             Creator().create_pdf(title=title, list=glossary, full_text=full_text)
 
-            return send_file(path_or_file='output.pdf', as_attachment=True)
+            return send_file(path_or_file='saved_files/output.pdf', as_attachment=True)
 
         else:
             return jsonify(result='aangevinkt')

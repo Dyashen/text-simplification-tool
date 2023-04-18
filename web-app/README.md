@@ -1,4 +1,4 @@
-# Prototype for multilingual text simplification and summarization of research articles with GPT-3 and BERT.
+# Prototype for multilingual simplification of research articles with GPT-2 and GPT-3.
 
 Docker instructions:
 

@@ -1,6 +1,7 @@
 import subprocess, io, os, pypandoc
 
-markdown_file = "file.md"
+markdown_file = "web-app/saved_files/file.md"
+pdf_file = "web-app/saved_files/output.pdf"
 
 class Creator():
 
@@ -28,21 +29,17 @@ class Creator():
 
     """"""
     def generate_summary(self, full_text):
-        with open(markdown_file,'a', encoding="ascii", errors="surrogateescape") as f:
-            print(full_text)
-            for i in range(len(full_text)):
-                if len(full_text[i]) > 1:
-                    title = full_text[i]
-                    text = str(full_text[i])
-                    f.write('\n\n')
-                    f.write(f'## {title}')
-                    f.write('\n\n')
-                    f.write(text)
-                    f.write('\n\n')
-                else:
-                    f.write('\n\n')
-                    f.write(f'{full_text[i]}')
-                    f.write('\n\n')
+        with open(markdown_file,'a', encoding="latin-1", errors="surrogateescape") as f:
+
+            
+            for key in full_text.keys():
+                title = key
+                text = str(full_text[key])
+                f.write('\n\n')
+                f.write(f'## {title}')
+                f.write('\n\n')
+                f.write(text)
+                f.write('\n\n')
 
 
     def create_pdf(self, title, list, full_text):
@@ -62,15 +59,6 @@ class Creator():
         """"""
         pypandoc.convert_file(source_file=markdown_file, 
                               to='pdf', 
-                              outputfile='output.pdf', 
+                              outputfile=pdf_file, 
                               extra_args=['--pdf-engine=xelatex'])
         
-
-"""
-os.chdir(os.getcwd()+'/web-app/saved_files')
-Creator().create_pdf(
-    title='Probeersel',
-    list=[['foot','bar']],
-    full_text=[['De grote zwarte kat springt op de grijze zwarte mat.']]
-)
-"""

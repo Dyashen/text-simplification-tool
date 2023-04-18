@@ -11,7 +11,9 @@ huggingfacemodels = {
     't5':"https://api-inference.huggingface.co/models/mrm8488/t5-base-finetuned-summarize-news",
     'kis': "https://api-inference.huggingface.co/models/philippelaban/keep_it_simple",
     'gpt-2':'https://api-inference.huggingface.co/models/gpt2',
-    'gpt-2-ft': "https://api-inference.huggingface.co/models/gavin124/gpt2-finetuned-cnn-summarization-v2"
+    'gpt-2-ft': "https://api-inference.huggingface.co/models/gavin124/gpt2-finetuned-cnn-summarization-v2",
+    'peg':'https://api-inference.huggingface.co/models/google/pegasus-xsum',
+    'peg-par':'https://api-inference.huggingface.co/models/tuner007/pegasus_paraphrase'
 }
 
 from dotenv import load_dotenv
@@ -24,7 +26,7 @@ EMBEDDING_MODEL = "text-embedding-ada-002"
 
 languages = {
     'nl':'nl_core_news_sm',
-    'en':'en_core_word_sm'
+    'en':'en_core_web_md'
 }
 
 class HuggingFaceModels:
@@ -44,13 +46,96 @@ class HuggingFaceModels:
         return response.json()
     
 
+
+    def summarize(self, text, lm_key):
+        ratio = 0.5
+        
+        soup = BeautifulSoup(text, 'html.parser')
+        gt = Translator()
+        
+        h3_tags = soup.find_all('h3')
+
+        split_text = {}
+        for i, tag in enumerate(h3_tags):
+            key = tag.text
+            value = ""
+            for sibling in tag.next_siblings:
+                if sibling.name == 'h3':
+                    break
+                value += str(sibling.get_text()).replace('\n',' ')
+            split_text[key] = value
+
+
+        result_dict = {}
+        for key in split_text.keys():
+            text = split_text[key]
+
+            origin_lang = detect(text)
+            nlp = spacy.load(languages.get(origin_lang, 'en'))
+            doc = nlp(text)
+
+            sentences = []
+            for s in doc.sents:
+                try:
+                    if origin_lang in ['fr','nl','de']:
+                        text = gt.translate(text=str(s),src=origin_lang,dest='en').text
+                    elif origin_lang not in ['fr','nl','de','en']:
+                        text = gt.translate(text=s,src='en',dest='en').text
+                    else:
+                        text = s
+                    
+                    sentences.append(text)
+                except Exception as e:
+                    continue
+
+            API_URL = huggingfacemodels.get(lm_key)
+
+            sentences = np.array(sentences)
+            pad_size = 3 - (sentences.size % 3)
+            padded_a = np.pad(sentences, (0, pad_size), mode='empty')
+            paragraphs = padded_a.reshape(-1, 3)
+
+
+            output = []
+            text = ""
+            for i in paragraphs:
+                length = len(str(i))
+                result = self.query({"inputs": str(i),"parameters": {"repetition_penalty": 4.0,"max_length": length*ratio,"min_length":1},"options":{"wait_for_model":True}}, API_URL)
+
+                try:
+                    if 'generated_text' in result[0]:
+                        text = result[0].get('generated_text')
+
+                    if 'summary_text' in result[0]:
+                        text = result[0].get('summary_text')
+                except:
+                    print('server outage')
+
+                try:
+                    if origin_lang != 'en':
+                        text = gt.translate(text=str(text),src="en", dest=origin_lang).text 
+                except TypeError as e:
+                    text = ''
+
+                output.append(text)
+
+            result_dict[key] = output
+
+        return(result_dict)
+        
+
+
     """
     1) translate to english
     2) extract/abstractive summarization
     3) translate to original language
     """
-    def summarize(self, text, key):
+    def summarize_old(self, text, key):
+        
+        ratio = 0.5
+
         soup = BeautifulSoup(text, 'html.parser')
+
         text = soup.get_text().replace('\n',' ').strip(' ')
 
         origin_lang = detect(text)
@@ -68,47 +153,41 @@ class HuggingFaceModels:
                 elif origin_lang not in ['fr','nl','de','en']:
                     text = gt.translate(text=s,src='en',dest='en').text
                 else:
-                    text = text
+                    text = s
                 
                 sentences.append(text)
             except Exception as e:
                 continue
 
-        length = len(sentences)
         API_URL = huggingfacemodels.get(key)
 
-
         sentences = np.array(sentences)
-        pad_size = 5 - (sentences.size % 5)
-        padded_a = np.pad(sentences, (0, pad_size), mode='constant')
-        paragraphs = padded_a.reshape(-1, 5)
+        pad_size = 3 - (sentences.size % 3)
+        padded_a = np.pad(sentences, (0, pad_size), mode='empty')
+        paragraphs = padded_a.reshape(-1, 3)
         
         output = []
+        text = ""
         for i in paragraphs:
-            result = self.query({"inputs": " ".join(i),"parameters": {"repetition_penalty": 4.0,"max_length": length/2}}, API_URL)
+            length = len(str(i))
+            result = self.query({"inputs": str(i),"parameters": {"repetition_penalty": 4.0,"max_length": length*ratio,"min_length":1},"options":{"wait_for_model":True}}, API_URL)
 
-            text = "Tryout."
+            try:
+                if 'generated_text' in result[0]:
+                    text = result[0].get('generated_text')
 
-            print(result)
-            
-            if 'generated_text' in result[0]:
-                text = result[0].get('generated_text')
+                if 'summary_text' in result[0]:
+                    text = result[0].get('summary_text')
+            except:
+                print('server outage')
 
-            if 'summary_text' in result[0]:
-                text = result[0].get('summary_text')
+            try:
+                if origin_lang != 'en':
+                    text = gt.translate(text=str(text),src="en", dest=origin_lang).text 
+            except TypeError as e:
+                text = ''
 
-            if origin_lang != 'en':
-                text = gt.translate(text=str(text),src="en", dest=origin_lang).text 
-
-            output.append(text)
-
-        """
-        for key in ['sc','kis','gpt-2-ft']:
-            API_URL = huggingfacemodels.get(key, 'sc')
-            output = self.query({"inputs": text,"parameters": {"repetition_penalty": 4.0,"max_length": length/2}}, API_URL)
-            print(output)
-        """
-                    
+            output.append(text)                    
         return output
     
 
@@ -288,3 +367,12 @@ class Lexicala():
         except Exception as e:
             return e
         
+
+
+"""
+text = "Within stutter therapy, transfer of learned skills to everyday life is not evident. Virtual Reality (VR) offers the opportunity to bring everyday life into into the safety of the therapy room. In this way, the feared situation can be practiced several times before moving into everyday life. An initial prototype of VR was tested by a group of 13 (young) adults who stutter. Based on their experiences and feedback, this was optimized with a more elaborated scenario and a more high-tech design. This second prototype was tested by 2 (young) adults who stutter. Young) adults who stutter indicated they see potential in using VR during the transfer phase. The first prototype had a greater impact than expected. A more high-tech elaboration with 360° images was perceived as more realistic."
+for k in huggingfacemodels.keys():
+    result = HuggingFaceModels().summarize(text=text, key=k)
+    print(" ".join(result))
+"""
+    
