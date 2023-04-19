@@ -21,6 +21,7 @@ class Creator():
     """"""
     def generate_glossary(self, list):
         with open(markdown_file, 'a', encoding='utf-8') as f:
+            f.write("---\n")
             f.write("# Glossary\n")
             f.write("| Woord | Definitie |\n")
             f.write("| --- | --- |\n")
@@ -30,8 +31,6 @@ class Creator():
     """"""
     def generate_summary(self, full_text):
         with open(markdown_file,'a', encoding="latin-1", errors="surrogateescape") as f:
-
-            
             for key in full_text.keys():
                 title = key
                 text = str(full_text[key])
@@ -50,6 +49,7 @@ class Creator():
             self.create_header(title='Simplified text')
         
         """"""
+        print(list)
         if len(list) != 0:
             self.generate_glossary(list=list)
 

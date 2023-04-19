@@ -100,7 +100,7 @@ class HuggingFaceModels:
             text = ""
             for i in paragraphs:
                 length = len(str(i))
-                result = self.query({"inputs": str(i),"parameters": {"repetition_penalty": 4.0,"max_length": length*ratio,"min_length":1},"options":{"wait_for_model":True}}, API_URL)
+                result = self.query({"inputs": str(i),"parameters": {"repetition_penalty": 4.0,"max_length": length,"min_length":1},"options":{"wait_for_model":True}}, API_URL)
 
                 try:
                     if 'generated_text' in result[0]:

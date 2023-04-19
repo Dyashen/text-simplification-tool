@@ -109,14 +109,15 @@ def generate_summary():
         personalized = request.form.get('personalizedSummary')
 
         if personalized is None:        
-            sum = HuggingFaceModels(api_key)
-
             title = request.form.get('title')
             wordlist = request.form.get('glossaryList')
             wordlist = wordlist.strip(' ').split('\n')
 
+            print(wordlist)
+            print('-'*100)
+
             """
-            """
+
             if len(wordlist) != 0:
                 arr = []
                 for field in wordlist:
@@ -126,7 +127,8 @@ def generate_summary():
                         arr.append([word, pos])
                 glossary = sum.generate_glossary(list=arr)
             else:
-                glossary = [[]]
+            """
+            glossary = [['example','definition']]
 
             full_text = request.form.get('fullText')
 
