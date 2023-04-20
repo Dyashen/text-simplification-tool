@@ -49,7 +49,6 @@ class HuggingFaceModels:
 
     def summarize(self, text, lm_key):
         ratio = 0.5
-        
         soup = BeautifulSoup(text, 'html.parser')
         gt = Translator()
         
@@ -64,6 +63,8 @@ class HuggingFaceModels:
                     break
                 value += str(sibling.get_text()).replace('\n',' ')
             split_text[key] = value
+
+        return split_text
 
 
         result_dict = {}
@@ -100,7 +101,7 @@ class HuggingFaceModels:
             text = ""
             for i in paragraphs:
                 length = len(str(i))
-                result = self.query({"inputs": str(i),"parameters": {"repetition_penalty": 4.0,"max_length": length,"min_length":1},"options":{"wait_for_model":True}}, API_URL)
+                result = self.query({"inputs": str(i),"parameters": {"repetition_penalty": 4.0,"max_length": length},"options":{"wait_for_model":True}}, API_URL)
 
                 try:
                     if 'generated_text' in result[0]:
@@ -108,8 +109,9 @@ class HuggingFaceModels:
 
                     if 'summary_text' in result[0]:
                         text = result[0].get('summary_text')
-                except:
-                    print('server outage')
+                except Exception as e:
+                    print(e)
+                    
 
                 try:
                     if origin_lang != 'en':
@@ -123,74 +125,7 @@ class HuggingFaceModels:
 
         return(result_dict)
         
-
-
-    """
-    1) translate to english
-    2) extract/abstractive summarization
-    3) translate to original language
-    """
-    def summarize_old(self, text, key):
-        
-        ratio = 0.5
-
-        soup = BeautifulSoup(text, 'html.parser')
-
-        text = soup.get_text().replace('\n',' ').strip(' ')
-
-        origin_lang = detect(text)
-        nlp = spacy.load(languages.get(origin_lang, 'en'))
-        doc = nlp(text)
-
-        sentences = []
-
-        gt = Translator()
-
-        for s in doc.sents:
-            try:
-                if origin_lang in ['fr','nl','de']:
-                    text = gt.translate(text=str(s),src=origin_lang,dest='en').text
-                elif origin_lang not in ['fr','nl','de','en']:
-                    text = gt.translate(text=s,src='en',dest='en').text
-                else:
-                    text = s
-                
-                sentences.append(text)
-            except Exception as e:
-                continue
-
-        API_URL = huggingfacemodels.get(key)
-
-        sentences = np.array(sentences)
-        pad_size = 3 - (sentences.size % 3)
-        padded_a = np.pad(sentences, (0, pad_size), mode='empty')
-        paragraphs = padded_a.reshape(-1, 3)
-        
-        output = []
-        text = ""
-        for i in paragraphs:
-            length = len(str(i))
-            result = self.query({"inputs": str(i),"parameters": {"repetition_penalty": 4.0,"max_length": length*ratio,"min_length":1},"options":{"wait_for_model":True}}, API_URL)
-
-            try:
-                if 'generated_text' in result[0]:
-                    text = result[0].get('generated_text')
-
-                if 'summary_text' in result[0]:
-                    text = result[0].get('summary_text')
-            except:
-                print('server outage')
-
-            try:
-                if origin_lang != 'en':
-                    text = gt.translate(text=str(text),src="en", dest=origin_lang).text 
-            except TypeError as e:
-                text = ''
-
-            output.append(text)                    
-        return output
     
-
     def generate_glossary(self, list):
         # [ [woord, betekenis], [woord, betekenis], ... [woord, betekenis] ]
         url = "https://lexicala1.p.rapidapi.com/search-entries"
@@ -367,7 +302,17 @@ class Lexicala():
         except Exception as e:
             return e
         
-
+class WordScraper():
+    def look_up(self, woord):
+        url = f"https://www.vertalen.nu/betekenis?woord={woord}&taal=nl"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        def_blocks = soup.find_all('ul', class_='def-block')
+        definities = []
+        for card in def_blocks:
+            card_text = str(card.get_text()).strip(' ')
+            definities.append(card_text)
+        return definities
 
 """
 text = "Within stutter therapy, transfer of learned skills to everyday life is not evident. Virtual Reality (VR) offers the opportunity to bring everyday life into into the safety of the therapy room. In this way, the feared situation can be practiced several times before moving into everyday life. An initial prototype of VR was tested by a group of 13 (young) adults who stutter. Based on their experiences and feedback, this was optimized with a more elaborated scenario and a more high-tech design. This second prototype was tested by 2 (young) adults who stutter. Young) adults who stutter indicated they see potential in using VR during the transfer phase. The first prototype had a greater impact than expected. A more high-tech elaboration with 360° images was perceived as more realistic."

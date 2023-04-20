@@ -42,6 +42,8 @@
     <div class="container-index">
       <h2>Instellingen</h2>
       <button onclick="setGPTAPIKey()">GPT API KEY</button>
+      <button onclick="setHuggingFaceAPIKey()">HuggingFace API KEY</button>
+      <button onclick="setRapidAPIKey()">RapidAPI Key</button>
     </div>
 
   </div>
@@ -111,8 +113,24 @@ const callPythonFunctionChangeKey = async (key) => {
   }
 };
 
+async function setGPTAPIKey(){
+  var key = prompt('geef sleutel in');
+  if(key != null){
+    const response = await fetch(`http://localhost:5000/set-gpt-api-key?key=${key}`);
+    result = await response.json()
+    console.log('gekregen antwoord' + result.api_key)
+  }
+}
 
 async function setGPTAPIKey(){
+  var key = prompt('geef sleutel in');
+  if(key != null){
+    const response = await callPythonFunctionChangeKey(key);
+    console.log('gekregen antwoord'+response.api_key)
+  }
+}
+
+async function setHuggingFaceAPIKey(){
   var key = prompt('geef sleutel in');
   if(key != null){
     const response = await callPythonFunctionChangeKey(key);

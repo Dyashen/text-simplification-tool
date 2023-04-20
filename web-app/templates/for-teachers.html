@@ -81,6 +81,20 @@
             <option value="nl">Nederlands</option>
             <option value="fr">Frans</option>
           </select><br>
+
+          <select name="titleFont" id="titleFont">
+            <option value="Arial">Arial</option>
+            <option value="Calibri">Calibri</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Verdana">Verdana</option>
+          </select>
+
+          <select name="regularFont" id="regularFont">
+            <option value="Arial">Arial</option>
+            <option value="Calibri">Calibri</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Verdana">Verdana</option>
+          </select>
         </fieldset>
 
         <input type="checkbox" id="personalizedSummary" name="personalizedSummary" value="personalizedSummary"><label
@@ -187,6 +201,7 @@
   const checkboxAddWordToGlossary = document.getElementById("checkboxAddWordToGlossary");
   checkboxAddWordToGlossary.addEventListener("change", function () {
     if (checkboxAddWordToGlossary.checked) {
+
       const words = document.querySelectorAll('span.noun', 'span.verb', 'span.adj');
       words.forEach((w) => {
         w.addEventListener('click', async (event) => {
@@ -200,11 +215,9 @@
             };
 
             // const response = await callPythonCallPOSTag(pTag.innerHTML, context);
-            const response = await fetch(`http://localhost:5000/get-pos-tag?word=${word}&context=${context}`);
+            const response = await fetch(`http://localhost:5000/get-pos-tag?word=${w.textContent}&context=${context}`);
             result = await response.json();
-
-            var pos_tag = JSON.stringify(response.pos);
-            console.log(pos_tag);
+            var pos_tag = JSON.stringify(result.pos);
 
             var textarea = document.getElementById("glossaryList");
             pTag.style.backgroundColor = "black";
@@ -276,6 +289,9 @@
   };
 
 
+  /*
+  Adjectieven uitfilteren op basis van span-tag
+  */
   function removeAdjectives() {
     const elements = document.querySelectorAll(".adj");
     elements.forEach(function (element) {

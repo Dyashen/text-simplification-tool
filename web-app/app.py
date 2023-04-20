@@ -14,7 +14,7 @@ from datetime import timedelta
 
 
 """"""
-from Summarization import HuggingFaceModels, GPT, Lexicala
+from Summarization import HuggingFaceModels, GPT, Lexicala, WordScraper
 from Writer import Creator
 import Analysis as an
 
@@ -30,9 +30,10 @@ COLOR_SESSION_NAME = 'color'
 @app.before_request
 def pre_boot_up():
     session.permanent=True
-    global simplifier, lexi
+    global simplifier, lexi, wap
     simplifier = HuggingFaceModels()
     lexi = Lexicala(None)
+    wap = WordScraper()
 
     
 
@@ -104,37 +105,31 @@ def analysing_choosing_for_teachers():
 """
 @app.route('/generate-summary', methods=['GET','POST'])
 def generate_summary():
+        
         api_key = session.get(API_KEY_SESSION_NAME, None) 
-
         personalized = request.form.get('personalizedSummary')
+        fonts = (request.form.get('titleFont'), request.form.get('regularFont'))
 
         if personalized is None:        
             title = request.form.get('title')
+            
             wordlist = request.form.get('glossaryList')
             wordlist = wordlist.strip(' ').split('\n')
+            
+            glossary = {}
+            for word in wordlist:
+                try:
+                    word_text = str(word).split(':')[0]
+                    word_type = str(word).split(':')[2]
+                    word_definition = wap.look_up(str(word_text))[0]
+                    glossary[word_text] = {'type':word_type, 'definition':str(word_definition)}
+                except Exception as e:
+                    print(e)
 
-            print(wordlist)
-            print('-'*100)
-
-            """
-
-            if len(wordlist) != 0:
-                arr = []
-                for field in wordlist:
-                    if len(field.split(':'))>1:
-                        word = field.split(':')[0]
-                        pos = field.split(':')[2]
-                        arr.append([word, pos])
-                glossary = sum.generate_glossary(list=arr)
-            else:
-            """
-            glossary = [['example','definition']]
-
-            full_text = request.form.get('fullText')
-
+            
+            full_text = request.form.get('fullText')            
             full_text = simplifier.summarize(text=full_text, lm_key='peg') # pegasus model --> dict structure
-
-            Creator().create_pdf(title=title, list=glossary, full_text=full_text)
+            Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts)
 
             return send_file(path_or_file='saved_files/output.pdf', as_attachment=True)
 
@@ -197,11 +192,7 @@ def look_up_word():
     
         sentence = request.json['sentence']
         word = request.json['word']
-        
-        result = lexi.look_up_word_rapidapi(
-            sentence=sentence, 
-            word=word
-        )
+        result = lexi.look_up_word_rapidapi(sentence=sentence, word=word)
 
         # if no result, try again here with gpt-3
         if 'n_results' in result:
