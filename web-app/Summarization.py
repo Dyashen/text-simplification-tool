@@ -40,11 +40,23 @@ class HuggingFaceModels:
     """
     """
     def query(self, payload, API_URL):
-
         headers = {"Authorization": f"Bearer {huggingface_api_key}"}
         response = requests.post(API_URL, headers=headers, json=payload)
         return response.json()
     
+
+    def scientific_simplify(self, text, lm_key):
+        print('started simplifying')
+        length = len(text)
+        API_URL = huggingfacemodels.get(lm_key)
+
+        gt = Translator()
+        translated_text = gt.translate(text=text,src='nl',dest='en').text
+        result = self.query({"inputs": str(translated_text),"parameters": {"max_length": length},"options":{"wait_for_model":True}}, API_URL)[0]['generated_text']
+        result = gt.translate(text=result,src='en',dest='nl').text
+
+
+        return result
 
 
     def summarize(self, text, lm_key):

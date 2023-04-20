@@ -130,7 +130,6 @@ def generate_summary():
             full_text = request.form.get('fullText')            
             full_text = simplifier.summarize(text=full_text, lm_key='peg') # pegasus model --> dict structure
             Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts)
-
             return send_file(path_or_file='saved_files/output.pdf', as_attachment=True)
 
         else:
@@ -151,7 +150,7 @@ def extract_sentences():
 def scientific_simplify():
     text = request.json['text']
     key = request.json['key']
-    result = simplifier.summarize(text=text, key=key)
+    result = simplifier.scientific_simplify(text=text, lm_key=key)
     return jsonify(result=result)
 
 """
@@ -189,24 +188,12 @@ def personalized_simplify():
 """
 @app.route('/look-up-word',methods=['POST'])
 def look_up_word():
-    
-        sentence = request.json['sentence']
-        word = request.json['word']
-        result = lexi.look_up_word_rapidapi(sentence=sentence, word=word)
-
-        # if no result, try again here with gpt-3
-        if 'n_results' in result:
-            if False and result['n_results'] > 0:
-                return jsonify(result=result, source='Lexicala')
-        
-        try:
-            api_key = session['api_key']
-        except:
-            api_key = None
-
-        gpt = GPT(api_key)
-        result, prompt = gpt.look_up_word_gpt(word=word,context=sentence)
-        return jsonify(result=result, source='gpt', prompt=prompt)
+    word = request.json['word']
+    try:
+        word_definition = wap.look_up(str(word))[0]
+    except Exception as e:
+        print(e)
+    return jsonify(result=word_definition, source='Woorden.org', word=word)
 
 # Color changes
 """"""

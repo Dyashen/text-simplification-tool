@@ -63,7 +63,7 @@ body {
 }
 
 .page {
-    width: 80%;
+    width: 100%;
 }
 
 .buttons {
@@ -125,4 +125,16 @@ span.verb:hover, span.propn:hover, span.noun:hover, span.adj:hover{
 
 .personalized{
     display: none;
+}
+
+.left-side{
+    width: 75%;
+    display: inline;
+    float:left;
+}
+
+.right-side{
+    width: 20%;
+    display: inline;
+    float:left;
 }
