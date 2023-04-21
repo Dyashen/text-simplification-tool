@@ -76,8 +76,6 @@ class HuggingFaceModels:
                 value += str(sibling.get_text()).replace('\n',' ')
             split_text[key] = value
 
-        return split_text
-
 
         result_dict = {}
         for key in split_text.keys():
@@ -113,7 +111,7 @@ class HuggingFaceModels:
             text = ""
             for i in paragraphs:
                 length = len(str(i))
-                result = self.query({"inputs": str(i),"parameters": {"repetition_penalty": 4.0,"max_length": length},"options":{"wait_for_model":True}}, API_URL)
+                result = self.query({"inputs": str(i),"parameters": {"max_length": length},"options":{"wait_for_model":True}}, API_URL)
 
                 try:
                     if 'generated_text' in result[0]:

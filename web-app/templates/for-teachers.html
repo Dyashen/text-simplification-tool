@@ -48,8 +48,8 @@
 
         <div class="extra-info">
           <p>taal: {{lang}}</p><br>
-          <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10">titel: {{title}}</textarea>
-          <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="10">onderwerp: {{subject}}</textarea>
+          <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10">{{title}}</textarea>
+          <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="10">{{subject}}</textarea>
         </div>
 
         <!--Statistieken voor de leerkracht-->
@@ -61,20 +61,27 @@
         <!--Tools voor de leerkracht-->
         <h2>Tools voor de leerkracht</h2>
         <fieldset>
-          <input type="checkbox" id="verb-show">WW's tonen
-          <input type="checkbox" id="noun-show">ZN's tonen
-          <input type="checkbox" id="adj-show">Adjs tonen
-          <label for="checkboxTitle">Titels markeren</label><input name="actions" type="radio" id="checkboxTitle"><br>
-          <label for="checkboxDeleteSents">Zin verwijderen</label><input type="radio" name="actions"
-            id="checkboxDeleteSents"><br>
-          <label for="checkboxAddWordToGlossary">Woord toevoegen aan woordenlijst</label><input name="actions"
-            type="radio" id="checkboxAddWordToGlossary"><br>
 
-          <label for="saveMethod">Opslaan als:</label>
-          <select multiple name="saveMethod" id="saveMethod">
-            <option value="saveMethodWord">Word</option>
-            <option value="saveMethodPDF">PDF</option>
-          </select><br>
+          <div>
+            <input type="checkbox" id="verb-show">WW's tonen
+            <input type="checkbox" id="noun-show">ZN's tonen
+            <input type="checkbox" id="adj-show">Adjs tonen
+          </div>
+
+          <div>
+            <label for="checkboxTitle">Titels markeren</label><input name="actions" type="radio" id="checkboxTitle"><br>
+            <label for="checkboxDeleteSents">Zin verwijderen</label><input type="radio" name="actions"
+              id="checkboxDeleteSents"><br>
+            <label for="checkboxAddWordToGlossary">Woord toevoegen aan woordenlijst</label><input name="actions"
+              type="radio" id="checkboxAddWordToGlossary"><br>
+          </div>
+
+          <div>
+            <label for="saveToWord">Opslaan als Word-bestand:</label>
+            <input type="checkbox" id="PDF" name="saveToPDF" value="PDF">
+            <label for="saveToPDF">Opslaan als Word-bestand:</label>
+            <input type="checkbox" id="Word" name="saveToWord" value="Word">
+          </div>
 
           <label for="translateMethod">Taal van uitvoerdocument:</label>
           <select multiple name="translateMethod" id="translateMethod">
@@ -101,7 +108,6 @@
           for="personalizedSummary">Samenvatting op maat</label>
 
         <!--Lexicale vereenvoudiging-->
-        
         <fieldset class="personalized">
           <h2>Lexicale vereenvoudiging</h2>
           <input type="checkbox" id="keywords" name="keywords" value="keywords">
@@ -110,7 +116,7 @@
           <label for="vocabulary">Moeilijke woordenschat vervangen</label><br>
         </fieldset>
 
-        
+
         <fieldset class="personalized">
           <h2>Syntactische vereenvoudiging</h2>
           <input type="checkbox" id="syntax" name="syntax" value="syntax">
@@ -131,7 +137,7 @@
 
 
         <!--Samenvatten-->
-        
+
         <fieldset class="personalized">
           <h2>Samenvatten</h2>
           <input type="checkbox" id="citation" name="citation" value="citation">

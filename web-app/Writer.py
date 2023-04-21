@@ -1,17 +1,19 @@
 import subprocess, io, os, pypandoc
 from datetime import date
+import zipfile
 
-markdown_file = "web-app/saved_files/file.md"
-pdf_file = "web-app/saved_files/output.pdf"
+
+markdown_file = "saved_files/file.md"
+zip_filename = 'saved_files/simplified_docs.zip'
+pdf_file = "saved_files/output.pdf"
+docx_file = "saved_files/output.docx"
 DEFAULT_FONT = "Montserrat-Regular.ttf"
-DEFAULT_TITLE_FONT = "Montserrat-Black"
+DEFAULT_TITLE_FONT = "Montserrat-Black.ttf"
 DATE_NOW = str(date.today())
 
 
 class Creator():
-
-
-
+    
     """"""
     def create_header(self, title, margin=0.5, fontsize=14, chosen_font=DEFAULT_FONT, chosen_title_font=DEFAULT_TITLE_FONT):
         with open(markdown_file, 'w', encoding='utf-8') as f:
@@ -44,16 +46,16 @@ class Creator():
                 f.write('\n\n')
                 f.write(f'## {title}')
                 f.write('\n\n')
-                f.write((text))
+                f.write(" ".join(text))
                 f.write('\n\n')
 
 
-    def create_pdf(self, title, list, full_text, fonts):
+    def create_pdf(self, title, list, full_text, fonts, options):
         """"""
         if title is not None:
-            self.create_header(title=title)
+            self.create_header(title=title, chosen_font=fonts[0], chosen_title_font=fonts[1])
         else:
-            self.create_header(title='Simplified text')
+            self.create_header(title='Simplified text', chosen_font=fonts[0], chosen_title_font=fonts[1])
         
         """"""
         print(list)
@@ -64,8 +66,19 @@ class Creator():
         self.generate_summary(full_text=full_text)
         
         """"""
-        pypandoc.convert_file(source_file=markdown_file, 
-                              to='pdf', 
-                              outputfile=pdf_file, 
-                              extra_args=['--pdf-engine=xelatex'])
-        
+        if 'Word' in options:
+            pypandoc.convert_file(source_file=markdown_file, to='docx', outputfile=docx_file)
+
+        if 'PDF' in options:
+            pypandoc.convert_file(source_file=markdown_file, to='pdf', outputfile=pdf_file, extra_args=['--pdf-engine=xelatex'])
+
+        if len(options) > 1:
+            with zipfile.ZipFile(zip_filename, 'w') as myzip:
+                myzip.write(pdf_file)
+                myzip.write(docx_file)
+
+
+
+with zipfile.ZipFile(zip_filename, 'w') as myzip:
+    myzip.write(pdf_file)
+    myzip.write(docx_file)

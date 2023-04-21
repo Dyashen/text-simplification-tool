@@ -2,19 +2,30 @@
   /*
   */
   window.onload = async function () {
-    var url = `http://localhost:5000/change-color`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ color: color })
-    });
+    /*
 
-    result = await response.json()
-    color = result.color;
-    document.body.style.transition = "background-color 1s";
-    document.body.style.backgroundColor = response.color;
+    */
+   try {
+      var url = `http://localhost:5000/change-color`;
+      var response = await fetch(url, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify({ color: color })});
+      result = await response.json()
+      color = result.color;
+      document.body.style.transition = "background-color 1s";
+      document.body.style.backgroundColor = response.color;
+    } catch {
+      console.log(error);
+    }
+
+
+   /*
+
+   */
+   var url = 'http://localhost:5000/get-session-keys';
+   var response = await fetch(url, {method: 'POST',headers: {'Content-Type': 'application/json'}});
+   result = await response.json();
+   console.log(result);
+
+
   }
   /*
   */

@@ -1,19 +1,12 @@
 ---
-title: Simplified version of Simplified text
-mainfont: Montserrat-Regular.ttf
-titlefont: Montserrat-Black
-date: 2023-04-20
+title: Simplified version of Test
+mainfont: Arial
+titlefont: Arial
+date: 2023-04-21
 document: article
 geometry: margin=0.5in
 fontsize: 14pt
 ---
----
-# Glossary
-| Woord | Soort | Definitie |
-| --- | --- | --- |
-| politie | "noun" | ambtenaar van de politie |
-| transparantie | "noun" | doorzichtbaarheid. |
-| artikel | "noun" | verhandeling in een periodiek |
 
 
 ## 
@@ -42,7 +35,7 @@ ontwikkelingen
 .
 
 
-  Het gebruik van deze technologien door de politie kan worden beschreven als algoritmische surveillance .   Dit roept de vraag op of huidige controlemechanismen voldoende zijn om alle burgers te beschermen tegen mogelijke gevolgen van het gebruik algoritmische surveillance door politie .   Om tot een voorlopig antwoord op die vraag te komen zal de auteur in dit artikel drie sociotechnische ontwikkelingen bespreken het huidige kader onder druk zetten .   Deze ontwikkelingen zijn de fragmentatie en privatisering van politiewerk , democratisering surveillance toename collectieve schade sociale gevolgen .  
+Het gebruik van deze technologieën door de politie kan worden omschreven als algoritmische surveillance.'Dit roept de vraag op of de huidige controlemechanismen voldoende zijn om alle burgers te beschermen tegen mogelijke gevolgen van het gebruik van algoritmische surveillance door de politie', zegt het rapport.'Om tot een voorlopig antwoord op die vraag te komen, zal de auteur het huidige kader in dit artikel bespreken' "Deze ontwikkelingen zijn de fragmentatie en privatisering van politiewerk", schrijft hij."Ze vergroten 'surveillance, die' collectieve schade heeft 'Sociale consequenties'" "Deze ontwikkelingen ... vergroten politiewerk, democratiseringsbewaking en" collectieve beschadigde sociale gevolgen ", voegt hij eraan toe.
 
 
 
@@ -67,7 +60,44 @@ technologiebedrijven
 .
 
 
-  Dit heeft een negatieve invloed op transparantie en kan leiden tot verschuivende machtsverhoudingen van de publieke naar private sector .   Ten tweede kunnen burgers door de democratisering van surveillance steeds meer informatie verzamelen en verspreiden , wat kan leiden tot een tegenbeweging tegen algoritmische .   Ten derde kunnen collectieve schade en sociale gevolgen ontstaan door de inzet van algoritmische surveillance , waarbij met name minderheidsgroepen mogelijk worden gediscrimineerd .   De vraag is dus of de huidige controle en handhavingsmechanismen voor het gebruik van algoritmische surveillance door politie herdacht zouden moeten worden .  
+'Democratisering van surveillance' kan leiden tot een tegenbeweging tegen algoritmisch toezicht, zegt hij.'Collectieve schade en sociale gevolgen kunnen ontstaan door het gebruik van algoritmische surveillance, waarbij met name minderheidsgroepen mogelijk zijn' 'Dit heeft een negatieve invloed op transparantie,' voegt hij eraan toe. "De vraag is daarom of de huidige controle- en handhavingsmechanismen voor het gebruik van algoritmische surveillance moeten worden herdacht door de politie", zegt het rapport."De politie moet niet herdenken [het gebruik van] surveillance," voegt het eraan toe."Het is geen politie -kwestie. Het is een menselijke zaak"
+
+
+
+## 
+De
+auteur
+zal
+in
+het
+tweede
+deel
+van
+artikel
+huidige
+controle
+en
+handhavingsmechanismen
+bekijken
+door
+de
+bril
+relationele
+ethiek
+om
+te
+exploreren
+hoe
+we
+hieruit
+kunnen
+leren
+controlemechanismen
+herdenken
+.
+
+
+De Europese Unie heeft nieuwe wetgeving aangenomen om toezicht te houden op de aanvraag en uitvoering van AI.'Deze wetgeving vereist dat nationale autoriteiten worden aangeduid als supervisors en contactpersonen voor de publieke andere actoren', het introduceert ook een systeem om autonome AI -aanvragen te registreren met een hoog risico in openbare database voor de hele EU ' "De wetgeving blijft vaag over hoe deze beoordelingen in de praktijk zullen worden toegepast en onderhouden", zegt het rapport."Het is niet duidelijk hoe de beoordelingen in de praktijk zullen worden toegepast", concludeert het rapport: "De wetgeving ... blijft vaag ... over hoe ... de beoordelingen ... zullen worden toegepast"
 
 
 
@@ -103,43 +133,5 @@ nageleefd
 .
 
 
-  De filosofie van Ubuntu uit Afrika kan helpen om op een andere manier te denken over controle in de algoritmische politiepraktijk .   Deze visie stelt dat mensen menselijke waardigheid hebben omdat ze de capaciteit om zich tot anderen te verhouden op een gezamenlijke manier .   Dit staat in contrast met traditionele rationele ethiek die stelt dat personen menselijke waardigheid hebben door hun vermogen tot autonomie .   Wetenschappers die zich laten inspireren door Ubuntu , pleiten voor een verschuiving van rationele ethiek naar relationele bij het denken over algoritmische onrechtvaardigheid en bestuur AI .  
-
-
-
-## 
-Deze
-visie
-veronderstelt
-dat
-schade
-en
-onrechtvaardigheid
-veroorzaakt
-door
-algoritmische
-systemen
-niet
-los
-kunnen
-worden
-gezien
-van
-de
-filosofische
-beginselen
-technologie
-economische
-,
-politieke
-sociale
-structuren
-die
-deze
-mede
-vormen
-.
-
-
- 
+De Afrikaanse filosofie kan helpen om na te denken over controle in de algoritmische politiepraktijk op een andere manier.'Deze visie stelt dat mensen menselijke waardigheid hebben omdat ze betrekking hebben op het vermogen om op een gezamenlijke manier tot anderen te verhouden' 'Dit is in tegenstelling tot de traditionele rationele ethiek die stelt dat mensen waardigheid hebben vanwege hun vermogen om autonomie te zijn' Wetenschappers die door Ubuntu worden geïnspireerd, pleiten voor een verschuiving van rationele ethiek naar relationeel in het denken over algoritmisch onrecht en administratie AI, volgens een nieuwe studie.De studie werd gepubliceerd in het Open-Source Journal, de Linux Foundation.Het werd gepubliceerd door de Linux Foundation, een non-profit in San Francisco.
 

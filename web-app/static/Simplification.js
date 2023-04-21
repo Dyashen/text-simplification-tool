@@ -6,8 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const radioButton = document.querySelector("#explainWords"); // get reference to radio button
       if (!radioButton.checked) {
         return;
-      } 
-
+      }
       let leftSideTag = span.closest("p");
       let rightSideTag = leftSideTag.nextElementSibling;
       sentence_of_origin = span.closest(".sentence");
@@ -60,9 +59,6 @@ function insertAfter(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
 
-
-
-
 /* --- */
 document.addEventListener("DOMContentLoaded", () => {
   const spans = document.querySelectorAll(".sentence");
@@ -71,12 +67,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const radioButton = document.querySelector("#simplifySentences"); // get reference to radio button
       if (!radioButton.checked) {
         return;
-      } 
+      }
 
       sentence_of_origin = span.closest(".sentence");
       var context = "";
-      for (const child of sentence_of_origin.children) {context = context + " " + child.textContent;}
-      const response = await fetch(`http://localhost:5000/simplify`, {method: "POST",headers: {"Content-Type": "application/json",},body: JSON.stringify({ text: context, key: "sc" }),});
+      for (const child of sentence_of_origin.children) {
+        context = context + " " + child.textContent;
+      }
+      const response = await fetch(`http://localhost:5000/simplify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: context, key: "sc" }),
+      });
       result = await response.json();
       var p = document.createElement("p");
       newNode = document.createTextNode(JSON.stringify(result.result));
