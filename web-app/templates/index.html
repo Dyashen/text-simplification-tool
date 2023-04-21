@@ -38,17 +38,12 @@
         <input type="submit" value="View PDF">
       </form>
     </div>
-
-    <div class="container-index">
-      <h2>Instellingen</h2>
-      <button onclick="setGPTAPIKey()">GPT API KEY</button>
-      <button onclick="setHuggingFaceAPIKey()">HuggingFace API KEY</button>
-    </div>
-
+    <div class="container-index"><h2>Instellingen</h2><button onclick="setGPTAPIKey()">GPT API KEY</button></div>
   </div>
 </body>
 <script>
 
+/* --- */
 const callPythonFunctionGetColor = async () => {
   try {
     var url = `http://localhost:5000/get-background-color`;
@@ -60,7 +55,7 @@ const callPythonFunctionGetColor = async () => {
   }
 }
 
-
+/* ---- */
 window.onload = async function(){
   var url = `http://localhost:5000/get-background-color`;
   const response = await callPythonFunctionGetColor();
@@ -71,7 +66,7 @@ window.onload = async function(){
 }
 
 
-//
+/* --- */
 const callPythonFunctionChangeColor = async (color) => {
   try {
     var url = `http://localhost:5000/change-color`;
@@ -91,7 +86,7 @@ const callPythonFunctionChangeColor = async (color) => {
   }
 };
 
-//
+/* --- */
 async function changeBackgroundColor(color) {
   var favcolor = document.getElementById('favcolor').value;
   console.log(favcolor);
@@ -99,41 +94,14 @@ async function changeBackgroundColor(color) {
   document.body.style.backgroundColor = response.color;
 }
 
-//
-const callPythonFunctionChangeKey = async (key) => {
-  try{
-    const response = await fetch(
-      `http://localhost:5000/set-gpt-api-key?key=${key}`
-    );
-    console.log('change-', response);
-    return (result = await response.json());
-  } catch (error) {
-    console.error(error);
-  }
-};
 
+/* --- */
 async function setGPTAPIKey(){
-  var key = prompt('geef sleutel in');
+  var key = prompt('geef gpt-3 api sleutel in');
   if(key != null){
     const response = await fetch(`http://localhost:5000/set-gpt-api-key?key=${key}`);
-    result = await response.json()
-    console.log('gekregen antwoord' + result.api_key)
-  }
-}
-
-async function setGPTAPIKey(){
-  var key = prompt('geef sleutel in');
-  if(key != null){
-    const response = await callPythonFunctionChangeKey(key);
-    console.log('gekregen antwoord'+response.api_key)
-  }
-}
-
-async function setHuggingFaceAPIKey(){
-  var key = prompt('geef sleutel in');
-  if(key != null){
-    const response = await callPythonFunctionChangeKey(key);
-    console.log('gekregen antwoord'+response.api_key)
+    result = await response.json();
+    alert('U kan nu gepersonaliseerde samenvattingen maken met de volgende sleutel \n' + result.result);
   }
 }
 

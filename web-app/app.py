@@ -109,9 +109,6 @@ def generate_summary():
         settings = dict(request.form)
         fonts = (settings['titleFont'], settings['regularFont'])
 
-        print(settings.keys())
-
-
         if 'personalized' not in settings:        
             title = settings['titleOfPaper']
             wordlist = settings['glossaryList']
@@ -240,9 +237,8 @@ def get_color():
 def set_gpt_api_key():
     try:
         api_key = request.args.get('key')
-        # type = request.args.get('type')
         session['gpt3'] = api_key
-        return jsonify(result='good')
+        return jsonify(result=api_key)
     except:
         return jsonify(result='notgood')
 

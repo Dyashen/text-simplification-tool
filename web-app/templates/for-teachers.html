@@ -6,6 +6,14 @@
   <title>Tekstvereenvoudiging</title>
 </head>
 
+<script>
+  window.addEventListener('load', async () => {
+    const response = await fetch(`http://localhost:5000/get-session-keys`, { method: "GET", headers: { "Content-Type": "application/json" } });
+    result = await response.json();
+    document.querySelector('.personalized .session-keys-tag').innerHTML = 'Gebruikte API-sleutel: <i>' + result.gpt3 + '</i>';
+  });
+</script>
+
 <body>
 
   <fieldset id="colors">
@@ -137,7 +145,6 @@
 
 
         <!--Samenvatten-->
-
         <fieldset class="personalized">
           <h2>Samenvatten</h2>
           <input type="checkbox" id="citation" name="citation" value="citation">
@@ -162,33 +169,28 @@
           <label for="number_paragraphs">Aantal paragrafen per titel</label>
         </fieldset>
 
+        <fieldset class="personalized">
+          <p class="session-keys-tag"></p>
+        </fieldset>
+
         <!--Glossary-->
         <h2>Woordenlijst</h2>
         <fieldset hidden>
           <textarea name="glossaryList" id="glossaryList" cols="30" rows="10"></textarea>
           <button type="submit">Glossary-lijst genereren</button>
         </fieldset>
-
         <textarea hidden name="fullText" id="fullText" cols="30" rows="10"></textarea>
-
-        <button disabled type="submit" value="Samenvatten" id="summarize-with-presets-button">
-          Volledig document samenvatten
-        </button>
-
+        <button disabled type="submit" value="Samenvatten" id="summarize-with-presets-button">Volledig document samenvatten</button>
       </form>
 
-      <button value="Tekst toevoegen" onmousedown="addTextToTextArea()">
-        Tekst indienen
-      </button>
+      <button value="Tekst toevoegen" onmousedown="addTextToTextArea()">Tekst indienen</button>
 
     </div>
   </div>
 </body>
 <script>
 
-  /*
-  
-  */
+  /* --- */
   const checkbox = document.querySelector('#personalizedSummary');
   const fieldsets = document.querySelectorAll('.personalized');
   checkbox.addEventListener('change', () => {
@@ -201,24 +203,18 @@
     });
   });
 
-  /*
-  Glossary-lijst aanvullen met woord
-  */
+  /* Glossary-lijst aanvullen met woord */
   const checkboxAddWordToGlossary = document.getElementById("checkboxAddWordToGlossary");
   checkboxAddWordToGlossary.addEventListener("change", function () {
     if (checkboxAddWordToGlossary.checked) {
-
       const words = document.querySelectorAll('span.noun', 'span.verb', 'span.adj');
       words.forEach((w) => {
         w.addEventListener('click', async (event) => {
           if (checkboxAddWordToGlossary.checked) {
             var pTag = event.target;
-
             sentence_of_origin = w.closest("span.sentence");
             var context = "";
-            for (const child of sentence_of_origin.children) {
-              context = context + " " + child.textContent;
-            };
+            for (const child of sentence_of_origin.children) {context = context + " " + child.textContent};
 
             // const response = await callPythonCallPOSTag(pTag.innerHTML, context);
             const response = await fetch(`http://localhost:5000/get-pos-tag?word=${w.textContent}&context=${context}`);
@@ -238,9 +234,7 @@
     }
   });
 
-  /*
-  Deleting sentences
-  */
+  /* Deleting sentences */
   const checkboxDeleteSents = document.getElementById("checkboxDeleteSents");
   checkboxDeleteSents.addEventListener("change", function () {
     if (checkboxDeleteSents.checked) {
@@ -254,9 +248,7 @@
   });
 
 
-  /*
-  Marking titles as a teacher
-  */
+  /* Marking titles as a teacher */
   const checkboxTitle = document.getElementById("checkboxTitle");
   checkboxTitle.addEventListener("change", function () {
     if (checkboxTitle.checked) {
@@ -274,9 +266,7 @@
   });
 
 
-  /*
-  Tekst toevoegen
-  */
+  /* Tekst toevoegen */
   function addTextToTextArea() {
     console.log(document.querySelector('.left-container').innerHTML);
     const fullTextBox = document.querySelector('.left-container').innerHTML
@@ -285,9 +275,7 @@
     document.getElementById('summarize-with-presets-button').disabled = false;
   };
 
-  /*
-  Tekst ophalen
-  */
+  /* Tekst ophalen */
   async function getSelectedText() {
     var selectedText = window.getSelection().toString();
     const textarea = document.querySelector('textarea');
@@ -295,9 +283,7 @@
   };
 
 
-  /*
-  Adjectieven uitfilteren op basis van span-tag
-  */
+  /* Adjectieven uitfilteren op basis van span-tag */
   function removeAdjectives() {
     const elements = document.querySelectorAll(".adj");
     elements.forEach(function (element) {
@@ -357,5 +343,6 @@
     }
   });
 </script>
+
 
 </html>
