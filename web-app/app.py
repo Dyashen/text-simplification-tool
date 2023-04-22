@@ -105,7 +105,6 @@ def analysing_choosing_for_teachers():
 """
 @app.route('/generate-summary', methods=['GET','POST'])
 def generate_summary():
-        
         settings = dict(request.form)
         fonts = (settings['titleFont'], settings['regularFont'])
 
@@ -211,8 +210,9 @@ def look_up_word():
         print(e)
     return jsonify(result=word_definition, source='Woorden.org', word=word)
 
-# Color changes
-""""""
+
+"""
+"""
 @app.route('/change-color', methods=['POST'])
 def change_color():
     try:
@@ -233,6 +233,7 @@ def get_color():
         return jsonify(color='white')
 
 
+""""""
 @app.route('/set-gpt-api-key', methods=['GET'])
 def set_gpt_api_key():
     try:
@@ -241,8 +242,6 @@ def set_gpt_api_key():
         return jsonify(result=api_key)
     except:
         return jsonify(result='notgood')
-
-
 
 """"""
 @app.route('/get-session-keys', methods=['GET'])

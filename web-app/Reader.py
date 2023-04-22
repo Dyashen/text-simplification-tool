@@ -6,12 +6,9 @@ from io import BytesIO
 import spacy, re
 from langdetect import detect
 
-dutch_spacy_model = "nl_core_news_md"
-english_spacy_model = "en_core_web_sm"
-
 dict = {
     'nl':'nl_core_news_md',
-    'en':'en_core_web_sm'
+    'en':'en_core_web_md'
 }
 
 class Reader():
@@ -36,7 +33,6 @@ class Reader():
         full_text_new = []
 
         # opbreken pagina --> paragraaf [ptekst, pnummer]
-        
         for i in range (len(full_text)):
             page = []
             try:

@@ -25,7 +25,7 @@ COMPLETIONS_MODEL = "text-davinci-003"
 EMBEDDING_MODEL = "text-embedding-ada-002"
 
 languages = {
-    'nl':'nl_core_news_sm',
+    'nl':'nl_core_news_md',
     'en':'en_core_web_md'
 }
 
@@ -46,16 +46,12 @@ class HuggingFaceModels:
     
 
     def scientific_simplify(self, text, lm_key):
-        print('started simplifying')
         length = len(text)
         API_URL = huggingfacemodels.get(lm_key)
-
         gt = Translator()
         translated_text = gt.translate(text=text,src='nl',dest='en').text
         result = self.query({"inputs": str(translated_text),"parameters": {"max_length": length},"options":{"wait_for_model":True}}, API_URL)[0]['generated_text']
         result = gt.translate(text=result,src='en',dest='nl').text
-
-
         return result
 
 
@@ -76,11 +72,9 @@ class HuggingFaceModels:
                 value += str(sibling.get_text()).replace('\n',' ')
             split_text[key] = value
 
-
         result_dict = {}
         for key in split_text.keys():
             text = split_text[key]
-
             origin_lang = detect(text)
             nlp = spacy.load(languages.get(origin_lang, 'en'))
             doc = nlp(text)
@@ -94,13 +88,11 @@ class HuggingFaceModels:
                         text = gt.translate(text=s,src='en',dest='en').text
                     else:
                         text = s
-                    
                     sentences.append(text)
                 except Exception as e:
                     continue
 
             API_URL = huggingfacemodels.get(lm_key)
-
             sentences = np.array(sentences)
             pad_size = 3 - (sentences.size % 3)
             padded_a = np.pad(sentences, (0, pad_size), mode='empty')
@@ -134,31 +126,6 @@ class HuggingFaceModels:
             result_dict[key] = output
 
         return(result_dict)
-        
-    
-    def generate_glossary(self, list):
-        # [ [woord, betekenis], [woord, betekenis], ... [woord, betekenis] ]
-        url = "https://lexicala1.p.rapidapi.com/search-entries"
-        result = []
-        for word in list:
-            querystring = {"text":str(word[0]),"language":"nl","pos":str(word[1])}
-
-            headers = {
-                "X-RapidAPI-Key": str(rapidapi_api_key),
-                "X-RapidAPI-Host": "lexicala1.p.rapidapi.com"
-            }
-
-            response = requests.request("GET", url, headers=headers, params=querystring)
-            try:
-                # definition = response.json()['results'][0]['senses'][0]['definition']
-                definition = response.json()
-            except Exception as e:
-                definition = e
-
-            result.append([word, definition])
-        return result
-    
-
 
     """
     @retuns full-text

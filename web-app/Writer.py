@@ -3,10 +3,10 @@ from datetime import date
 import zipfile
 
 
-markdown_file = "web-app/saved_files/file.md"
-zip_filename = 'web-app/saved_files/simplified_docs.zip'
-pdf_file = "web-app/saved_files/output.pdf"
-docx_file = "web-app/saved_files/output.docx"
+markdown_file = "saved_files/file.md"
+zip_filename = 'saved_files/simplified_docs.zip'
+pdf_file = "saved_files/output.pdf"
+docx_file = "saved_files/output.docx"
 DEFAULT_FONT = "Montserrat-Regular.ttf"
 DEFAULT_TITLE_FONT = "Montserrat-Black.ttf"
 DATE_NOW = str(date.today())
@@ -39,7 +39,7 @@ class Creator():
 
     """"""
     def generate_summary(self, full_text):
-        with open(markdown_file,'a', encoding="latin-1", errors="surrogateescape") as f:
+        with open(markdown_file,'a', encoding="utf-8", errors="surrogateescape") as f:
             for key in full_text.keys():
                 title = str(key).replace('\n',' ')
                 text = full_text[key]
@@ -67,7 +67,7 @@ class Creator():
         
         """"""
         if 'Word' in options:
-            pypandoc.convert_file(source_file=markdown_file, to='docx', outputfile=docx_file)
+            pypandoc.convert_file(source_file=markdown_file, to='docx', outputfile=docx_file, extra_args=["-M2GB", "+RTS", "-K64m", "-RTS"])
 
         if 'PDF' in options:
             pypandoc.convert_file(source_file=markdown_file, to='pdf', outputfile=pdf_file, extra_args=['--pdf-engine=xelatex'])

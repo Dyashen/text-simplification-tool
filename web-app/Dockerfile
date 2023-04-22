@@ -6,11 +6,11 @@ COPY requirements.txt requirements.txt
 
 RUN apt-get update \
     && apt-get install -y pandoc \
-    && apt-get install -y texlive
+    && apt-get install -y texlive-xetex
 
 RUN pip3 install -r requirements.txt \
     && python3 -m spacy download nl_core_news_md \
-    && python3 -m spacy download en_core_web_sm
+    && python3 -m spacy download en_core_web_md
 
 COPY . .
 
