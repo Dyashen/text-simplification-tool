@@ -19,8 +19,8 @@ class Creator():
         with open(markdown_file, 'w', encoding='utf-8') as f:
             f.write("---\n")
             f.write(f"title: Simplified version of {title}\n") 
-            f.write(f"mainfont: {chosen_font}\n")
-            f.write(f"titlefont: {chosen_title_font}\n")
+            f.write(f"mainfont: {chosen_font}.ttf\n")
+            f.write(f"titlefont: {chosen_title_font}.ttf\n")
             f.write(f'date: {DATE_NOW}\n')
             f.write(f'document: article\n')
             f.write(f'geometry: margin={margin}in\n')
@@ -50,29 +50,23 @@ class Creator():
                 f.write('\n\n')
 
 
-    def create_pdf(self, title, list, full_text, fonts, options):
-        """"""
+    def create_pdf(self, title, list, full_text, fonts):
+        """YAML-header"""
         if title is not None:
             self.create_header(title=title, chosen_font=fonts[0], chosen_title_font=fonts[1])
         else:
             self.create_header(title='Simplified text', chosen_font=fonts[0], chosen_title_font=fonts[1])
         
-        """"""
-        print(list)
+        """glossary"""
         if len(list) != 0:
             self.generate_glossary(list=list)
 
-        """"""
+        """summary"""
         self.generate_summary(full_text=full_text)
         
-        """"""
-        if 'Word' in options:
-            pypandoc.convert_file(source_file=markdown_file, to='docx', outputfile=docx_file, extra_args=["-M2GB", "+RTS", "-K64m", "-RTS"])
-
-        if 'PDF' in options:
-            pypandoc.convert_file(source_file=markdown_file, to='pdf', outputfile=pdf_file, extra_args=['--pdf-engine=xelatex'])
-
-        if len(options) > 1:
-            with zipfile.ZipFile(zip_filename, 'w') as myzip:
-                myzip.write(pdf_file)
-                myzip.write(docx_file)
+        """file_creation"""
+        pypandoc.convert_file(source_file=markdown_file, to='docx', outputfile=docx_file, extra_args=["-M2GB", "+RTS", "-K64m", "-RTS"])
+        pypandoc.convert_file(source_file=markdown_file, to='pdf', outputfile=pdf_file, extra_args=['--pdf-engine=xelatex'])
+        with zipfile.ZipFile(zip_filename, 'w') as myzip:
+            myzip.write(pdf_file)
+            myzip.write(docx_file)

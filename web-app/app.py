@@ -121,7 +121,8 @@ def generate_summary():
             except Exception as e:
                 print(e)
 
-        full_text = settings['fullText']   
+        full_text = settings['fullText']  
+         
         if 'personalizedSummary' not in settings:        
             full_text = simplifier.summarize(text=full_text, lm_key='bart') # pegasus model --> dict structure
         else:
@@ -134,28 +135,8 @@ def generate_summary():
 
             gpt = GPT(api_key)
             
-
-
-
-        chosen_options = []
-        if 'saveToPDF' in settings:
-            chosen_options.append('PDF')
-
-        if 'saveToWord' in settings:
-            chosen_options.append('Word')                            
-
-
-        Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts, options=chosen_options)
-
-        if 'PDF' in chosen_options and 'Word' in chosen_options:
-            return send_file(path_or_file='saved_files/simplified_docs.zip', as_attachment=True)
-
-        if 'PDF' in chosen_options:
-            return send_file(path_or_file='saved_files/output.pdf', as_attachment=True)
-
-        if 'Word' in chosen_options:
-            return send_file(path_or_file='saved_files/output.docx', as_attachment=True)
-
+        Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts)
+        return send_file(path_or_file='saved_files/simplified_docs.zip', as_attachment=True)
 
 # TEXT FUNCTIONS
 @app.route('/extract-text', methods=['POST'])
@@ -230,7 +211,8 @@ def change_color():
     except Exception as e:
         return jsonify(color='white')
 
-""""""
+"""
+"""
 @app.route('/get-background-color', methods=['POST'])
 def get_color():
     try:
@@ -240,7 +222,8 @@ def get_color():
         return jsonify(color='white')
 
 
-""""""
+"""
+"""
 @app.route('/set-gpt-api-key', methods=['GET'])
 def set_gpt_api_key():
     try:
@@ -259,16 +242,7 @@ def get_session_keys():
         return jsonify(result='didnt work')
         
 
-@app.route('/foo', methods=['GET'])
-def get_foo():
-    if 'gpt3' in session:
-        api_key = session['gpt3']
-        return jsonify(result=api_key)
-    else:
-        return jsonify(result='not_set')
-
-
 # Flask-App RunTime-related
-app.permanent_session_lifetime = timedelta(minutes=20)
+app.permanent_session_lifetime = timedelta(minutes=30)
 if __name__ == "__main__":
     app.run()

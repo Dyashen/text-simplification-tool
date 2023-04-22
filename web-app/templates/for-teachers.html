@@ -78,13 +78,6 @@
               type="radio" id="checkboxAddWordToGlossary"><br>
           </div>
 
-          <div>
-            <label for="saveToWord">Opslaan als PDF-bestand:</label>
-            <input type="checkbox" id="PDF" name="saveToPDF" value="PDF">
-            <label for="saveToPDF">Opslaan als Word-bestand:</label>
-            <input type="checkbox" id="Word" name="saveToWord" value="Word">
-          </div>
-
           <select name="titleFont" id="titleFont">
             <option value="Arial">Arial</option>
             <option value="Calibri">Calibri</option>
@@ -303,12 +296,12 @@
   verbs.addEventListener('change', function () {
     if (this.checked) {
       const color = document.getElementById('colorForVerbs').value;
-      const elements = document.querySelectorAll("span.verb");
+      const elements = document.querySelectorAll("span.verb, span.aux");
       elements.forEach(function (element) {
         element.style.color = color;
       });
     } else {
-      const elements = document.querySelectorAll("span.verb");
+      const elements = document.querySelectorAll("span.verb, span.aux");
       elements.forEach(function (element) {
         element.style.color = "black";
       });

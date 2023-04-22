@@ -1,9 +1,7 @@
 ---
-title: Simplified version of Test
+title: Simplified version of
 mainfont: Arial
 titlefont: Arial
-date: 2023-04-21
+date: 2023-04-22
 document: article
-geometry: margin=0.5in
-fontsize: 14pt
 ---

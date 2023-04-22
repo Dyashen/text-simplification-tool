@@ -4,9 +4,7 @@ WORKDIR /app
 
 COPY requirements.txt requirements.txt
 
-RUN apt-get update \
-    && apt-get install -y pandoc \
-    && apt-get install -y texlive-xetex
+RUN apt-get update && apt-get install -y pandoc texlive-xetex texlive
 
 RUN pip3 install -r requirements.txt \
     && python3 -m spacy download nl_core_news_md \
