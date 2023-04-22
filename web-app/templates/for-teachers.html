@@ -15,7 +15,6 @@
 </script>
 
 <body>
-
   <fieldset id="colors">
     <div><label>Naamwoorden</label><input type="color" id="colorForNouns" name="favcolor" value="#ff0000"></div>
     <div><label>Werkwoorden</label><input type="color" id="colorForVerbs" name="favcolor" value="#ff0000"></div>
@@ -23,9 +22,6 @@
   </fieldset>
 
   <div class="container">
-
-
-
     <div class="left-container">
       {% for page in pdf %}
       <div class="page">
@@ -49,11 +45,9 @@
 
     <!---->
     <div class="right-container">
-
-
       <!---->
       <form action="/generate-summary" method="post">
-
+        <!---->
         <div class="extra-info">
           <p>taal: {{lang}}</p><br>
           <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10">{{title}}</textarea>
@@ -85,17 +79,11 @@
           </div>
 
           <div>
-            <label for="saveToWord">Opslaan als Word-bestand:</label>
+            <label for="saveToWord">Opslaan als PDF-bestand:</label>
             <input type="checkbox" id="PDF" name="saveToPDF" value="PDF">
             <label for="saveToPDF">Opslaan als Word-bestand:</label>
             <input type="checkbox" id="Word" name="saveToWord" value="Word">
           </div>
-
-          <label for="translateMethod">Taal van uitvoerdocument:</label>
-          <select multiple name="translateMethod" id="translateMethod">
-            <option value="nl">Nederlands</option>
-            <option value="fr">Frans</option>
-          </select><br>
 
           <select name="titleFont" id="titleFont">
             <option value="Arial">Arial</option>

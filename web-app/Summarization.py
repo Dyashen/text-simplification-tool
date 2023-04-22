@@ -168,10 +168,15 @@ class GPT():
     """
     def __init__(self, key=None):
         global gpt_api_key
-        try:
-            gpt_api_key = os.getenv('OPENAI')
-        except:
-            gpt_api_key = 'no_key_submitted'
+        if key is None:
+            try:
+                gpt_api_key = os.getenv('OPENAI')
+                openai.api_key = gpt_api_key
+            except:
+                gpt_api_key = 'no_key_submitted'
+        else:
+            gpt_api_key = key
+            openai.api_key = key
 
     """
     @returns prompt, result from gpt 
@@ -179,13 +184,12 @@ class GPT():
     def look_up_word_gpt(self, word, context):
         try:
             prompt = f"""
-            Write a 10-word Dutch easy-to-read definition for the word: {word}
+            Write a max. 10-word Dutch easy-to-read definition for the word: {word}
             context:
             {context}
             format:
             Definition. \n Bron: 
             """
-
             result = openai.Completion.create(
                     prompt=prompt,
                     temperature=0,
@@ -194,17 +198,14 @@ class GPT():
                     top_p=0.9,
                     stream=False
                     )["choices"][0]["text"].strip(" \n")    
-            
             return result, prompt
-        
         except Exception as e:
             return 'Open AI outage of problemen met API-sleutel', str(e)
         
     def personalised_simplify(self, sentence, personalisation):
-        
         prompt = f"""
-        Paraphrase this Dutch text. Avoid using {", ".join(personalisation)}
-        Sentence:
+        Rewrite this text without {", ".join(personalisation)}
+        ///
         {sentence}
         """
 
@@ -217,67 +218,15 @@ class GPT():
                     top_p=0.9,
                     stream=False
             )["choices"][0]["text"].strip(" \n")
-
             return result, prompt
 
         except Exception as e:
             return str(e), prompt 
-
-class Lexicala():
-
-    """
-    @sets openai.api_key
-    """
-    def __init__(self, key=None):
-        global rapidapi_api_key
-        try:
-            rapidapi_api_key = os.getenv('RAPIDAPI')
-        except:
-            rapidapi_api_key = 'no_key_submitted'
-
-    """
-    Lexicala is een multilinguaal woordenboek die beschikbaar wordt gesteld via een online API. In principe kan deze API volledig in JavaScript worden gedraaid, al De keuze om de PoS-tagging te baseren op de zin en niet het woord maakt het systeem minder vatbaar op afwisselend taalgebruik. Echter het gebruik van afwisselende woordenschat, wat prevalent is bij informatica-gerelateerde wetenschappelijke papers, maakt het systeem wel vatbaar op het niet kunnen terugvinden van deze woorden. Er wordt gesuggereerd om een valnet aan te maken, door ofwel de taal te veranderen naar Engels of Frans, ofwel door het GPT-3 model aan te spreken om een alternatieve definitie op te halen.
-    """
-    def look_up_word_rapidapi(self, word, sentence):
-        try:
-
-            """PoS-tag determination"""
-            url = "https://lexicala1.p.rapidapi.com/search"
-            lang = detect(sentence)
-            
-            """"""
-            nlp = spacy.load(languages.get(lang, 'en'))
-            doc = nlp(sentence)
-            for token in doc:
-                if word == token.text:
-                    tag = token.pos_
-                    lemma = token.lemma_ 
-
-            """building up querystring"""
-            querystring = {
-                "text":str(lemma),
-                "monosemous": "true",
-                "language": lang,
-                "pos":str(tag).lower()
-            }
-
-            headers = {
-                "X-RapidAPI-Key": str(rapidapi_api_key),
-                "X-RapidAPI-Host": "lexicala1.p.rapidapi.com"
-            }
-
-            response = requests.request("GET", url, headers=headers, params=querystring)            
-
-            """
-            example resppnse output:
-            {'id': 'NL_DE00001303', 'language': 'nl', 'headword': {'text': 'appel', 'pos': 'noun'}, 'senses': [{'id': 'NL_SE00001712', 'definition': 'ronde, harde, zoetzure vrucht met een klokhuis waarin donkere pitjes zitten'}]}
-            {'id': 'NL_DE00001304', 'language': 'nl', 'headword': {'text': 'appel', 'pos': 'noun'}, 'senses': [{'id': 'NL_SE00001713', 'definition': 'bijeenkomst om te zien of iedereen er is'}]}
-            """
-
-            return response.json()
-            # return response.json()['results'][0]['senses'][0]['definition']
-        except Exception as e:
-            return e
+        
+    def summarize(self, full_text_dict, personalisation):
+        for title in full_text_dict.keys():
+            print(full_text_dict[title])
+        
         
 class WordScraper():
     def look_up(self, woord):

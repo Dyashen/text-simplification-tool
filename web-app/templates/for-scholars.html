@@ -5,9 +5,9 @@
     /*
 
     */
-   try {
+    try {
       var url = `http://localhost:5000/change-color`;
-      var response = await fetch(url, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify({ color: color })});
+      var response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ color: color }) });
       result = await response.json()
       color = result.color;
       document.body.style.transition = "background-color 1s";
@@ -17,13 +17,13 @@
     }
 
 
-   /*
-
-   */
-   var url = 'http://localhost:5000/get-session-keys';
-   var response = await fetch(url, {method: 'POST',headers: {'Content-Type': 'application/json'}});
-   result = await response.json();
-   console.log(result);
+    /*
+ 
+    */
+    var url = 'http://localhost:5000/get-session-keys';
+    var response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    result = await response.json();
+    console.log(result);
 
 
   }
@@ -105,41 +105,27 @@
           <input type="checkbox" id="adj-show">Adjs tonen
         </form>
       </div>
-    </div>
+      <div class="personalisation">
+        <input type="checkbox" id="appositions" name="appositions">
+        <label for="checkbox1">Tangconstructies</label><br>
+        <input type="checkbox" id="dif-to-read" name="difficult-to-read words">
+        <label for="checkbox2">Moeilijke woorden</label><br>
+        <input type="checkbox" id="" name="">
+        <label for="checkbox3">TODO</label><br>
+        <input type="checkbox" id="pronouns" name="pronouns">
+        <label for="checkbox4">Voornaamwoorden</label><br>
+        <input type="checkbox" id="prepositions" name="preposition">
+        <label for="checkbox5">Voorzetsels</label><br>
+      </div>
 
-    <div class="dazzle"></div>
-    <div class="personalisation">
-      <input type="checkbox" id="checkbox1" name="tang constructions">
-      <label for="checkbox1">Tangconstructies</label><br>
-      <input type="checkbox" id="checkbox2" name="difficult-to-read words">
-      <label for="checkbox2">Moeilijke woorden</label><br>
-      <input type="checkbox" id="checkbox3" name="">
-      <label for="checkbox3">Test</label><br>
-      <input type="checkbox" id="checkbox4" name="pronouns">
-      <label for="checkbox4">Voornaamwoorden</label><br>
-      <input type="checkbox" id="checkbox5" name="preposition">
-      <label for="checkbox5">Voorzetsels</label><br>
+      <div class="dazzle"></div>
     </div>
-
   </div>
   </div>
 </body>
 
 
 <script>
-  /*
-  const toggleLookupButton = document.getElementById('explainWord');
-  toggleLookupButton.addEventListener('click', () => {
-    toggleLookupButton.classList.toggle('active');
-  });
-  
-
-  const toggleExplainSentence = document.getElementById('explainSentence');
-  toggleExplainSentence.addEventListener('click', () => {
-    toggleExplainSentence.classList.toggle('active');
-  });
-  */
-
   function removeAdjectives() {
     const elements = document.querySelectorAll(".adj");
     elements.forEach(function (element) {

@@ -102,6 +102,10 @@ async function personalizedSimplification() {
     }
   });
 
+  if (checkedValues.length == 0){
+    return;
+  }
+
   //
   var selectedText = window.getSelection().toString();
   var selectedChoices = checkedValues;

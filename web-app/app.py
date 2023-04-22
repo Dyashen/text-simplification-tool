@@ -14,7 +14,7 @@ from datetime import timedelta
 
 
 """"""
-from Summarization import HuggingFaceModels, GPT, Lexicala, WordScraper
+from Summarization import HuggingFaceModels, GPT, WordScraper
 from Writer import Creator
 import Analysis as an
 
@@ -30,9 +30,8 @@ COLOR_SESSION_NAME = 'color'
 @app.before_request
 def pre_boot_up():
     session.permanent=True
-    global simplifier, lexi, wap
+    global simplifier, wap, gpt
     simplifier = HuggingFaceModels()
-    lexi = Lexicala(None)
     wap = WordScraper()
 
     
@@ -108,47 +107,54 @@ def generate_summary():
         settings = dict(request.form)
         fonts = (settings['titleFont'], settings['regularFont'])
 
-        if 'personalized' not in settings:        
-            title = settings['titleOfPaper']
-            wordlist = settings['glossaryList']
-            wordlist = wordlist.strip(' ').split('\n')
+        title = settings['titleOfPaper']
+        wordlist = settings['glossaryList']
+        wordlist = wordlist.strip(' ').split('\n')
             
-            glossary = {}
-            for word in wordlist:
-                try:
-                    word_text = str(word).split(':')[0]
-                    word_type = str(word).split(':')[2]
-                    word_definition = wap.look_up(str(word_text))[0]
-                    glossary[word_text] = {'type':word_type, 'definition':str(word_definition)}
-                except Exception as e:
-                    print(e)
+        glossary = {}
+        for word in wordlist:
+            try:
+                word_text = str(word).split(':')[0]
+                word_type = str(word).split(':')[2]
+                word_definition = wap.look_up(str(word_text))[0]
+                glossary[word_text] = {'type':word_type, 'definition':str(word_definition)}
+            except Exception as e:
+                print(e)
 
-            
-            full_text = settings['fullText']            
+        full_text = settings['fullText']   
+        if 'personalizedSummary' not in settings:        
             full_text = simplifier.summarize(text=full_text, lm_key='bart') # pegasus model --> dict structure
-
-            
-            chosen_options = []
-            if 'saveToPDF' in settings:
-                chosen_options.append('PDF')
-
-            if 'saveToWord' in settings:
-                chosen_options.append('Word')                            
-
-
-            Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts, options=chosen_options)
-
-            if 'PDF' in chosen_options and 'Word' in chosen_options:
-                return send_file(path_or_file='saved_files/simplified_docs.zip', as_attachment=True)
-
-            if 'PDF' in chosen_options:
-                return send_file(path_or_file='saved_files/output.pdf', as_attachment=True)
-
-            if 'Word' in chosen_options:
-                return send_file(path_or_file='saved_files/output.docx', as_attachment=True)
-            
         else:
-            return jsonify(result='aangevinkt')
+            full_text = simplifier.summarize(text=full_text, lm_key='peg')
+            
+            try:
+                api_key = session['gpt3']
+            except:
+                api_key = None
+
+            gpt = GPT(api_key)
+            
+
+
+
+        chosen_options = []
+        if 'saveToPDF' in settings:
+            chosen_options.append('PDF')
+
+        if 'saveToWord' in settings:
+            chosen_options.append('Word')                            
+
+
+        Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts, options=chosen_options)
+
+        if 'PDF' in chosen_options and 'Word' in chosen_options:
+            return send_file(path_or_file='saved_files/simplified_docs.zip', as_attachment=True)
+
+        if 'PDF' in chosen_options:
+            return send_file(path_or_file='saved_files/output.pdf', as_attachment=True)
+
+        if 'Word' in chosen_options:
+            return send_file(path_or_file='saved_files/output.docx', as_attachment=True)
 
 
 # TEXT FUNCTIONS
@@ -188,13 +194,14 @@ def get_pos_tag():
 @app.route('/personalized-simplify', methods=['POST'])
 def personalized_simplify():
     try:
-        api_key = session['api_key']
+        api_key = session['gpt3']
     except:
         api_key = None
 
     gpt = GPT(api_key)
     text = request.json['text']
     choices = request.json['choices']
+
     result, prompt = gpt.personalised_simplify(sentence=text, personalisation=choices)
     return jsonify(prompt=prompt, result=result)
 
@@ -251,6 +258,14 @@ def get_session_keys():
     except:
         return jsonify(result='didnt work')
         
+
+@app.route('/foo', methods=['GET'])
+def get_foo():
+    if 'gpt3' in session:
+        api_key = session['gpt3']
+        return jsonify(result=api_key)
+    else:
+        return jsonify(result='not_set')
 
 
 # Flask-App RunTime-related
