@@ -126,14 +126,14 @@ def generate_summary():
         if 'personalizedSummary' not in settings:        
             full_text = simplifier.summarize(text=full_text, lm_key='bart') # pegasus model --> dict structure
         else:
-            full_text = simplifier.summarize(text=full_text, lm_key='peg')
-            
             try:
                 api_key = session['gpt3']
             except:
                 api_key = None
 
             gpt = GPT(api_key)
+            personalization_array = []
+            full_text = gpt.summarize(full_text_dict=full_text, personalisation=personalization_array)
             
         Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts)
         return send_file(path_or_file='saved_files/simplified_docs.zip', as_attachment=True)

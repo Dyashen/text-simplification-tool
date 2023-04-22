@@ -225,7 +225,13 @@ class GPT():
         
     def summarize(self, full_text_dict, personalisation):
         for title in full_text_dict.keys():
-            print(full_text_dict[title])
+            prompt = f"""
+            Rewrite this text without {", ".join(personalisation)}
+            ///
+            {full_text_dict[title]}
+            """
+
+        exit(0)
         
         
 class WordScraper():
