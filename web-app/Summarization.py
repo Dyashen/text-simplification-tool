@@ -116,8 +116,8 @@ class HuggingFaceModels:
                     
 
                 try:
-                    if origin_lang != 'en':
-                        text = gt.translate(text=str(text),src="en", dest=origin_lang).text 
+                    if origin_lang != 'nl':
+                        text = gt.translate(text=str(text),src=origin_lang, dest='nl').text 
                 except TypeError as e:
                     text = ''
 
@@ -155,27 +155,33 @@ class GPT():
     @returns prompt, result from gpt 
     """
     def look_up_word_gpt(self, word, context):
+
+        lang = detect(word)
+        if (lang != 'nl'):
+            tr = Translator()
+            word = tr.translate(word, src=lang, dest='nl').text
+
         try:
             prompt = f"""
-            Give for this word a Dutch definition considering the context: {word}
+            Simplify the Dutch definition of '{word}'
             context:
             {context}
             """
             result = openai.Completion.create(
                     prompt=prompt,
                     temperature=0,
-                    max_tokens=100,
+                    max_tokens=50,
                     model=COMPLETIONS_MODEL,
                     top_p=0.9,
                     stream=False
                     )["choices"][0]["text"].strip(" \n")    
-            return result, prompt
+            return result, word, prompt
         except Exception as e:
             return 'Open AI outage of problemen met API-sleutel', str(e)
         
     def personalised_simplify(self, sentence, personalisation):
         prompt = f"""
-        Simplify this text in Dutch and remove {", ".join(personalisation)}
+        Simplify this in Dutch and remove {", ".join(personalisation)}
         ///
         {sentence}
         """
@@ -195,19 +201,39 @@ class GPT():
             return str(e), prompt 
         
     def summarize(self, full_text_dict, personalisation):
+        soup = BeautifulSoup(full_text_dict, 'html.parser')
+        h3_tags = soup.find_all('h3')
+        split_text = {}
+        for i, tag in enumerate(h3_tags):
+            key = tag.text
+            value = ""
+            for sibling in tag.next_siblings:
+                if sibling.name == 'h3':
+                    break
+                value += str(sibling.get_text()).replace('\n',' ')
+            split_text[key] = value
 
-        print(personalisation)
+        new_text = {}
 
-        for title in full_text_dict.keys():
+        for title in split_text.keys():
             prompt = f"""
-            Rewrite this text without {", ".join(personalisation)}
+            Simplify this text in Dutch & remove {", ".join(personalisation)}
             ///
-            {full_text_dict[title]}
+            {split_text[title]}
             """
 
-            full_text_dict[title] = prompt
+            result = openai.Completion.create(
+                    prompt=prompt,
+                    temperature=0,
+                    max_tokens=100,
+                    model=COMPLETIONS_MODEL,
+                    top_p=0.9,
+                    stream=False
+            )["choices"][0]["text"].strip(" \n")
 
-        return full_text_dict
+            new_text[title] = [result]
+
+        return new_text
         
         
 class WordScraper():
@@ -220,12 +246,4 @@ class WordScraper():
         for card in def_blocks:
             card_text = str(card.get_text()).strip(' ')
             definities.append(card_text)
-        return definities
-
-"""
-text = "Within stutter therapy, transfer of learned skills to everyday life is not evident. Virtual Reality (VR) offers the opportunity to bring everyday life into into the safety of the therapy room. In this way, the feared situation can be practiced several times before moving into everyday life. An initial prototype of VR was tested by a group of 13 (young) adults who stutter. Based on their experiences and feedback, this was optimized with a more elaborated scenario and a more high-tech design. This second prototype was tested by 2 (young) adults who stutter. Young) adults who stutter indicated they see potential in using VR during the transfer phase. The first prototype had a greater impact than expected. A more high-tech elaboration with 360° images was perceived as more realistic."
-for k in huggingfacemodels.keys():
-    result = HuggingFaceModels().summarize(text=text, key=k)
-    print(" ".join(result))
-"""
-    
+        return definities   

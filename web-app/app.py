@@ -1,6 +1,5 @@
 """flask"""
 from flask import Flask, render_template, render_template_string, request, jsonify, session, send_file
-
 from langdetect import detect_langs, detect
 
 
@@ -45,65 +44,57 @@ def teaching_tool():
     if 'fullText' in request.form:
         try:
             text = request.form['fullText']
-
-            """
-            """
-            text = [text]
+            langs = detect_langs(text)
             reader = Reader()
-            full_text_new = reader.get_full_text_site(text)            
-            return render_template('for-scholars.html',pdf=full_text_new, lang='nl', title='voorbeeld titel', subject='voorbeeld van onderwerp',statistieken='')
+            full_text_new = reader.get_full_text_site([text])                
         except Exception as e:
             return render_template('error.html',error=e)
         
     elif 'pdf' in request.files:
         try:    
-            """"""
             pdf = request.files['pdf']
             pdf_data = BytesIO(pdf.read())
             all_pages = extract_pages(pdf_data,page_numbers=None,maxpages=999)
-
-            """"""
+            langs = detect_langs(str(all_pages))
             reader = Reader()
             full_text = reader.get_full_text_dict(all_pages)
             full_text_new = reader.get_full_text_site(full_text)
-
-            """"""
-            return render_template('for-scholars.html',pdf=full_text_new, lang='nl', title='voorbeeld titel', subject='voorbeeld van onderwerp',statistieken='')
         except Exception as e:
             return render_template('error.html',error=e)
     else:
-        return render_template(
-            'error.html',
-            error='No text submitted'
-        )
+        return render_template('error.html',error='No text submitted')
+    
+    return render_template('for-scholars.html',pdf=full_text_new, lang=langs, title='voorbeeld titel', subject='voorbeeld van onderwerp',statistieken='')
 
 
 """"""
 @app.route('/for-teachers', methods=['GET','POST'])
 def analysing_choosing_for_teachers():
-    try:
-        pdf = request.files['pdf']
-        pdf_data = BytesIO(pdf.read()) 
-        all_pages = extract_pages(
-            pdf_data,
-            page_numbers=None,
-            maxpages=999
-        )
 
-        """[page, page, page, ..., page]"""
-        reader = Reader()
-        full_text = reader.get_full_text_dict(all_pages)
-        full_text_new = reader.get_full_text_site(full_text)
-
-        return render_template(
-            'for-teachers.html', 
-            pdf=full_text_new, 
-            lang='lang',
-            title='Test', 
-            subject='Test'
-        )
-    except Exception as e:
-        return jsonify(error_msg = str(e))
+    if 'fullText' in request.form:
+        try:
+            text = request.form['fullText']
+            langs = detect_langs(text)
+            reader = Reader()
+            full_text_new = reader.get_full_text_site([text])                
+        except Exception as e:
+            return render_template('error.html',error=e)
+        
+    elif 'pdf' in request.files:
+        try:    
+            pdf = request.files['pdf']
+            pdf_data = BytesIO(pdf.read())
+            all_pages = extract_pages(pdf_data,page_numbers=None,maxpages=999)
+            langs = detect_langs(str(all_pages))
+            reader = Reader()
+            full_text = reader.get_full_text_dict(all_pages)
+            full_text_new = reader.get_full_text_site(full_text)
+        except Exception as e:
+            return render_template('error.html',error=e)
+    else:
+        return render_template('error.html',error='No text submitted')
+    
+    return render_template('for-teachers.html', pdf=full_text_new, lang=langs, title='Test', subject='Test')
 
 """
 """
@@ -122,15 +113,24 @@ def generate_summary():
             try:
                 word_text = str(word).split(':')[0]
                 word_type = str(word).split(':')[2]
+            except Exception as e:
+                print(str(e))
+                pass
+            
+            try:
                 word_definition = wap.look_up(str(word_text))[0]
                 glossary[word_text] = {'type':word_type, 'definition':str(word_definition)}
-            except Exception as e:
-                print(e)
+            except:
+                try:
+                    api_key = session['gpt3']
+                    gpt = GPT(api_key)
+                    word_definition, word_text, prompt = gpt.look_up_word_gpt(word=word_text, context=word_text)
+                    glossary[word_text] = {'type':word_type, 'definition': str(word_definition).replace('\n',' ').strip(' ')}
+                except:
+                    glossary[word_text] = {'type':word_type, 'definition':'Definitie kon niet gevonden worden.'}
 
         full_text = settings['fullText']  
 
-        print(f'settings: {settings}')
-         
         if 'personalizedSummary' not in settings:        
             full_text = simplifier.summarize(text=full_text, lm_key='bart') # pegasus model --> dict structure
         else:
@@ -138,6 +138,11 @@ def generate_summary():
                 api_key = session['gpt3']
             except:
                 api_key = None
+
+            blacklisted_keys = ['fullText', 'glossary', 'titleOfPaper','subjectOfPaper','actions', 'titleFont','regularFont', 'personalizedSummary']
+            for key in settings.keys():
+                if key not in blacklisted_keys:
+                    pass
 
             gpt = GPT(api_key)
             personalization_array = []

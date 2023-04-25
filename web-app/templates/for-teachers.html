@@ -45,25 +45,23 @@
 
     <!---->
     <div class="right-container">
-      <!---->
       <form action="/generate-summary" method="post">
-        <!---->
         <div class="extra-info">
-          <p>taal: {{lang}}</p><br>
+          <p>Herkende talen:</p>
+          <ul>{% for l in lang %}
+              <li>{{ l }}</li>
+              {% endfor %}</ul>
           <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10">{{title}}</textarea>
           <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="10">{{subject}}</textarea>
         </div>
 
         <!--Statistieken voor de leerkracht-->
         <h2>Statistieken voor de leerkracht</h2>
-        {% for s in statistics %}
-        <span class="word">{{s}}</span>
-        {% endfor %}
+        {% for s in statistics %}<span class="word">{{s}}</span>{% endfor %}
 
         <!--Tools voor de leerkracht-->
         <h2>Tools voor de leerkracht</h2>
         <fieldset>
-
           <div>
             <input type="checkbox" id="verb-show">WW's tonen
             <input type="checkbox" id="noun-show">ZN's tonen
