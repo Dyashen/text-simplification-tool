@@ -125,31 +125,7 @@ class HuggingFaceModels:
 
             result_dict[key] = output
 
-        return(result_dict)
-
-    """
-    @retuns full-text
-    """
-    def summarize_with_presets(self, full_text, presets):
-        try:    
-            prompt = f"""
-            Samenvat de volgende tekst in {presets[0]} paragrafen met elk {presets[1]} zinnen van max {presets[2]} lang.
-            {full_text}
-            """
-
-            result = openai.Completion.create(
-                    prompt=prompt,
-                    temperature=0,
-                    max_tokens=1000,
-                    model=COMPLETIONS_MODEL,
-                    top_p=0.9,
-                    stream=False
-            )["choices"][0]["text"].strip(" \n")
-            return prompt, result
-        
-        except Exception as e:
-            return 'Open AI outage of problemen met API-sleutel', e
-            
+        return(result_dict)            
 
     """
     @returns 
@@ -159,7 +135,7 @@ class HuggingFaceModels:
         result = translator.translate(
             text=sentence,
             dest='nl')
-        return result.text # result.origin
+        return result.text
 
 class GPT():
 
@@ -169,11 +145,8 @@ class GPT():
     def __init__(self, key=None):
         global gpt_api_key
         if key is None:
-            try:
-                gpt_api_key = os.getenv('OPENAI')
-                openai.api_key = gpt_api_key
-            except:
-                gpt_api_key = 'no_key_submitted'
+            gpt_api_key = 'not-submitted'
+            openai.api_key = key
         else:
             gpt_api_key = key
             openai.api_key = key
@@ -184,11 +157,9 @@ class GPT():
     def look_up_word_gpt(self, word, context):
         try:
             prompt = f"""
-            Write a max. 10-word Dutch easy-to-read definition for the word: {word}
+            Give for this word a Dutch definition considering the context: {word}
             context:
             {context}
-            format:
-            Definition. \n Bron: 
             """
             result = openai.Completion.create(
                     prompt=prompt,
@@ -204,7 +175,7 @@ class GPT():
         
     def personalised_simplify(self, sentence, personalisation):
         prompt = f"""
-        Rewrite this text without {", ".join(personalisation)}
+        Simplify this text in Dutch and remove {", ".join(personalisation)}
         ///
         {sentence}
         """
@@ -224,6 +195,9 @@ class GPT():
             return str(e), prompt 
         
     def summarize(self, full_text_dict, personalisation):
+
+        print(personalisation)
+
         for title in full_text_dict.keys():
             prompt = f"""
             Rewrite this text without {", ".join(personalisation)}
@@ -231,7 +205,9 @@ class GPT():
             {full_text_dict[title]}
             """
 
-        exit(0)
+            full_text_dict[title] = prompt
+
+        return full_text_dict
         
         
 class WordScraper():

@@ -43,7 +43,7 @@ class Reader():
             if lang in dict:
                 nlp = spacy.load(dict.get(lang))
             else:
-                nlp = spacy.load(english_spacy_model)
+                nlp = spacy.load(dict.get('en'))
 
             doc = nlp(full_text[i])
             sentences = doc.sents

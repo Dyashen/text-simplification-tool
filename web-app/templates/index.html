@@ -16,94 +16,139 @@
     <input type="color" id="favcolor" name="favcolor" value="#ff0000" onmousedown="changeBackgroundColor(this.value)">
   </div>
 
-  
+
 
   <h1>Prototype voor tekstvereenvoudiging</h1>
-
   <div class="container">
     <div class="container-index">
-      <h2>Voor leerlingen</h2>
-      <form action="/for-scholars" method="post" enctype="multipart/form-data">
-        <label for="pdf">Voeg een PDF toe:</label>
-        <input type="file" id="pdf" name="pdf"><br><br>
-        <input type="submit" value="View PDF">
-      </form>
+      <fieldset>
+        <h2>Voor leerlingen</h2>
+        <form action="/for-scholars" method="post" enctype="multipart/form-data">
+          <label for="pdf">Voeg een PDF toe:</label>
+          <input type="file" id="pdf" name="pdf"><br><br>
+          <input type="submit" value="View PDF">
+        </form>
+
+        <form action="/for-scholars" method="post">
+          <input type="checkbox" name="toggleFullTextScholars" id="toggleFullTextScholars">
+          <input type="submit" value="View PDF">
+        </form>
+      </fieldset>
     </div>
 
     <div class="container-index">
-      <h2>Voor lectoren</h2>
-      <form action="/for-teachers" method="post" enctype="multipart/form-data">
-        <label for="pdf">Voeg een PDF toe:</label>
-        <input type="file" id="pdf" name="pdf"><br><br>
-        <input type="submit" value="View PDF">
-      </form>
+      <fieldset>
+        <h2>Voor lectoren</h2>
+        <form action="/for-teachers" method="post" enctype="multipart/form-data">
+          <label for="pdf">Voeg een PDF toe:</label>
+          <input type="file" id="pdf" name="pdf"><br><br>
+          <input type="submit" value="View PDF">
+        </form>
+
+        <form action="/for-teachers" method="post">
+          <input type="checkbox" name="toggleFullTextTeachers" id="toggleFullTextTeachers">
+          <input type="submit" value="View PDF">
+        </form>
+      </fieldset>
     </div>
-    <div class="container-index"><h2>Instellingen</h2><button onclick="setGPTAPIKey()">GPT API KEY</button></div>
+
+    <div class="container-index">
+      <h2>Instellingen</h2><button onclick="setGPTAPIKey()">GPT API KEY</button>
+    </div>
   </div>
 </body>
 <script>
 
-/* --- */
-const callPythonFunctionGetColor = async () => {
-  try {
+  /* --- */
+  const callPythonFunctionGetColor = async () => {
+    try {
+      var url = `http://localhost:5000/get-background-color`;
+      console.log(url);
+      const response = await fetch(url, { method: 'POST' });
+      return (result = await response.json());
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /* ---- */
+  window.onload = async function () {
     var url = `http://localhost:5000/get-background-color`;
-    console.log(url);
-    const response = await fetch(url, {method: 'POST'});
-    return (result = await response.json());
-  } catch (error) {
-    console.error(error);
+    const response = await callPythonFunctionGetColor();
+    color = response;
+    console.log(color);
+    document.body.style.transition = "background-color 1s";
+    document.body.style.backgroundColor = response.color;
   }
-}
-
-/* ---- */
-window.onload = async function(){
-  var url = `http://localhost:5000/get-background-color`;
-  const response = await callPythonFunctionGetColor();
-  color = response;
-  console.log(color);
-  document.body.style.transition = "background-color 1s";
-  document.body.style.backgroundColor = response.color;
-}
 
 
-/* --- */
-const callPythonFunctionChangeColor = async (color) => {
-  try {
-    var url = `http://localhost:5000/change-color`;
-    console.log(url);
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ color: color })
-    });
+  /* --- */
+  const callPythonFunctionChangeColor = async (color) => {
+    try {
+      var url = `http://localhost:5000/change-color`;
+      console.log(url);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ color: color })
+      });
 
-    console.log('change-', response)
-    return (result = await response.json());
-  } catch (error) {
-    console.error(error);
+      console.log('change-', response)
+      return (result = await response.json());
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  /* --- */
+  async function changeBackgroundColor(color) {
+    var favcolor = document.getElementById('favcolor').value;
+    console.log(favcolor);
+    const response = await callPythonFunctionChangeColor(favcolor);
+    document.body.style.backgroundColor = response.color;
   }
-};
-
-/* --- */
-async function changeBackgroundColor(color) {
-  var favcolor = document.getElementById('favcolor').value;
-  console.log(favcolor);
-  const response = await callPythonFunctionChangeColor(favcolor);
-  document.body.style.backgroundColor = response.color;
-}
 
 
-/* --- */
-async function setGPTAPIKey(){
-  var key = prompt('geef gpt-3 api sleutel in');
-  if(key != null){
-    const response = await fetch(`http://localhost:5000/set-gpt-api-key?key=${key}`);
-    result = await response.json();
-    alert('U kan nu gepersonaliseerde samenvattingen maken met de volgende sleutel \n' + result.result);
+  /* --- */
+  async function setGPTAPIKey() {
+    var key = prompt('geef gpt-3 api sleutel in');
+    if (key != null) {
+      const response = await fetch(`http://localhost:5000/set-gpt-api-key?key=${key}`);
+      result = await response.json();
+      alert('U kan nu gepersonaliseerde samenvattingen maken met de volgende sleutel \n' + result.result);
+    }
   }
-}
+
+  document.getElementById('toggleFullTextScholars').addEventListener('change', function () {
+    if (this.checked) {
+      var textarea = document.createElement('textarea');
+      textarea.name = 'fullText';
+      this.form.appendChild(textarea);
+    } else {
+      var textarea = this.form.querySelector('textarea[name="fullText"]');
+      if (textarea) {
+        textarea.remove();
+      }
+    }
+  });
+
+
+  document.getElementById('toggleFullTextTeachers').addEventListener('change', function () {
+    if (this.checked) {
+      var textarea = document.createElement('textarea');
+      textarea.name = 'fullText';
+      this.form.appendChild(textarea);
+    } else {
+      var textarea = this.form.querySelector('textarea[name="fullText"]');
+      if (textarea) {
+        textarea.remove();
+      }
+    }
+  });
+
+
 
 </script>
 

@@ -12,13 +12,10 @@ from pdfminer.high_level import extract_pages
 """"""
 from datetime import timedelta
 
-
 """"""
 from Summarization import HuggingFaceModels, GPT, WordScraper
 from Writer import Creator
 import Analysis as an
-
-
 
 """"""
 app = Flask(__name__)
@@ -45,65 +42,74 @@ def home():
 """"""
 @app.route('/for-scholars', methods=['GET','POST'])
 def teaching_tool():
-    try:    
-        """"""
-        pdf = request.files['pdf']
-        pdf_data = BytesIO(pdf.read())
-        all_pages = extract_pages(
-            pdf_data,
-            page_numbers=None,
-            maxpages=999
-        )
+    if 'fullText' in request.form:
+        try:
+            text = request.form['fullText']
 
-        """"""
-        reader = Reader()
-        full_text = reader.get_full_text_dict(all_pages)
-        full_text_new = reader.get_full_text_site(full_text)
+            """
+            """
+            text = [text]
+            reader = Reader()
+            full_text_new = reader.get_full_text_site(text)            
+            return render_template('for-scholars.html',pdf=full_text_new, lang='nl', title='voorbeeld titel', subject='voorbeeld van onderwerp',statistieken='')
+        except Exception as e:
+            return render_template('error.html',error=e)
+        
+    elif 'pdf' in request.files:
+        try:    
+            """"""
+            pdf = request.files['pdf']
+            pdf_data = BytesIO(pdf.read())
+            all_pages = extract_pages(pdf_data,page_numbers=None,maxpages=999)
 
-        """"""
-        return render_template(
-            'for-scholars.html',
-            pdf=full_text_new, 
-            lang='nl', 
-            title='voorbeeld titel', 
-            subject='voorbeeld van onderwerp',
-            statistieken=''
-        )
-    except Exception as e:
+            """"""
+            reader = Reader()
+            full_text = reader.get_full_text_dict(all_pages)
+            full_text_new = reader.get_full_text_site(full_text)
+
+            """"""
+            return render_template('for-scholars.html',pdf=full_text_new, lang='nl', title='voorbeeld titel', subject='voorbeeld van onderwerp',statistieken='')
+        except Exception as e:
+            return render_template('error.html',error=e)
+    else:
         return render_template(
             'error.html',
-            error=e
+            error='No text submitted'
         )
 
 
 """"""
 @app.route('/for-teachers', methods=['GET','POST'])
 def analysing_choosing_for_teachers():
-    pdf = request.files['pdf']
-    pdf_data = BytesIO(pdf.read()) 
-    all_pages = extract_pages(
-        pdf_data,
-        page_numbers=None,
-        maxpages=999
-    )
+    try:
+        pdf = request.files['pdf']
+        pdf_data = BytesIO(pdf.read()) 
+        all_pages = extract_pages(
+            pdf_data,
+            page_numbers=None,
+            maxpages=999
+        )
 
-    """[page, page, page, ..., page]"""
-    reader = Reader()
-    full_text = reader.get_full_text_dict(all_pages)
-    full_text_new = reader.get_full_text_site(full_text)
+        """[page, page, page, ..., page]"""
+        reader = Reader()
+        full_text = reader.get_full_text_dict(all_pages)
+        full_text_new = reader.get_full_text_site(full_text)
 
-    return render_template(
-        'for-teachers.html', 
-        pdf=full_text_new, 
-        lang='lang',
-        title='Test', 
-        subject='Test'
-    )
+        return render_template(
+            'for-teachers.html', 
+            pdf=full_text_new, 
+            lang='lang',
+            title='Test', 
+            subject='Test'
+        )
+    except Exception as e:
+        return jsonify(error_msg = str(e))
 
 """
 """
 @app.route('/generate-summary', methods=['GET','POST'])
 def generate_summary():
+    try:
         settings = dict(request.form)
         fonts = (settings['titleFont'], settings['regularFont'])
 
@@ -122,6 +128,8 @@ def generate_summary():
                 print(e)
 
         full_text = settings['fullText']  
+
+        print(f'settings: {settings}')
          
         if 'personalizedSummary' not in settings:        
             full_text = simplifier.summarize(text=full_text, lm_key='bart') # pegasus model --> dict structure
@@ -137,6 +145,8 @@ def generate_summary():
             
         Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts)
         return send_file(path_or_file='saved_files/simplified_docs.zip', as_attachment=True)
+    except Exception as e:
+        return jsonify(error_msg = str(e))
 
 # TEXT FUNCTIONS
 @app.route('/extract-text', methods=['POST'])
