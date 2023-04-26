@@ -21,14 +21,18 @@
   <h1>Prototype voor tekstvereenvoudiging</h1>
   <div class="container">
     <div class="container-index">
+
+      <h2>Voor leerlingen</h2>
       <fieldset>
-        <h2>Voor leerlingen</h2>
         <form action="/for-scholars" method="post" enctype="multipart/form-data">
           <label for="pdf">Voeg een PDF toe:</label>
           <input type="file" id="pdf" name="pdf"><br><br>
+          <input type="checkbox" name="advanced" id="advanced">
           <input type="submit" value="View PDF">
         </form>
+      </fieldset>
 
+      <fieldset>
         <form action="/for-scholars" method="post">
           <input type="checkbox" name="toggleFullTextScholars" id="toggleFullTextScholars">
           <input type="submit" value="View PDF">
@@ -42,6 +46,7 @@
         <form action="/for-teachers" method="post" enctype="multipart/form-data">
           <label for="pdf">Voeg een PDF toe:</label>
           <input type="file" id="pdf" name="pdf"><br><br>
+          <input type="checkbox" name="advanced" id="advanced">
           <input type="submit" value="View PDF">
         </form>
 

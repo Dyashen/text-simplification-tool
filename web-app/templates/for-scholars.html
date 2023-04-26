@@ -55,71 +55,66 @@
     <div><label>Adjectieven</label><input type="color" id="colorForAdjs" name="favcolor" value="#ff0000"></div>
   </fieldset>
 
-
   {% for kw in keywords %}
   <span class="keyword">{{ kw }}</span>
   {% endfor %}
 
-  <div class="container">
-    <div class="text-container">
-      {% for page in pdf %}
-      <div class="page">
-        <h1>{{page[1]}}</h1>
-        {% for paragraph in page[0] %}
-        <p class="left-side">
-          {% for sentence in paragraph %}
-          <span class="sentence">
-            {% for word in sentence %}
-            {% if sentence[word] != 'space' %}
-            <span class={{sentence[word]}}>{{word}}</span>
-            {% endif %}
-            {% endfor %}
-          </span>
+  <div class="text-container">
+    <div class="page">
+      {% for paragraph in pdf %}
+      <p class="left-side">
+        {% for sentence in paragraph %}
+        <span class="sentence">
+          {% for word in sentence %}
+          {% if sentence[word] != 'space' %}
+          <span class={{sentence[word]}}>{{word}}</span>
+          {% endif %}
           {% endfor %}
-        </p>
-        <p class="right-side"><!--JS FILLS HERE--></p>
+        </span>
         {% endfor %}
-      </div>
+      </p>
       {% endfor %}
+      <p class="right-side"><!--JS FILLS HERE--></p>
+    </div>
+  </div>
+
+  <!--'chatbot'-->
+  <div class="fixed-bottom">
+    <div class="buttons">
+      <input class="btn" type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
+      <input class="btn" type="button" value="Schrijf dit eenvoudiger volgens ...."
+        onmousedown="personalizedSimplification()">
+      <input class="btn" type="button" value="Wat zijn de belangrijkste zinnen?"
+        onmousedown="extractiveSummarization()">
+      <input class="btn" type="button" value="Laat adjectieven vallen." onmousedown="removeAdjectives()">
+      <input class="btn" type="button" value="Parafraseer dit" onmousedown="abstractiveSummarization()">
+      <button id="deleteChat" class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
     </div>
 
-    <!--'chatbot'-->
-    <div class="fixed-bottom">
-      <div class="buttons">
-        <input class="btn" type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
-        <input class="btn" type="button" value="Schrijf dit eenvoudiger volgens ...."
-          onmousedown="personalizedSimplification()">
-        <input class="btn" type="button" value="Wat zijn de belangrijkste zinnen?"
-          onmousedown="extractiveSummarization()">
-        <input class="btn" type="button" value="Laat adjectieven vallen." onmousedown="removeAdjectives()">
-        <input class="btn" type="button" value="Parafraseer dit" onmousedown="abstractiveSummarization()">
-        <button id="deleteChat" class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
-      </div>
-
-      <div class="buttons">
-        <form>
-          <input type="radio" name="handling" id="explainWords"> Woorden uitleggen
-          <input type="radio" name="handling" id="simplifySentences"> Zinnen vereenvoudigen
-          <input type="checkbox" id="verb-show">WW's tonen
-          <input type="checkbox" id="noun-show">ZN's tonen
-          <input type="checkbox" id="adj-show">Adjs tonen
-        </form>
-      </div>
-      <div class="personalisation">
-        <input type="checkbox" id="appositions" name="appositions">
-        <label for="checkbox1">Tangconstructies</label><br>
-        <input type="checkbox" id="dif-to-read" name="difficult-to-read words">
-        <label for="checkbox2">Moeilijke woorden</label><br>
-        <input type="checkbox" id="" name="">
-        <label for="checkbox3">TODO</label><br>
-        <input type="checkbox" id="pronouns" name="pronouns">
-        <label for="checkbox4">Voornaamwoorden</label><br>
-        <input type="checkbox" id="prepositions" name="preposition">
-        <label for="checkbox5">Voorzetsels</label><br>
-      </div>
-
-      <div class="dazzle"></div>
+    <div class="buttons">
+      <form>
+        <input type="radio" name="handling" id="explainWords"> Woorden uitleggen
+        <input type="radio" name="handling" id="simplifySentences"> Zinnen vereenvoudigen
+        <input type="checkbox" id="verb-show">WW's tonen
+        <input type="checkbox" id="noun-show">ZN's tonen
+        <input type="checkbox" id="adj-show">Adjs tonen
+      </form>
     </div>
+    <div class="personalisation">
+      <input type="checkbox" id="appositions" name="appositions">
+      <label for="checkbox1">Tangconstructies</label><br>
+      <input type="checkbox" id="dif-to-read" name="difficult-to-read words">
+      <label for="checkbox2">Moeilijke woorden</label><br>
+      <input type="checkbox" id="" name="">
+      <label for="checkbox3">TODO</label><br>
+      <input type="checkbox" id="pronouns" name="pronouns">
+      <label for="checkbox4">Voornaamwoorden</label><br>
+      <input type="checkbox" id="prepositions" name="preposition">
+      <label for="checkbox5">Voorzetsels</label><br>
+    </div>
+
+    <div class="dazzle"></div>
+  </div>
   </div>
   </div>
 </body>

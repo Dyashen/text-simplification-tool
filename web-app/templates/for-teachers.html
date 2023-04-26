@@ -22,11 +22,10 @@
   </fieldset>
 
   <div class="container">
+
     <div class="left-container">
-      {% for page in pdf %}
       <div class="page">
-        <h1>{{page[1]}}</h1>
-        {% for paragraph in page[0] %}
+        {% for paragraph in pdf %}
         <p>
           {% for sentence in paragraph %}
           <span class="sentence">
@@ -40,7 +39,6 @@
         </p>
         {% endfor %}
       </div>
-      {% endfor %}
     </div>
 
     <!---->
@@ -49,8 +47,9 @@
         <div class="extra-info">
           <p>Herkende talen:</p>
           <ul>{% for l in lang %}
-              <li>{{ l }}</li>
-              {% endfor %}</ul>
+            <li>{{ l }}</li>
+            {% endfor %}
+          </ul>
           <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10">{{title}}</textarea>
           <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="10">{{subject}}</textarea>
         </div>
@@ -161,7 +160,8 @@
           <button type="submit">Glossary-lijst genereren</button>
         </fieldset>
         <textarea hidden name="fullText" id="fullText" cols="30" rows="10"></textarea>
-        <button disabled type="submit" value="Samenvatten" id="summarize-with-presets-button">Volledig document samenvatten</button>
+        <button disabled type="submit" value="Samenvatten" id="summarize-with-presets-button">Volledig document
+          samenvatten</button>
       </form>
 
       <button value="Tekst toevoegen" onmousedown="addTextToTextArea()">Tekst indienen</button>
@@ -188,16 +188,14 @@
   const checkboxAddWordToGlossary = document.getElementById("checkboxAddWordToGlossary");
   checkboxAddWordToGlossary.addEventListener("change", function () {
     if (checkboxAddWordToGlossary.checked) {
-      const words = document.querySelectorAll('span.noun', 'span.verb', 'span.adj');
+      const words = document.querySelectorAll('span.noun', 'span.aux', 'span.verb', 'span.adj');
       words.forEach((w) => {
         w.addEventListener('click', async (event) => {
           if (checkboxAddWordToGlossary.checked) {
             var pTag = event.target;
             sentence_of_origin = w.closest("span.sentence");
             var context = "";
-            for (const child of sentence_of_origin.children) {context = context + " " + child.textContent};
-
-            // const response = await callPythonCallPOSTag(pTag.innerHTML, context);
+            for (const child of sentence_of_origin.children) { context = context + " " + child.textContent };
             const response = await fetch(`http://localhost:5000/get-pos-tag?word=${w.textContent}&context=${context}`);
             result = await response.json();
             var pos_tag = JSON.stringify(result.pos);

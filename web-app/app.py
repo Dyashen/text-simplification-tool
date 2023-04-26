@@ -1,10 +1,13 @@
 """flask"""
 from flask import Flask, render_template, render_template_string, request, jsonify, session, send_file
 from langdetect import detect_langs, detect
+import spacy
 
 
 """pdf"""
 from Reader import Reader
+from pdf2image import convert_from_bytes
+from pdfminer.pdfpage import PDFPage
 from io import BytesIO
 from pdfminer.high_level import extract_pages
 
@@ -22,15 +25,44 @@ app.secret_key = "super secret key"
 API_KEY_SESSION_NAME = 'api_key'
 COLOR_SESSION_NAME = 'color'
 
+
+def setup_scholars_teachers(request):
+    settings = request.form
+    if 'fullText' in request.form:
+            text = request.form['fullText']
+            langs = detect_langs(text)
+            reader = Reader()
+            dict_text = reader.get_full_text_site(text)                
+    elif 'pdf' in request.files:
+            if 'advanced' not in settings:
+                pdf = request.files['pdf']
+                pdf_data = BytesIO(pdf.read())
+                all_pages = extract_pages(pdf_data,page_numbers=None,maxpages=999)
+                langs = detect_langs(str(all_pages))
+                reader = Reader()
+                full_text = reader.get_full_text_dict(all_pages)
+                dict_text = reader.get_full_text_site(full_text)
+            else:
+                pdf = request.files['pdf']
+                pdf_data = pdf.read()
+                pages = convert_from_bytes(pdf_data)
+                reader = Reader()
+                img_text = reader.get_full_text_from_image(pages)
+                langs = detect_langs(img_text)
+                dict_text = reader.get_full_text_site(img_text)                            
+    return dict_text, langs, 'voorbeeldtitel', 'voorbeeldonderwerp'
+
+
+
+
 """"""
 @app.before_request
 def pre_boot_up():
     session.permanent=True
-    global simplifier, wap, gpt
+    global simplifier, wap
     simplifier = HuggingFaceModels()
     wap = WordScraper()
 
-    
 
 """"""
 @app.route('/', methods=['GET'])
@@ -41,60 +73,21 @@ def home():
 """"""
 @app.route('/for-scholars', methods=['GET','POST'])
 def teaching_tool():
-    if 'fullText' in request.form:
-        try:
-            text = request.form['fullText']
-            langs = detect_langs(text)
-            reader = Reader()
-            full_text_new = reader.get_full_text_site([text])                
-        except Exception as e:
-            return render_template('error.html',error=e)
-        
-    elif 'pdf' in request.files:
-        try:    
-            pdf = request.files['pdf']
-            pdf_data = BytesIO(pdf.read())
-            all_pages = extract_pages(pdf_data,page_numbers=None,maxpages=999)
-            langs = detect_langs(str(all_pages))
-            reader = Reader()
-            full_text = reader.get_full_text_dict(all_pages)
-            full_text_new = reader.get_full_text_site(full_text)
-        except Exception as e:
-            return render_template('error.html',error=e)
-    else:
-        return render_template('error.html',error='No text submitted')
-    
-    return render_template('for-scholars.html',pdf=full_text_new, lang=langs, title='voorbeeld titel', subject='voorbeeld van onderwerp',statistieken='')
+    try:
+        dict_text, langs, title, subject = setup_scholars_teachers(request)
+        return render_template('for-scholars.html', pdf=dict_text, lang=langs, title=title, subject=subject)
+    except Exception as e:
+        return render_template('error.html',error=str(e))
 
 
 """"""
 @app.route('/for-teachers', methods=['GET','POST'])
 def analysing_choosing_for_teachers():
-
-    if 'fullText' in request.form:
-        try:
-            text = request.form['fullText']
-            langs = detect_langs(text)
-            reader = Reader()
-            full_text_new = reader.get_full_text_site([text])                
-        except Exception as e:
-            return render_template('error.html',error=e)
-        
-    elif 'pdf' in request.files:
-        try:    
-            pdf = request.files['pdf']
-            pdf_data = BytesIO(pdf.read())
-            all_pages = extract_pages(pdf_data,page_numbers=None,maxpages=999)
-            langs = detect_langs(str(all_pages))
-            reader = Reader()
-            full_text = reader.get_full_text_dict(all_pages)
-            full_text_new = reader.get_full_text_site(full_text)
-        except Exception as e:
-            return render_template('error.html',error=e)
-    else:
-        return render_template('error.html',error='No text submitted')
-    
-    return render_template('for-teachers.html', pdf=full_text_new, lang=langs, title='Test', subject='Test')
+    try:
+        dict_text, langs, title, subject = setup_scholars_teachers(request)
+        return render_template('for-teachers.html', pdf=dict_text, lang=langs, title=title, subject=subject)
+    except Exception as e:
+        return render_template('error.html',error=str(e))
 
 """
 """
@@ -170,6 +163,7 @@ def scientific_simplify():
     result = simplifier.scientific_simplify(text=text, lm_key=key)
     return jsonify(result=result)
 
+  
 """
 """
 @app.route('/get-pos-tag', methods=['GET','POST'])
@@ -183,7 +177,7 @@ def get_pos_tag():
         ).lower()
         return jsonify(pos=pos_tag)
     except Exception as e:
-        return jsonify(pos='noun')
+        return jsonify(pos=str(e))
 
 """
 """
