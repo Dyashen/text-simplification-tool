@@ -21,16 +21,6 @@ class Reader():
     """
     def get_full_text_dict(self, all_pages):
         full_text = []
-        """
-        for page_layout in all_pages:
-            total_page = ""
-            for element in page_layout:
-                if isinstance(element, LTTextContainer):
-                    for text_line in element:
-                        total_page += text_line.get_text()
-                        # total_page = re.sub(r'[^a-zA-Z0-9\s.,;]', '', total_page)
-            full_text.append(total_page)
-        """
         total = ""
         for page_layout in all_pages:
             for element in page_layout:
@@ -57,7 +47,6 @@ class Reader():
             os.remove(f)
 
         return " ".join(full_text)
-
 
     def get_full_text_site(self, full_text):
         try:
@@ -94,37 +83,3 @@ class Reader():
             except:
                 pass
         return text_w_pos
-
-        """
-        for i in range (len(full_text)):
-            page = []
-            try:
-                lang = detect(full_text[i])
-            except:
-                pass
-
-            if lang in dict:
-                nlp = spacy.load(dict.get(lang))
-            else:
-                nlp = spacy.load(dict.get('en'))
-
-            doc = nlp(full_text[i])
-            sentences = doc.sents
-
-            paragraph = []
-            for sent in sentences:
-                sentence = {}
-                for token in sent:
-                    sentence[token.text] = str(token.pos_).lower()
-
-                if len(paragraph) > 4:
-                    page.append(paragraph)
-                    paragraph = []
-                    paragraph.append(sentence)
-                else:
-                    paragraph.append(sentence)
-
-            page.append(paragraph)
-            full_text_new.append([page, i])
-        return full_text_new
-        """

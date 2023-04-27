@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="..\static\css\style.css">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <script type="text/javascript" src={{ url_for('static', filename='Onload.js' )}}></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Teksten vereenvoudigen: foutmelding</title>
+</head>
+
+<body>
+    <a href="/">Terug naar home.</a>
+    <div class="message">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {{messages}}
+        {% endif %}
+        {% endwith %}
+    </div>
+    <div class="container">
+        <fieldset>
+            <form action="/change-settings-user" method="POST">
+                <!---->
+                <h3>Achtergrondkleur</h3>
+                <div class="buttons"><input type="color" id="favcolor" name="favcolor" value="#ff0000"></div>
+
+                <!---->
+                <h3>Lettertype- en grootte</h3>
+                <select name="fontSettings" id="fontSettings">
+                    <option value="Arial">Arial</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Comic Sans">Comic Sans</option>
+                    <option value="Montserrat">Montserrat</option>
+                </select>
+
+                <!---->
+                <label for="fontSize">Lettergrootte</label>
+                <input type="number" name="fontSize" id="fontSize" max="24">
+                <input type="submit" value="Ingeven">
+            </form>
+        </fieldset>
+    </div>
+
+    <div class="container">
+        <fieldset>
+            <h3>API-sleutels</h3>
+            <button onclick="setGPTAPIKey()">GPT API KEY</button>
+            <button onclick="setHFAPIKey()">HuggingFace API KEY</button>
+        </fieldset>
+    </div>
+</body>
+
+</html>
+
+
+
+<script>
+    /* --- Key Settings --- */
+    async function setGPTAPIKey() {
+        var key = prompt('Geef GPT-3 API-sleutel in');
+        if (key != null) {
+            const response = await fetch(`http://localhost:5000/set-gpt-api-key?key=${key}`);
+            result = await response.json();
+            alert('U kan nu gepersonaliseerde samenvattingen maken met de volgende sleutel \n' + result.result);
+        }
+    }
+
+    async function setHFAPIKey() {
+        var key = prompt('Geef een HuggingFace API-sleutel in');
+        if (key != null) {
+            const response = await fetch(`http://localhost:5000/set-hf-api-key?key=${key}`);
+            result = await response.json();
+            alert('U kan nu standaardsamenvattingen maken met de volgende sleutel \n' + result.result);
+        }
+    }
+</script>

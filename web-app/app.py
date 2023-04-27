@@ -1,5 +1,5 @@
 """flask"""
-from flask import Flask, render_template, render_template_string, request, jsonify, session, send_file
+from flask import Flask, render_template, render_template_string, request, jsonify, session, send_file, flash
 from langdetect import detect_langs, detect
 import spacy
 
@@ -22,8 +22,9 @@ import Analysis as an
 """"""
 app = Flask(__name__)
 app.secret_key = "super secret key"
-API_KEY_SESSION_NAME = 'api_key'
-COLOR_SESSION_NAME = 'color'
+GPT_API_KEY_SESSION_NAME = 'gpt3'
+HF_API_KEY_SESSION_NAME = 'hf_api_key'
+PER_SET_SESSION_NAME = 'personalized_settings'
 
 
 def setup_scholars_teachers(request):
@@ -115,7 +116,7 @@ def generate_summary():
                 glossary[word_text] = {'type':word_type, 'definition':str(word_definition)}
             except:
                 try:
-                    api_key = session['gpt3']
+                    api_key = session[GPT_API_KEY_SESSION_NAME]
                     gpt = GPT(api_key)
                     word_definition, word_text, prompt = gpt.look_up_word_gpt(word=word_text, context=word_text)
                     glossary[word_text] = {'type':word_type, 'definition': str(word_definition).replace('\n',' ').strip(' ')}
@@ -128,7 +129,7 @@ def generate_summary():
             full_text = simplifier.summarize(text=full_text, lm_key='bart') # pegasus model --> dict structure
         else:
             try:
-                api_key = session['gpt3']
+                api_key = session[GPT_API_KEY_SESSION_NAME]
             except:
                 api_key = None
 
@@ -184,7 +185,7 @@ def get_pos_tag():
 @app.route('/personalized-simplify', methods=['POST'])
 def personalized_simplify():
     try:
-        api_key = session['gpt3']
+        api_key = session[GPT_API_KEY_SESSION_NAME]
     except:
         api_key = None
 
@@ -205,31 +206,54 @@ def look_up_word():
         word_definition = wap.look_up(str(word))[0]
     except Exception as e:
         print(e)
-    return jsonify(result=word_definition, source='Woorden.org', word=word)
+    return jsonify(result=word_definition, source='Vertalen.nu', word=word)
 
 
 """
+@ TODO combine these two
+"""
+@app.route('/change-settings', methods=['GET', 'POST'])
+def return_personal_settings_page():
+    return render_template('settings.html')
+
+@app.route('/get-settings-user',methods=['POST'])
+def return_personal_settings_dict():
+    if PER_SET_SESSION_NAME in session:
+        return jsonify(session[PER_SET_SESSION_NAME])
+    else:
+        return jsonify(result='session does not exist')
+
+@app.route('/change-settings-user', methods=['POST'])
+def change_personal_settings():
+    try:
+        session[PER_SET_SESSION_NAME] = dict(request.form)
+        msg = 'Succesvol aangepast!'
+    except Exception as e:
+        msg = str(e)
+    flash(msg)
+    return render_template('settings.html')
+
+
 """
 @app.route('/change-color', methods=['POST'])
 def change_color():
     try:
         data = request.get_json()
         color = data['color']
-        session['color'] = color
+        session[COLOR_SESSION_NAME] = color
         return jsonify(color=session[COLOR_SESSION_NAME])
     except Exception as e:
         return jsonify(color='white')
 
-"""
-"""
+
 @app.route('/get-background-color', methods=['POST'])
 def get_color():
     try:
-        color = session['color']
+        color = session[COLOR_SESSION_NAME]
         return jsonify(color=color)
     except:
         return jsonify(color='white')
-
+"""
 
 """
 """
@@ -237,10 +261,21 @@ def get_color():
 def set_gpt_api_key():
     try:
         api_key = request.args.get('key')
-        session['gpt3'] = api_key
+        session[GPT_API_KEY_SESSION_NAME] = api_key
         return jsonify(result=api_key)
-    except:
-        return jsonify(result='notgood')
+    except Exception as e:
+        return jsonify(result=str(e))
+    
+"""
+"""
+@app.route('/set-hf-api-key', methods=['GET'])
+def set_hf_api_key():
+    try:
+        api_key = request.args.get('key')
+        session[HF_API_KEY_SESSION_NAME] = api_key
+        return jsonify(result=api_key)
+    except Exception as e:
+        return jsonify(result=str(e))
 
 """"""
 @app.route('/get-session-keys', methods=['GET'])

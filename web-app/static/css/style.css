@@ -144,3 +144,8 @@ span.adj:hover {
     display: inline;
     float: left;
 }
+
+fieldset{
+    margin:auto;
+    padding:5%;
+}

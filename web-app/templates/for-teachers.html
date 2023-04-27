@@ -3,6 +3,8 @@
 <head>
   <link rel="stylesheet" href="..\static\css\style.css">
   <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+  <script type="text/javascript" src={{ url_for('static', filename='Onload.js' )}}></script>
+  
   <title>Tekstvereenvoudiging</title>
 </head>
 
@@ -22,7 +24,6 @@
   </fieldset>
 
   <div class="container">
-
     <div class="left-container">
       <div class="page">
         {% for paragraph in pdf %}
