@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="..\static\css\style.css">
   <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
   <script type="text/javascript" src={{ url_for('static', filename='Onload.js' )}}></script>
-  <script type="text/javascript" src={{ url_for('static', filename='ToggleTextareas.js' )}}></script>
   <title>Tekstvereenvoudiging: prototype</title>
 </head>
 
@@ -29,6 +28,7 @@
 
       <fieldset>
         <form action="/for-scholars" method="post">
+          <label for="">Voer tekst in:</label>
           <input type="checkbox" name="toggleFullTextScholars" id="toggleFullTextScholars">
           <input type="submit" value="View PDF">
         </form>
@@ -48,6 +48,7 @@
 
       <fieldset>
         <form action="/for-teachers" method="post">
+          <label for="">Voer tekst in:</label>
           <input type="checkbox" name="toggleFullTextTeachers" id="toggleFullTextTeachers">
           <input type="submit" value="View PDF">
         </form>
@@ -60,4 +61,7 @@
     </div>
   </div>
 </body>
+
+<script type="text/javascript" src={{ url_for('static', filename='ToggleTextareas.js' )}}></script>
+
 </html>

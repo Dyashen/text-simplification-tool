@@ -1,40 +1,3 @@
-<script>
-  /*
-  */
-  window.onload = async function () {
-    /*
-
-    */
-    try {
-      var url = `http://localhost:5000/change-color`;
-      var response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ color: color }) });
-      result = await response.json()
-      color = result.color;
-      document.body.style.transition = "background-color 1s";
-      document.body.style.backgroundColor = response.color;
-    } catch {
-      console.log(error);
-    }
-
-
-    /*
- 
-    */
-    var url = 'http://localhost:5000/get-session-keys';
-    var response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-    result = await response.json();
-    console.log(result);
-
-
-  }
-  /*
-  */
-  async function emptyChat() {
-    const dazzleDiv = document.querySelector('.dazzle');
-    dazzleDiv.innerHTML = '';
-  }
-</script>
-
 <!DOCTYPE html>
 <html>
 
@@ -43,8 +6,6 @@
   <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script type="text/javascript" src={{ url_for('static', filename='Onload.js' )}}></script>
-  <script type="text/javascript" src={{ url_for('static', filename='Summarization.js' )}}></script>
-  <script type="text/javascript" src={{ url_for('static', filename='Simplification.js' )}}></script>
   <title>Teksten vereenvoudigen: prototype</title>
 </head>
 
@@ -74,8 +35,11 @@
         </span>
         {% endfor %}
       </p>
+      <div class="right-side">
+          <!--JS FILLS HERE-->
+      </div>
       {% endfor %}
-      <p class="right-side"><!--JS FILLS HERE--></p>
+
     </div>
   </div>
 
@@ -92,6 +56,7 @@
       <button id="deleteChat" class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
     </div>
 
+    <!---->
     <div class="buttons">
       <form>
         <input type="radio" name="handling" id="explainWords"> Woorden uitleggen
@@ -101,6 +66,8 @@
         <input type="checkbox" id="adj-show">Adjs tonen
       </form>
     </div>
+
+    <!---->
     <div class="personalisation">
       <input type="checkbox" id="appositions" name="appositions">
       <label for="checkbox1">Tangconstructies</label><br>
@@ -113,70 +80,18 @@
       <input type="checkbox" id="prepositions" name="preposition">
       <label for="checkbox5">Voorzetsels</label><br>
     </div>
+    
+    <div class="dazzle">
+      <!--JS FILLS HERE-->
+    </div>
 
-    <div class="dazzle"></div>
   </div>
   </div>
   </div>
 </body>
 
-
-<script>
-  function removeAdjectives() {
-    const elements = document.querySelectorAll(".adj");
-    elements.forEach(function (element) {
-      element.remove();
-    });
-  }
-
-  const nouns = document.getElementById('noun-show');
-  const verbs = document.getElementById('verb-show');
-  const adjs = document.getElementById('adj-show');
-  nouns.addEventListener('change', function () {
-    if (this.checked) {
-      const color = document.getElementById('colorForNouns').value;
-      const elements = document.querySelectorAll("span.noun");
-      elements.forEach(function (element) {
-        element.style.color = color;
-      });
-    } else {
-      const elements = document.querySelectorAll("span.noun");
-      elements.forEach(function (element) {
-        element.style.color = "black";
-      });
-    }
-  });
-
-  verbs.addEventListener('change', function () {
-    if (this.checked) {
-      const color = document.getElementById('colorForVerbs').value;
-      const elements = document.querySelectorAll("span.verb");
-      elements.forEach(function (element) {
-        element.style.color = color;
-      });
-    } else {
-      const elements = document.querySelectorAll("span.verb");
-      elements.forEach(function (element) {
-        element.style.color = "black";
-      });
-    }
-  });
-
-
-  adjs.addEventListener('change', function () {
-    if (this.checked) {
-      const color = document.getElementById('colorForAdjs').value;
-      const elements = document.querySelectorAll("span.adj");
-      elements.forEach(function (element) {
-        element.style.color = color;
-      });
-    } else {
-      const elements = document.querySelectorAll("span.adj");
-      elements.forEach(function (element) {
-        element.style.color = "black";
-      });
-    }
-  });
-</script>
+<script type="text/javascript" src={{ url_for('static', filename='Summarization.js' )}}></script>
+<script type="text/javascript" src={{ url_for('static', filename='Simplification.js' )}}></script>
+<script type="text/javascript" src={{ url_for('static', filename='TogglePosTags.js' )}}></script>
 
 </html>

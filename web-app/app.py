@@ -204,9 +204,10 @@ def look_up_word():
     word = request.json['word']
     try:
         word_definition = wap.look_up(str(word))[0]
+        return jsonify(result=word_definition, source='Vertalen.nu', word=word)
     except Exception as e:
-        print(e)
-    return jsonify(result=word_definition, source='Vertalen.nu', word=word)
+        return jsonify(result=str(e))
+    
 
 
 """
@@ -233,28 +234,6 @@ def change_personal_settings():
     flash(msg)
     return render_template('settings.html')
 
-
-"""
-@app.route('/change-color', methods=['POST'])
-def change_color():
-    try:
-        data = request.get_json()
-        color = data['color']
-        session[COLOR_SESSION_NAME] = color
-        return jsonify(color=session[COLOR_SESSION_NAME])
-    except Exception as e:
-        return jsonify(color='white')
-
-
-@app.route('/get-background-color', methods=['POST'])
-def get_color():
-    try:
-        color = session[COLOR_SESSION_NAME]
-        return jsonify(color=color)
-    except:
-        return jsonify(color='white')
-"""
-
 """
 """
 @app.route('/set-gpt-api-key', methods=['GET'])
@@ -278,12 +257,12 @@ def set_hf_api_key():
         return jsonify(result=str(e))
 
 """"""
-@app.route('/get-session-keys', methods=['GET'])
+@app.route('/get-session-keys', methods=['POST'])
 def get_session_keys():
     try:
         return jsonify(dict(session))
-    except:
-        return jsonify(result='didnt work')
+    except Exception as e:
+        return jsonify(result=str(e))
         
 
 # Flask-App RunTime-related

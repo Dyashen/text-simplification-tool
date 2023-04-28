@@ -137,6 +137,8 @@ span.adj:hover {
     width: 75%;
     display: inline;
     float: left;
+    border-right: #333;
+    border-style: solid;
 }
 
 .right-side {

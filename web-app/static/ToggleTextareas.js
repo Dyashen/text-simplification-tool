@@ -1,8 +1,10 @@
 /* --- Toggle Text Input --- */
-document.getElementById('toggleFullTextScholars').addEventListener('change', function () {
+var element = document.getElementById("toggleFullTextScholars");
+if (element) {
+  element.addEventListener("change", function () {
     if (this.checked) {
-      var textarea = document.createElement('textarea');
-      textarea.name = 'fullText';
+      var textarea = document.createElement("textarea");
+      textarea.name = "fullText";
       this.form.appendChild(textarea);
     } else {
       var textarea = this.form.querySelector('textarea[name="fullText"]');
@@ -11,12 +13,15 @@ document.getElementById('toggleFullTextScholars').addEventListener('change', fun
       }
     }
   });
+}
 
-
-  document.getElementById('toggleFullTextTeachers').addEventListener('change', function () {
+/* --- */
+var element = document.getElementById("toggleFullTextTeachers");
+if (element) {
+  element.addEventListener("change", function () {
     if (this.checked) {
-      var textarea = document.createElement('textarea');
-      textarea.name = 'fullText';
+      var textarea = document.createElement("textarea");
+      textarea.name = "fullText";
       this.form.appendChild(textarea);
     } else {
       var textarea = this.form.querySelector('textarea[name="fullText"]');
@@ -25,3 +30,4 @@ document.getElementById('toggleFullTextScholars').addEventListener('change', fun
       }
     }
   });
+}
