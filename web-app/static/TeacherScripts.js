@@ -26,14 +26,14 @@
             const response = await fetch(`http://localhost:5000/get-pos-tag?word=${w.textContent}&context=${context}`);
             result = await response.json();
             var pos_tag = JSON.stringify(result.pos);
-
+            console.log(pos_tag);
             var textarea = document.getElementById("glossaryList");
+            console.log(textarea);
             pTag.style.backgroundColor = "black";
             pTag.style.color = "white";
             pTag.style.fontWeight = "bold";
-            var page = pTag.parentNode.parentNode.parentNode;
-            var pageNumber = page.querySelector('h1').textContent;
-            textarea.value += pTag.innerHTML + ':' + pageNumber + ':' + pos_tag + "\n";
+            textarea.value += pTag.innerHTML + ':' + pos_tag + "\n";
+            console.log(textarea.value);
           }
         })
       })
@@ -74,7 +74,6 @@
 
   /* Tekst toevoegen */
   function addTextToTextArea() {
-    console.log(document.querySelector('.left-container').innerHTML);
     const fullTextBox = document.querySelector('.left-container').innerHTML
     var textarea = document.getElementById("fullText");
     textarea.value = fullTextBox;

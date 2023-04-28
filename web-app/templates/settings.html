@@ -14,7 +14,7 @@
     <div class="message">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        {{messages}}
+        {{messages[0]}}
         {% endif %}
         {% endwith %}
     </div>
@@ -23,7 +23,7 @@
             <form action="/change-settings-user" method="POST">
                 <!---->
                 <h3>Achtergrondkleur</h3>
-                <div class="buttons"><input type="color" id="favcolor" name="favcolor" value="#ff0000"></div>
+                <div class="buttons"><input type="color" id="favcolor" name="favcolor" value="#000000"></div>
 
                 <!---->
                 <h3>Lettertype- en grootte</h3>

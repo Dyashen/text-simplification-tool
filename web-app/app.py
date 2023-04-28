@@ -25,6 +25,7 @@ app.secret_key = "super secret key"
 GPT_API_KEY_SESSION_NAME = 'gpt3'
 HF_API_KEY_SESSION_NAME = 'hf_api_key'
 PER_SET_SESSION_NAME = 'personalized_settings'
+ZIP_FILE_LOCATION = 'saved_files/simplified_docs.zip'
 
 
 def setup_scholars_teachers(request):
@@ -60,8 +61,7 @@ def setup_scholars_teachers(request):
 @app.before_request
 def pre_boot_up():
     session.permanent=True
-    global simplifier, wap
-    simplifier = HuggingFaceModels()
+    global wap
     wap = WordScraper()
 
 
@@ -80,8 +80,6 @@ def teaching_tool():
     except Exception as e:
         return render_template('error.html',error=str(e))
 
-
-""""""
 @app.route('/for-teachers', methods=['GET','POST'])
 def analysing_choosing_for_teachers():
     try:
@@ -90,43 +88,44 @@ def analysing_choosing_for_teachers():
     except Exception as e:
         return render_template('error.html',error=str(e))
 
-"""
-"""
-@app.route('/generate-summary', methods=['GET','POST'])
-def generate_summary():
+""""""
+@app.route('/generate-simplification', methods=['POST'])
+def generate_simplification():
     try:
         settings = dict(request.form)
         fonts = (settings['titleFont'], settings['regularFont'])
-
         title = settings['titleOfPaper']
         wordlist = settings['glossaryList']
         wordlist = wordlist.strip(' ').split('\n')
             
         glossary = {}
-        for word in wordlist:
-            try:
-                word_text = str(word).split(':')[0]
-                word_type = str(word).split(':')[2]
-            except Exception as e:
-                print(str(e))
-                pass
-            
-            try:
-                word_definition = wap.look_up(str(word_text))[0]
-                glossary[word_text] = {'type':word_type, 'definition':str(word_definition)}
-            except:
-                try:
-                    api_key = session[GPT_API_KEY_SESSION_NAME]
-                    gpt = GPT(api_key)
-                    word_definition, word_text, prompt = gpt.look_up_word_gpt(word=word_text, context=word_text)
-                    glossary[word_text] = {'type':word_type, 'definition': str(word_definition).replace('\n',' ').strip(' ')}
-                except:
-                    glossary[word_text] = {'type':word_type, 'definition':'Definitie kon niet gevonden worden.'}
+        if len(wordlist) > 0:
+            for word in wordlist:
+                if word != '':
+                    try:
+                        word_text = str(word).split(':')[0]
+                        word_type = str(word).split(':')[1]
+                        word_definition = wap.look_up(str(word_text))[0]
+                        glossary[word_text] = {'type':word_type, 'definition':str(word_definition)}
+                    except Exception as e:
+                        try:
+                            api_key = session[GPT_API_KEY_SESSION_NAME]
+                            gpt = GPT(api_key)
+                            word_definition, word_text, prompt = gpt.look_up_word_gpt(word=word_text, context=word_text)
+                            glossary[word_text] = {'type':word_type, 'definition': str(word_definition).replace('\n',' ').strip(' ')}
+                        except:
+                            glossary[word_text] = {'type':word_type, 'definition':'Definitie kon niet gevonden worden.'}    
 
         full_text = settings['fullText']  
 
-        if 'personalizedSummary' not in settings:        
-            full_text = simplifier.summarize(text=full_text, lm_key='bart') # pegasus model --> dict structure
+
+        # Result of checkbox. 
+        if 'personalizedSummary' not in settings:
+            try:
+                simplifier = HuggingFaceModels(session[HF_API_KEY_SESSION_NAME])        
+                full_text = simplifier.summarize(text=full_text, lm_key='bart') # bart-model --> dict structure
+            except Exception as e:
+                return jsonify(result=str(e))
         else:
             try:
                 api_key = session[GPT_API_KEY_SESSION_NAME]
@@ -143,30 +142,24 @@ def generate_summary():
             full_text = gpt.summarize(full_text_dict=full_text, personalisation=personalization_array)
             
         Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts)
-        return send_file(path_or_file='saved_files/simplified_docs.zip', as_attachment=True)
+        return send_file(path_or_file=ZIP_FILE_LOCATION, as_attachment=True)
     except Exception as e:
         return jsonify(error_msg = str(e))
 
 # TEXT FUNCTIONS
-@app.route('/extract-text', methods=['POST'])
-def extract_sentences():
-    text = request.json['text']
-    key = request.json['key']
-    result = simplifier.summarize(text=text, key=key)
-    return jsonify(result=result)
-
-"""
-"""
+""""""
 @app.route('/simplify', methods=['POST'])
 def scientific_simplify():
-    text = request.json['text']
-    key = request.json['key']
-    result = simplifier.scientific_simplify(text=text, lm_key=key)
-    return jsonify(result=result)
+    try:
+        text = request.json['text']
+        key = request.json['key']
+        simplifier = HuggingFaceModels(session[HF_API_KEY_SESSION_NAME])
+        result = simplifier.scientific_simplify(text=text, lm_key=key)
+        return jsonify(result=result)
+    except Exception as e:
+        return jsonify(result=str(e))
 
-  
-"""
-"""
+""""""
 @app.route('/get-pos-tag', methods=['GET','POST'])
 def get_pos_tag():
     try:
@@ -180,25 +173,20 @@ def get_pos_tag():
     except Exception as e:
         return jsonify(pos=str(e))
 
-"""
-"""
+""""""
 @app.route('/personalized-simplify', methods=['POST'])
 def personalized_simplify():
     try:
         api_key = session[GPT_API_KEY_SESSION_NAME]
     except:
         api_key = None
-
     gpt = GPT(api_key)
     text = request.json['text']
     choices = request.json['choices']
-
     result, prompt = gpt.personalised_simplify(sentence=text, personalisation=choices)
     return jsonify(prompt=prompt, result=result)
 
-"""
-@returns prompt and word explanation from gpt-result
-"""
+"""@returns prompt and word explanation from gpt-result"""
 @app.route('/look-up-word',methods=['POST'])
 def look_up_word():
     word = request.json['word']
@@ -210,9 +198,7 @@ def look_up_word():
     
 
 
-"""
-@ TODO combine these two
-"""
+"""TODO combine these two"""
 @app.route('/change-settings', methods=['GET', 'POST'])
 def return_personal_settings_page():
     return render_template('settings.html')
@@ -234,8 +220,7 @@ def change_personal_settings():
     flash(msg)
     return render_template('settings.html')
 
-"""
-"""
+# KEYS
 @app.route('/set-gpt-api-key', methods=['GET'])
 def set_gpt_api_key():
     try:
@@ -245,8 +230,6 @@ def set_gpt_api_key():
     except Exception as e:
         return jsonify(result=str(e))
     
-"""
-"""
 @app.route('/set-hf-api-key', methods=['GET'])
 def set_hf_api_key():
     try:
@@ -256,7 +239,6 @@ def set_hf_api_key():
     except Exception as e:
         return jsonify(result=str(e))
 
-""""""
 @app.route('/get-session-keys', methods=['POST'])
 def get_session_keys():
     try:

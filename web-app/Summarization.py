@@ -16,11 +16,7 @@ huggingfacemodels = {
     'peg-par':'https://api-inference.huggingface.co/models/tuner007/pegasus_paraphrase'
 }
 
-from dotenv import load_dotenv
-load_dotenv()
-
 max_length = 2000
-
 COMPLETIONS_MODEL = "text-davinci-003"
 EMBEDDING_MODEL = "text-embedding-ada-002"
 
@@ -31,9 +27,9 @@ languages = {
 
 class HuggingFaceModels:
     def __init__(self, key=None):
+        global huggingface_api_key
         try:
-            global huggingface_api_key
-            huggingface_api_key = os.getenv('HUGGINGFACE_API_KEY')
+            huggingface_api_key = key
         except:
             huggingface_api_key = 'not_submitted'
 
@@ -54,14 +50,10 @@ class HuggingFaceModels:
         result = gt.translate(text=result,src='en',dest='nl').text
         return result
 
-
     def summarize(self, text, lm_key):
-        ratio = 0.5
         soup = BeautifulSoup(text, 'html.parser')
-        gt = Translator()
-        
+        gt = Translator()        
         h3_tags = soup.find_all('h3')
-
         split_text = {}
         for i, tag in enumerate(h3_tags):
             key = tag.text
@@ -82,22 +74,16 @@ class HuggingFaceModels:
             sentences = []
             for s in doc.sents:
                 try:
-                    if origin_lang in ['fr','nl','de']:
-                        text = gt.translate(text=str(s),src=origin_lang,dest='en').text
-                    elif origin_lang not in ['fr','nl','de','en']:
-                        text = gt.translate(text=s,src='en',dest='en').text
-                    else:
-                        text = s
+                    text = gt.translate(text=str(s), dest='en').text
                     sentences.append(text)
                 except Exception as e:
-                    continue
+                    print(e)
 
             API_URL = huggingfacemodels.get(lm_key)
             sentences = np.array(sentences)
             pad_size = 3 - (sentences.size % 3)
             padded_a = np.pad(sentences, (0, pad_size), mode='empty')
             paragraphs = padded_a.reshape(-1, 3)
-
 
             output = []
             text = ""
@@ -113,18 +99,15 @@ class HuggingFaceModels:
                         text = result[0].get('summary_text')
                 except Exception as e:
                     print(e)
-                    
 
+                lang = detect(text)
                 try:
-                    if origin_lang != 'nl':
-                        text = gt.translate(text=str(text),src=origin_lang, dest='nl').text 
-                except TypeError as e:
-                    text = ''
-
+                    text = gt.translate(text=str(text),src=lang, dest='nl').text 
+                except Exception as e:
+                    print(str(e))
+                    
                 output.append(text)
-
             result_dict[key] = output
-
         return(result_dict)            
 
     """

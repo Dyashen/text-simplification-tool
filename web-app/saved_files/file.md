@@ -1,24 +1,27 @@
 ---
-title: Simplified version of Test
+title: Simplified version of voorbeeldtitel
 mainfont: Arial.ttf
 titlefont: Arial.ttf
-date: 2023-04-25
+date: 2023-04-28
 document: article
 geometry: margin=0.5in
 fontsize: 14pt
 ---
----
-# Glossary
-| Woord | Soort | Definitie |
-| --- | --- | --- |
-| bronnen | "noun" | Bronnen: informatiebronnen. |
-| Kwaliteit | "noun" | Quality. |
-| uitdrukking | "noun" | Uitdrukking: een woord, zin of gedachte die iets uitdrukt. |
-| osmoprotecteren | "noun" | Osmoprotecteren is het gebruik van osmoprotectanten om de celstructuur te beschermen tegen osmotische stress. |
-|  | "noun" | Definitie kon niet gevonden worden. |
 
 
-##  Legumes have been known for their nutritional purposes since time immemorial and provided mankind with many health benefits . 
+##  Controle- en handhavingsmechanismen onder druk : 
 
-Planten zijn rijke bronnen van eiwitten en gemakkelijk te cultiveren om te voldoen aan de voeding en commerciële vereisten.Alle omstandigheden van stress, zoals de ongunstige abiotische factoren (onvoldoende temperatuur in bodemsamenstelling zware metalen toxiciteit enz.) Of biotische herbivoor aanval Pest -besmetting is bekend dat ze schadelijke effecten op de kwaliteit hebben. Planten activeren verschillende verdediging - gerelateerde reacties om tolerant te worden en te overleven.[De planten activeren echter verschillende.Defensie -gerelateerde reacties op tolerant en overleven...Geen Geen] Geen Geen].Geen geen.Geen geen.Geen Geen;Geen Geen;Geen Geen, geen geen;Geen Geen;Geen geen.
+Algoritmische systemen gebruiken op regels gebaseerde algoritmen om gegevens te classificeren, op te slaan en te zoeken.'Bovendien gebruiken ze machine-learning-algoritmen om patronen in big data-sets te voorspellen', zegt het bedrijf.'Socio-technische ontwikkelingen' zijn 'sociaal-politieke ontwikkelingen' "Ondanks de toegenomen voorschriften lijkt dit het gebruik ervan eerder te stimuleren", zegt hij."Het lijkt een goede zaak te zijn," voegt hij eraan toe."Ik denk dat het goed is voor het land.""Het is geweldig voor de wereld", concludeert hij."We gaan het steeds meer gebruiken"
+
+
+
+##  Er wordt een systeem opgezet om autonome AI-toepassingen met hoog risico te registreren in openbare databank . 
+
+"De verordening schiet ook tekort aan een democratisch niveau, omdat burgers of middenveld niet bij deze mechanismen betrokken zijn", zegt het rapport."De manier waarop deze beoordelingen in concrete termen worden toegepast en onderhouden, blijft vaag", voegt het eraan toe."Dit vereist een fundamentele verschuiving in het denken over onrechtvaardigheid en administratie AI," voegt het rapport eraan toe. "De verordening schiet ook tekort aan een democratisch niveau, omdat burgers of middenveld niet bij deze mechanismen betrokken zijn", zegt het rapport."De manier waarop deze beoordelingen in concrete termen worden toegepast en onderhouden, blijft vaag", voegt het eraan toe."Dit vereist een fundamentele verschuiving in het denken over onrechtvaardigheid en administratie AI," voegt het rapport eraan toe.
+
+
+
+##  Om deze visie te verzoenen met het politie- en justitie-apparaat dat vraagt naar steeds grootschaligere surveillance samenwerken de private sector , moet politieopdracht herdacht worden op een relationele manier als beschermen van collectieve veiligheid . 
+
+Encryptie is 'cruciaal om de mensenrechten en de meest kwetsbare in de samenleving te beschermen', zegt ze.'Veiligheid is meer dan bescherming tegen alleen criminaliteit, maar ook niet het doel van discriminatie die intimidatie heeft, heeft geweld en onevenredige controle de overheid,' voegt ze eraan toe.'Bovendien is codering cruciaal voor protecthuman -rechten'
 
