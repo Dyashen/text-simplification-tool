@@ -6,6 +6,10 @@ window.onload = async function () {
     document.body.style.fontSize = result.fontSize;
     document.body.style.fontFamily = result.fontSettings;
     document.body.style.backgroundColor = result.favcolor;
+    document.body.style.lineHeight = result.lineHeight;
+    document.body.style.letterSpacing = result.letterSpacing;
+    document.body.style.wordSpacing = result.wordSpacing;
+    document.body.style.textAlign = result.textAlign;
 
     /* --- */
     var url = 'http://localhost:5000/get-session-keys';

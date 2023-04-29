@@ -1,6 +1,7 @@
 h1 {
     font-family: "Montserrat";
     text-align: center;
+    padding-bottom:5%;
 }
 
 body {
@@ -18,7 +19,7 @@ body {
     margin: auto;
     display: flex;
     flex-wrap: wrap;
-    width: 90%;
+    width: 100%;
 }
 
 .left-container,
@@ -46,10 +47,15 @@ body {
 
 .container-index {
     box-sizing: border-box;
-    padding: 10px;
+    padding: 5%;
     border-style: solid;
     border-color: black;
     margin: auto;
+}
+
+.container-index fieldset{
+    margin:5%;
+    padding:5%;
 }
 
 .fixed-bottom {
@@ -71,11 +77,11 @@ body {
 
 .buttons {
     margin: auto;
+    width:100%;
 }
 
 .fixed-bottom button {
     font-size: 14pt;
-    ;
 }
 
 .fixed-bottom::-webkit-scrollbar {

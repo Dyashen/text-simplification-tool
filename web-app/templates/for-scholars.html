@@ -47,12 +47,11 @@
   <div class="fixed-bottom">
     <div class="buttons">
       <input class="btn" type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
-      <input class="btn" type="button" value="Schrijf dit eenvoudiger volgens ...."
+      <input class="btn" type="button" value="Schrijf dit eenvoudiger volgens checkboxes.."
         onmousedown="personalizedSimplification()">
-      <input class="btn" type="button" value="Wat zijn de belangrijkste zinnen?"
-        onmousedown="extractiveSummarization()">
-      <input class="btn" type="button" value="Laat adjectieven vallen." onmousedown="removeAdjectives()">
-      <input class="btn" type="button" value="Parafraseer dit" onmousedown="abstractiveSummarization()">
+      <input class="btn" type="button" value="Specifieke vraag stellen?"
+        onmousedown="askGPT()">
+      <input class="btn" type="button" value="Verwijder adjectieven en stopwoorden." onmousedown="removeAdjectives()">
       <button id="deleteChat" class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
     </div>
 
@@ -73,8 +72,6 @@
       <label for="checkbox1">Tangconstructies</label><br>
       <input type="checkbox" id="dif-to-read" name="difficult-to-read words">
       <label for="checkbox2">Moeilijke woorden</label><br>
-      <input type="checkbox" id="" name="">
-      <label for="checkbox3">TODO</label><br>
       <input type="checkbox" id="pronouns" name="pronouns">
       <label for="checkbox4">Voornaamwoorden</label><br>
       <input type="checkbox" id="prepositions" name="preposition">

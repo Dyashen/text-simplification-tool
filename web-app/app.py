@@ -1,13 +1,11 @@
 """flask"""
-from flask import Flask, render_template, render_template_string, request, jsonify, session, send_file, flash
-from langdetect import detect_langs, detect
-import spacy
+from flask import Flask, render_template, request, jsonify, session, send_file, flash
+from langdetect import detect_langs
 
 
 """pdf"""
 from Reader import Reader
 from pdf2image import convert_from_bytes
-from pdfminer.pdfpage import PDFPage
 from io import BytesIO
 from pdfminer.high_level import extract_pages
 
@@ -54,9 +52,6 @@ def setup_scholars_teachers(request):
                 dict_text = reader.get_full_text_site(img_text)                            
     return dict_text, langs, 'voorbeeldtitel', 'voorbeeldonderwerp'
 
-
-
-
 """"""
 @app.before_request
 def pre_boot_up():
@@ -93,7 +88,10 @@ def analysing_choosing_for_teachers():
 def generate_simplification():
     try:
         settings = dict(request.form)
+        type_spacing = settings['typeSpacing']
         fonts = (settings['titleFont'], settings['regularFont'])
+        margin = settings['margin']
+        word_spacing = settings['word_spacing']
         title = settings['titleOfPaper']
         wordlist = settings['glossaryList']
         wordlist = wordlist.strip(' ').split('\n')
@@ -123,7 +121,7 @@ def generate_simplification():
         if 'personalizedSummary' not in settings:
             try:
                 simplifier = HuggingFaceModels(session[HF_API_KEY_SESSION_NAME])        
-                full_text = simplifier.summarize(text=full_text, lm_key='bart') # bart-model --> dict structure
+                full_text = simplifier.summarize(text=full_text, lm_key='bart')
             except Exception as e:
                 return jsonify(result=str(e))
         else:
@@ -131,17 +129,21 @@ def generate_simplification():
                 api_key = session[GPT_API_KEY_SESSION_NAME]
             except:
                 api_key = None
-
-            blacklisted_keys = ['fullText', 'glossary', 'titleOfPaper','subjectOfPaper','actions', 'titleFont','regularFont', 'personalizedSummary']
+            
+            blacklisted_keys = ['fullText', 'glossaryList', 'titleOfPaper','subjectOfPaper','actions', 'titleFont','regularFont', 'personalizedSummary', 'typeSpacing', 'wordSpacing', 'margin']
+            personalization_array = []
             for key in settings.keys():
                 if key not in blacklisted_keys:
-                    pass
-
-            gpt = GPT(api_key)
-            personalization_array = []
-            full_text = gpt.summarize(full_text_dict=full_text, personalisation=personalization_array)
+                    personalization_array.append(key)
             
-        Creator().create_pdf(title=title, list=glossary, full_text=full_text, fonts=fonts)
+            gpt = GPT(api_key)
+
+            if 'self_generate_titles' not in settings:
+                full_text = gpt.summarize(full_text_dict=full_text, personalisation=personalization_array)
+            else:
+                full_text = gpt.summarize_w_titles(full_text=full_text, personalisation=personalization_array)
+
+        Creator().create_pdf(title=title, margin=margin, list=glossary, full_text=full_text, fonts=fonts, word_spacing=word_spacing, type_spacing=type_spacing)
         return send_file(path_or_file=ZIP_FILE_LOCATION, as_attachment=True)
     except Exception as e:
         return jsonify(error_msg = str(e))
@@ -186,6 +188,20 @@ def personalized_simplify():
     result, prompt = gpt.personalised_simplify(sentence=text, personalisation=choices)
     return jsonify(prompt=prompt, result=result)
 
+@app.route('/personalized-simplify-custom-prompt', methods=['POST'])
+def personalized_simplify_w_prompt():
+    try:
+        api_key = session[GPT_API_KEY_SESSION_NAME]
+    except:
+        api_key = None
+
+    gpt = GPT(api_key)
+    text = request.json['text']
+    prompt = request.json['prompt']
+    result, prompt = gpt.personalised_simplify_w_prompt(sentences=text, personalisation=prompt)
+    return jsonify(prompt=prompt, result=result)
+
+
 """@returns prompt and word explanation from gpt-result"""
 @app.route('/look-up-word',methods=['POST'])
 def look_up_word():
@@ -213,6 +229,7 @@ def return_personal_settings_dict():
 @app.route('/change-settings-user', methods=['POST'])
 def change_personal_settings():
     try:
+        print(dict(request.form))
         session[PER_SET_SESSION_NAME] = dict(request.form)
         msg = 'Succesvol aangepast!'
     except Exception as e:
@@ -247,7 +264,7 @@ def get_session_keys():
         return jsonify(result=str(e))
         
 
-# Flask-App RunTime-related
+# Flask-app runtime-related
 app.permanent_session_lifetime = timedelta(minutes=30)
 if __name__ == "__main__":
     app.run()

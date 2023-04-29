@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const spans = document.querySelectorAll(".verb, .adj, .noun, .aux");
   spans.forEach((span) => {
     span.addEventListener("click", async (event) => {
-      const radioButton = document.querySelector("#explainWords"); // get reference to radio button
+      const radioButton = document.querySelector("#explainWords");
       if (!radioButton.checked) {
         return;
       }
@@ -97,14 +97,9 @@ async function personalizedSimplification() {
     '.personalisation input[type="checkbox"]'
   );
   checkboxes.forEach((checkbox) => {
-    if (checkbox.checked) {
-      checkedValues.push(checkbox.name);
-    }
-  });
+if (checkbox.checked) {checkedValues.push(checkbox.name);}});
 
-  if (checkedValues.length == 0) {
-    return;
-  }
+  if (checkedValues.length == 0) {return;}
 
   var selectedText = window.getSelection().toString();
   var selectedChoices = checkedValues;
@@ -130,19 +125,35 @@ async function personalizedSimplification() {
   text.nodeValue = JSON.stringify(result.result);
 }
 
+
+async function askGPT() {
+  var promptText = window.prompt("Wat wil je veranderen aan deze tekst? Start met 'Maak deze tekst...'")
+  var selectedText = window.getSelection().toString();
+  var fullPrompt = promptText + '///\n' + selectedText; 
+  var prompt = document.createTextNode("Gepersonaliseerde tekst ophalen...");
+  var text = document.createTextNode("...");
+  var dazzle = document.querySelector(".dazzle");
+  var p = document.createElement("p");
+  var p2 = document.createElement("p");
+
+  p.appendChild(prompt);
+  dazzle.appendChild(p);
+  p2.appendChild(text);
+  dazzle.appendChild(p2);
+
+  const response = await fetch(`http://localhost:5000/personalized-simplify-custom-prompt`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: selectedText, prompt: fullPrompt }),
+  });
+
+  result = await response.json();
+  console.log(result);
+  prompt.nodeValue = JSON.stringify(result.prompt);
+  text.nodeValue = JSON.stringify(result.result);
+}
+
 async function emptyChat() {
   const dazzleDiv = document.querySelector(".dazzle");
   dazzleDiv.innerHTML = "";
 }
-
-/*
-window.addEventListener("load", async () => {
-  var url = "http://localhost:5000/get-session-keys";
-  const response = await fetch(url, { method: "POST" });
-  result = await response.json();
-  var element = document.querySelector("#session-keys-tag");
-  if (element) {
-    document.querySelector(element).innerHTML =
-      "Gebruikte API-sleutel: <i>" + result.gpt3 + "</i>";
-  }
-}); */

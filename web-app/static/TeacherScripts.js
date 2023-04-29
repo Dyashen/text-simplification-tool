@@ -11,11 +11,11 @@
     });
   });
 
-  /* Glossary-lijst aanvullen met woord */
+  /* Add word to glossary */
   const checkboxAddWordToGlossary = document.getElementById("checkboxAddWordToGlossary");
   checkboxAddWordToGlossary.addEventListener("change", function () {
     if (checkboxAddWordToGlossary.checked) {
-      const words = document.querySelectorAll('span.noun', 'span.aux', 'span.verb', 'span.adj');
+      const words = document.querySelectorAll('span.verb', 'span.noun', 'span.aux', 'span.verb', 'span.adj');
       words.forEach((w) => {
         w.addEventListener('click', async (event) => {
           if (checkboxAddWordToGlossary.checked) {
@@ -52,25 +52,6 @@
       })
     }
   });
-
-
-  /* Marking titles as a teacher */
-  const checkboxTitle = document.getElementById("checkboxTitle");
-  checkboxTitle.addEventListener("change", function () {
-    if (checkboxTitle.checked) {
-      const sentences = document.querySelectorAll('.sentence');
-      sentences.forEach((span) => {
-        span.addEventListener('click', async (event) => {
-          if (checkboxTitle.checked) {
-            var title = document.createElement("h3");
-            title.innerHTML = span.innerHTML;
-            span.parentNode.replaceChild(title, span);
-          };
-        });
-      });
-    }
-  });
-
 
   /* Tekst toevoegen */
   function addTextToTextArea() {

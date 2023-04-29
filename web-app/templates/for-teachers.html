@@ -4,7 +4,7 @@
   <link rel="stylesheet" href="..\static\css\style.css">
   <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
   <script type="text/javascript" src={{ url_for('static', filename='Onload.js' )}}></script>
-  
+
   <title>Tekstvereenvoudiging</title>
 </head>
 
@@ -19,6 +19,10 @@
     <div class="left-container">
       <div class="page">
         {% for paragraph in pdf %}
+        <div class="titleSelection">
+          <textarea name="title" id="title" cols="30" rows="10"></textarea><button onmousedown="makeTitle(this)">Titel
+            maken</button><button onmousedown="deleteTitle(this)">Titel weglaten</button>
+        </div>
         <p>
           {% for sentence in paragraph %}
           <span class="sentence">
@@ -38,36 +42,38 @@
     <div class="right-container">
       <form action="/generate-simplification" method="post">
         <div class="extra-info">
-          <p>Herkende talen:</p>
+          <!--<p>Herkende talen:</p>
           <ul>{% for l in lang %}
             <li>{{ l }}</li>
             {% endfor %}
-          </ul>
-          <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10">{{title}}</textarea>
-          <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="10">{{subject}}</textarea>
+          </ul>-->
+          <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10" placeholder="Geef de titel hier in:"
+            required></textarea>
+          <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="10"
+            placeholder="Geef het onderwerp van de paper hier in:" required></textarea>
         </div>
 
-        <!--Statistieken voor de leerkracht-->
+        <!--Statistieken voor de leerkracht
         <h2>Statistieken voor de leerkracht</h2>
-        {% for s in statistics %}<span class="word">{{s}}</span>{% endfor %}
+        {% for s in statistics %}<span class="word">{{s}}</span>{% endfor %}-->
 
         <!--Tools voor de leerkracht-->
         <h2>Tools voor de leerkracht</h2>
         <fieldset>
           <div>
-            <input type="checkbox" id="verb-show">WW's tonen
-            <input type="checkbox" id="noun-show">ZN's tonen
-            <input type="checkbox" id="adj-show">Adjs tonen
+            <input type="checkbox" id="verb-show">Werkwoorden tonen
+            <input type="checkbox" id="noun-show">Zelfstandige naamwoorden tonen
+            <input type="checkbox" id="adj-show">Adjectieven tonen
           </div>
 
           <div>
-            <label for="checkboxTitle">Titels markeren</label><input name="actions" type="radio" id="checkboxTitle"><br>
             <label for="checkboxDeleteSents">Zin verwijderen</label><input type="radio" name="actions"
               id="checkboxDeleteSents"><br>
             <label for="checkboxAddWordToGlossary">Woord toevoegen aan woordenlijst</label><input name="actions"
               type="radio" id="checkboxAddWordToGlossary"><br>
           </div>
 
+          <label for="titleFont">Lettertype voor titel</label>
           <select name="titleFont" id="titleFont">
             <option value="Arial">Arial</option>
             <option value="Calibri">Calibri</option>
@@ -76,6 +82,7 @@
             <option value="Verdana">Verdana</option>
           </select>
 
+          <label for="regularFont">Standaardlettertype</label>
           <select name="regularFont" id="regularFont">
             <option value="Arial">Arial</option>
             <option value="Calibri">Calibri</option>
@@ -83,6 +90,19 @@
             <option value="Montserrat">Montserrat</option>
             <option value="Verdana">Verdana</option>
           </select>
+
+          <label for="typeSpacing">Regeleinde</label>
+          <select name="typeSpacing" id="typeSpacing">
+            <option value="onespacing">Enkelvoudige</option>
+            <option value="onehalfspacing">Anderhalve</option>
+            <option value="doublespacing">Dubbele</option>
+          </select>
+
+          <label for="woord-spatiëring">Woord-spatiëring</label><input type="number" placeholder="woord-spatiëring"
+            name="word_spacing" id="word_spacing" max="100">
+          <label for="margin">Marge van document</label><input type="number" name="margin" id="margin" min="50"
+            max="200">
+
         </fieldset>
 
         <input type="checkbox" id="personalizedSummary" name="personalizedSummary" value="personalizedSummary"><label
@@ -90,56 +110,32 @@
 
         <!--Lexicale vereenvoudiging-->
         <fieldset class="personalized">
-          <h2>Lexicale vereenvoudiging</h2>
-          <input type="checkbox" id="keywords" name="keywords" value="keywords">
-          <label for="keywords">Belangrijke kernwoorden automatisch herkennen</label><br>
-          <input type="checkbox" id="vocabulary" name="vocabulary" value="vocabulary">
           <label for="vocabulary">Moeilijke woordenschat vervangen</label><br>
-        </fieldset>
-
-
-        <fieldset class="personalized">
-          <h2>Syntactische vereenvoudiging</h2>
-          <input type="checkbox" id="syntax" name="syntax" value="syntax">
+          <input type="checkbox" id="vocabulary" name="simplified vocabulary">
+          
+          <label for="vocabulary">Cijferwaarden interpreteren</label><br>
+          <input type="checkbox" id="vocabulary" name="interpreted numbers in fulltext">
+          
           <label for="syntax">Tangconstructies aanpassen</label><br>
+          <input type="checkbox" id="syntax" name="no appositions" value="syntax">
 
-          <input type="number" id="length_sentence" name="length_sentence" min="5" max="15">
           <label for="length_sentence">Zinslengte</label><br>
+          <input type="number" id="length_sentence" name="length_sentence" min="5" max="15">
 
-          <input type="checkbox" id="pronouns" name="pronouns" value="pronouns">
           <label for="pronouns">Verwijswoorden aanpassen</label><br>
+          <input type="checkbox" id="pronouns" name="no pronouns" value="pronouns">
 
-          <input type="checkbox" id="prepositions" name="prepositions" value="prepositions">
           <label for="prepositions">Voorzetseluitdrukkingen vervangen</label><br>
+          <input type="checkbox" id="prepositions" name="no prepositions" value="prepositions">
 
-          <input type="checkbox" id="compound_verbs" name="compound_verbs" value="compound_verbs">
           <label for="compound_verbs">Samengestelde werkwoorden vervangen</label><br>
-        </fieldset>
+          <input type="checkbox" id="compound_verbs" name="no compound verbs" value="compound_verbs">
 
+          <label for="citation">Bronvermelding behouden</label><br>
+          <input type="checkbox" id="citation" name="keep citations" value="citation">
 
-        <!--Samenvatten-->
-        <fieldset class="personalized">
-          <h2>Samenvatten</h2>
-          <input type="checkbox" id="citation" name="citation" value="citation">
-          <label for="citation">Bronvermelding</label><br>
-
-          <input type="checkbox" id="paraphrasing" name="paraphrasing" value="paraphrasing">
-          <label for="paraphrasing">Parafrasering / abstraherende samenvatting</label><br>
-
-          <input type="checkbox" id="important_sentences" name="important_sentences" value="important_sentences">
-          <label for="important_sentences">Automatische markering van de belangrijke zinnen</label><br>
-
-          <input type="checkbox" id="extractive_summary" name="extractive_summary" value="extractive_summary">
-          <label for="extractive_summary">Extraherende samenvatting</label><br>
-
-          <input type="number" id="length_summary" name="length_summary" min="50" max="500">
-          <label for="summary_length">Lengte van de samenvatting</label><br>
-
-          <input type="checkbox" id="keyword_summary" name="keyword_summary" value="keyword_summary">
-          <label for="keyword_summary">Samenvatten op basis van kernwoorden</label>
-
-          <input type="number" id="number_paragraphs" name="number_paragraphs" min="1" max="5">
-          <label for="number_paragraphs">Aantal paragrafen per titel</label>
+          <label for="summary_length">Lengte per paragraaf</label><br>
+          <input type="number" id="length_paragraph" name="max length" min="10" max="250">
         </fieldset>
 
         <fieldset class="personalized">
@@ -164,5 +160,21 @@
 <script type="text/javascript" src={{ url_for('static', filename='TogglePosTags.js' )}}></script>
 <script type="text/javascript" src={{ url_for('static', filename='TeacherScripts.js' )}}></script>
 <script type="text/javascript" src={{ url_for('static', filename='Simplification.js' )}}></script>
+
+<script>
+  function makeTitle(button) {
+    const titleText = document.getElementById('title').value;
+    const newTitle = document.createElement('h3');
+    newTitle.innerText = titleText;
+    const titleContainer = document.getElementById('title').parentElement;
+    titleContainer.replaceChild(newTitle, document.getElementById('title'));
+    button.parentNode.removeChild(button);
+  }
+
+  function deleteTitle(button) {
+    var parent = button.parentNode;
+    parent.parentNode.removeChild(parent);
+  }
+</script>
 
 </html>

@@ -121,10 +121,7 @@ class HuggingFaceModels:
         return result.text
 
 class GPT():
-
-    """
-    @sets openai.api_key
-    """
+    """ @sets openai.api_key """
     def __init__(self, key=None):
         global gpt_api_key
         if key is None:
@@ -134,9 +131,7 @@ class GPT():
             gpt_api_key = key
             openai.api_key = key
 
-    """
-    @returns prompt, result from gpt 
-    """
+    """ @returns prompt, result from gpt """
     def look_up_word_gpt(self, word, context):
 
         lang = detect(word)
@@ -161,10 +156,11 @@ class GPT():
             return result, word, prompt
         except Exception as e:
             return 'Open AI outage of problemen met API-sleutel', str(e)
-        
+
+
     def personalised_simplify(self, sentence, personalisation):
         prompt = f"""
-        Simplify this in Dutch and remove {", ".join(personalisation)}
+        Explain this in own Dutch words and {", ".join(personalisation)}
         ///
         {sentence}
         """
@@ -173,50 +169,69 @@ class GPT():
             result = openai.Completion.create(
                     prompt=prompt,
                     temperature=0,
-                    max_tokens=100,
+                    max_tokens=len(prompt),
                     model=COMPLETIONS_MODEL,
                     top_p=0.9,
                     stream=False
             )["choices"][0]["text"].strip(" \n")
             return result, prompt
-
         except Exception as e:
             return str(e), prompt 
         
-    def summarize(self, full_text_dict, personalisation):
-        soup = BeautifulSoup(full_text_dict, 'html.parser')
-        h3_tags = soup.find_all('h3')
-        split_text = {}
-        for i, tag in enumerate(h3_tags):
-            key = tag.text
-            value = ""
-            for sibling in tag.next_siblings:
-                if sibling.name == 'h3':
-                    break
-                value += str(sibling.get_text()).replace('\n',' ')
-            split_text[key] = value
-
-        new_text = {}
-
-        for title in split_text.keys():
-            prompt = f"""
-            Simplify this text in Dutch & remove {", ".join(personalisation)}
-            ///
-            {split_text[title]}
-            """
-
+    def personalised_simplify_w_prompt(self, sentences, personalisation):
+        try:
             result = openai.Completion.create(
-                    prompt=prompt,
+                    prompt=personalisation,
                     temperature=0,
-                    max_tokens=100,
+                    max_tokens=len(personalisation)+len(sentences),
                     model=COMPLETIONS_MODEL,
                     top_p=0.9,
                     stream=False
             )["choices"][0]["text"].strip(" \n")
+            return result, personalisation
+        except Exception as e:
+            return str(e), personalisation
+        
+        
+    def summarize(self, full_text_dict, personalisation):
+        soup = BeautifulSoup(full_text_dict, 'html.parser')
+        tags = soup.find_all(True)
+        split_text = {}
 
-            new_text[title] = [result]
+        for tag in tags:
+            if tag.name == 'h3':
+                current_key = tag.text
+            
+            if tag.name == 'p':
+                split_text[current_key] = tag.text
 
+        for key in split_text.keys():
+            split_text[key] = str(split_text[key]).strip('\n').replace('\n', ' ')
+
+        new_text = {}
+        for title in split_text.keys():
+            text = split_text[title]
+            if len(text) > 1000:
+                index = len(text) // 2
+                text_to_prompt = [text[:index], text[index:] ]
+            else:
+                text_to_prompt = [text]
+
+            full_chunk_result = ""
+            for chunk in text_to_prompt:
+                prompt = f"""
+                Explain this in own Dutch words and {", ".join(personalisation)}
+                ///
+                {chunk}
+                """
+
+                full_chunk_result += str(openai.Completion.create(prompt=prompt,temperature=0,max_tokens=400,model=COMPLETIONS_MODEL,top_p=0.9,stream=False)["choices"][0]["text"].strip(" \n"))
+
+            new_text[title] = [full_chunk_result]
         return new_text
+    
+    def summarize_w_titles(full_text, personalisation):
+        pass
         
         
 class WordScraper():
