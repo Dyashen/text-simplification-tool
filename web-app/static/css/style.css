@@ -22,11 +22,16 @@ body {
     width: 100%;
 }
 
-.left-container,
-.right-container {
+.left-container{
     width: 45%;
     margin: auto;
     padding: 1.5%;
+}
+
+.right-container{
+    width: 45%;
+    padding: 1.5%;
+    vertical-align: top;
 }
 
 .text-container {
@@ -156,4 +161,18 @@ span.adj:hover {
 fieldset{
     margin:auto;
     padding:5%;
+}
+
+.settings-for-teachers{
+    width: 100%;
+}
+
+.settings-for-teachers input, select{width: 20%; text-align: center; margin:auto}
+.settings-for-teachers label{width: 30%;}
+
+
+footer{
+    width:80%;
+    margin:auto;
+    text-align: justify;
 }
