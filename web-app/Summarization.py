@@ -133,12 +133,6 @@ class GPT():
 
     """ @returns prompt, result from gpt """
     def look_up_word_gpt(self, word, context):
-
-        lang = detect(word)
-        if (lang != 'nl'):
-            tr = Translator()
-            word = tr.translate(word, src=lang, dest='nl').text
-
         try:
             prompt = f"""
             Simplify the Dutch definition of '{word}'
@@ -148,7 +142,7 @@ class GPT():
             result = openai.Completion.create(
                     prompt=prompt,
                     temperature=0,
-                    max_tokens=50,
+                    max_tokens=10,
                     model=COMPLETIONS_MODEL,
                     top_p=0.9,
                     stream=False
@@ -156,6 +150,27 @@ class GPT():
             return result, word, prompt
         except Exception as e:
             return 'Open AI outage of problemen met API-sleutel', str(e)
+        
+    """ @returns prompt, result from gpt """
+    def give_synonym(self, word, context):
+        try:
+            prompt = f"""
+            Give a Dutch synonym for '{word}'. If there is no Dutch synonym available, explain it between curly brackets.
+            context:
+            {context}
+            """
+            result = openai.Completion.create(
+                    prompt=prompt,
+                    temperature=0,
+                    max_tokens=10,
+                    model=COMPLETIONS_MODEL,
+                    top_p=0.9,
+                    stream=False
+                    )["choices"][0]["text"].strip(" \n")    
+            return result, word, prompt
+        except Exception as e:
+            return 'Open AI outage of problemen', str(e)
+
 
 
     def personalised_simplify(self, sentence, personalisation):

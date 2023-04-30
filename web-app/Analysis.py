@@ -22,18 +22,18 @@ def get_spacy_nlp_model(sentence):
 
 """
 """
-def get_spacy_pos_tag(word, sentence):
+def get_spacy_pos_tag_lemma(word, sentence):
     nlp_model = get_spacy_nlp_model(sentence=sentence)
     doc = nlp_model(sentence)
     for token in doc:
         if word == token.text:
             tag = token.pos_
+            lemma = token.lemma_
     
-    if tag is None:
-        return 'noun'
+    if tag is None and lemma is None:
+        return 'noun', ''
     else:
-        return tag
-
+        return tag, lemma
 
 
 """

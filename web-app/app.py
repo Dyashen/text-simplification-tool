@@ -167,7 +167,7 @@ def get_pos_tag():
     try:
         word = request.args.get('word')
         sentence = request.args.get('context')
-        pos_tag = an.get_spacy_pos_tag(
+        pos_tag, lemma = an.get_spacy_pos_tag_lemma(
             word=word,
             sentence=sentence
         ).lower()
@@ -206,11 +206,25 @@ def personalized_simplify_w_prompt():
 @app.route('/look-up-word',methods=['POST'])
 def look_up_word():
     word = request.json['word']
-    try:
-        word_definition = wap.look_up(str(word))[0]
+    sentence = request.json['sentence']
+    pos, lemma = an.get_spacy_pos_tag_lemma(word, sentence)
+
+    print(lemma)
+    word_definition = wap.look_up(str(lemma))
+
+    if word_definition:
         return jsonify(result=word_definition, source='Vertalen.nu', word=word)
-    except Exception as e:
-        return jsonify(result=str(e))
+    else:
+        try:
+            api_key = session[GPT_API_KEY_SESSION_NAME]
+        except:
+            api_key = None
+
+        gpt = GPT(api_key)
+        result, word, prompt = gpt.look_up_word_gpt(word=lemma, context=sentence)
+        return jsonify(result=result, source='GPT-3', word=word)
+    
+        
     
 
 
