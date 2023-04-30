@@ -30,10 +30,7 @@ def get_spacy_pos_tag_lemma(word, sentence):
             tag = token.pos_
             lemma = token.lemma_
     
-    if tag is None and lemma is None:
-        return 'noun', ''
-    else:
-        return tag, lemma
+    return tag, lemma
 
 
 """

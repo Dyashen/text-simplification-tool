@@ -3,7 +3,7 @@
   const fieldsets = document.querySelectorAll('.personalized');
   checkbox.addEventListener('change', () => {
     fieldsets.forEach(fieldset => {
-      if (checkbox.checked) {
+      if (checkbox && checkbox.checked) {
         fieldset.style.display = 'block';
       } else {
         fieldset.style.display = 'none';
@@ -12,10 +12,10 @@
   });
 
   /* Add word to glossary */
-  const checkboxAddWordToGlossary = document.getElementById("checkboxAddWordToGlossary");
+  var checkboxAddWordToGlossary = document.getElementById("checkboxAddWordToGlossary");
   checkboxAddWordToGlossary.addEventListener("change", function () {
-    if (checkboxAddWordToGlossary.checked) {
-      const words = document.querySelectorAll('span.verb', 'span.noun', 'span.aux', 'span.verb', 'span.adj');
+    if (checkboxAddWordToGlossary && checkboxAddWordToGlossary.checked) {
+      const words = document.querySelectorAll("span.verb, span.noun, span.aux, span.verb, span.adj");
       words.forEach((w) => {
         w.addEventListener('click', async (event) => {
           if (checkboxAddWordToGlossary.checked) {
@@ -23,16 +23,12 @@
             sentence_of_origin = w.closest("span.sentence");
             var context = "";
             for (const child of sentence_of_origin.children) { context = context + " " + child.textContent };
-            const response = await fetch(`http://localhost:5000/get-pos-tag?word=${w.textContent}&context=${context}`);
-            result = await response.json();
-            var pos_tag = JSON.stringify(result.pos);
-            console.log(pos_tag);
+            console.log(context);
             var textarea = document.getElementById("glossaryList");
-            console.log(textarea);
             pTag.style.backgroundColor = "black";
             pTag.style.color = "white";
             pTag.style.fontWeight = "bold";
-            textarea.value += pTag.innerHTML + ':' + pos_tag + "\n";
+            textarea.value += pTag.innerHTML + ':' + context + "\n";
             console.log(textarea.value);
           }
         })
@@ -43,7 +39,7 @@
   /* Deleting sentences */
   const checkboxDeleteSents = document.getElementById("checkboxDeleteSents");
   checkboxDeleteSents.addEventListener("change", function () {
-    if (checkboxDeleteSents.checked) {
+    if (checkboxDeleteSents && checkboxDeleteSents.checked) {
       const sentences = document.querySelectorAll('.sentence');
       sentences.forEach((span) => {
         span.addEventListener('click', async (event) => {

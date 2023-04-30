@@ -102,17 +102,21 @@ def generate_simplification():
                 if word != '':
                     try:
                         word_text = str(word).split(':')[0]
-                        word_type = str(word).split(':')[1]
-                        word_definition = wap.look_up(str(word_text))[0]
-                        glossary[word_text] = {'type':word_type, 'definition':str(word_definition)}
-                    except Exception as e:
-                        try:
+                        word_sentence = str(word).split(':')[1]
+
+                        pos, lemma = an.get_spacy_pos_tag_lemma(word_text, word_sentence)
+
+                        word_definition = wap.look_up(str(lemma))
+                        if word_definition:
+                            word_definition = word_definition[0]
+                            glossary[word_text] = {'type':str(pos), 'definition':str(word_definition)}
+                        else:
                             api_key = session[GPT_API_KEY_SESSION_NAME]
                             gpt = GPT(api_key)
                             word_definition, word_text, prompt = gpt.look_up_word_gpt(word=word_text, context=word_text)
-                            glossary[word_text] = {'type':word_type, 'definition': str(word_definition).replace('\n',' ').strip(' ')}
-                        except:
-                            glossary[word_text] = {'type':word_type, 'definition':'Definitie kon niet gevonden worden.'}    
+                            glossary[word_text] = {'type':str(pos), 'definition': str(word_definition).replace('\n',' ').strip(' ')}
+                    except Exception as e:
+                        glossary[word_text] = {'type':str(pos), 'definition':'Definitie kon niet gevonden worden.'}    
 
         full_text = settings['fullText']  
 
@@ -167,11 +171,8 @@ def get_pos_tag():
     try:
         word = request.args.get('word')
         sentence = request.args.get('context')
-        pos_tag, lemma = an.get_spacy_pos_tag_lemma(
-            word=word,
-            sentence=sentence
-        ).lower()
-        return jsonify(pos=pos_tag)
+        pos_tag, lemma = an.get_spacy_pos_tag_lemma(word=word,sentence=sentence)
+        return jsonify(pos=str(pos_tag).lower())
     except Exception as e:
         return jsonify(pos=str(e))
 
@@ -209,9 +210,7 @@ def look_up_word():
     sentence = request.json['sentence']
     pos, lemma = an.get_spacy_pos_tag_lemma(word, sentence)
 
-    print(lemma)
     word_definition = wap.look_up(str(lemma))
-
     if word_definition:
         return jsonify(result=word_definition, source='Vertalen.nu', word=word)
     else:
@@ -243,7 +242,6 @@ def return_personal_settings_dict():
 @app.route('/change-settings-user', methods=['POST'])
 def change_personal_settings():
     try:
-        print(dict(request.form))
         session[PER_SET_SESSION_NAME] = dict(request.form)
         msg = 'Succesvol aangepast!'
     except Exception as e:

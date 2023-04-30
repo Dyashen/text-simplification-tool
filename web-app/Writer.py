@@ -16,15 +16,15 @@ class Creator():
     def create_header(self, title, margin, fontsize, chosen_font, chosen_title_font, word_spacing, type_spacing):
         with open(markdown_file, 'w', encoding='utf-8') as f:
             f.write("---\n")
-            f.write(f"title: Simplified version of {title}\n") 
+            f.write(f"title: {title}\n") 
             f.write(f"mainfont: {chosen_font}.ttf\n")
             f.write(f"titlefont: {chosen_title_font}.ttf\n")
             f.write(f'date: {DATE_NOW}\n')
             f.write(f'document: article\n')
-            f.write(f'geometry: margin={margin}pt\n')
+            f.write(f'geometry: margin={margin}cm\n')
             f.write(f'fontsize: {fontsize}pt\n')
             f.write('header-includes:\n')
-            f.write(f'- \spaceskip={word_spacing}pt\n')
+            f.write(f'- \spaceskip={word_spacing}cm\n')
             f.write(f'- \\usepackage{{setspace}}\n')
             f.write(f'- \{type_spacing}\n')
             f.write("---\n")
@@ -33,7 +33,7 @@ class Creator():
     def generate_glossary(self, list):
         with open(markdown_file, 'a', encoding='utf-8') as f:
             f.write("---\n")
-            f.write("# Glossary\n")
+            f.write("# Woordenlijst\n")
             f.write("| Woord | Soort | Definitie |\n")
             f.write("| --- | --- | --- |\n")
             for word in list.keys(): 

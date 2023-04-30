@@ -47,9 +47,9 @@
             <li>{{ l }}</li>
             {% endfor %}
           </ul>-->
-          <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="10" placeholder="Geef de titel hier in:"
+          <textarea name="titleOfPaper" id="titleOfPaper" cols="30" rows="1" placeholder="Geef de titel hier in:"
             required></textarea>
-          <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="10"
+          <textarea name="subjectOfPaper" id="subjectOfPaper" cols="30" rows="1"
             placeholder="Geef het onderwerp van de paper hier in:" required></textarea>
         </div>
 
@@ -77,13 +77,12 @@
             <input name="actions" type="radio" id="checkboxAddWordToGlossary"><label for="checkboxAddWordToGlossary">Woord toevoegen aan woordenlijst</label>
           </div>
 
-
           <div class="settings-for-teachers">
           <select name="titleFont" id="titleFont">
-            <option value="Arial">Arial</option>
+            <option selected value="Arial">Arial</option>
             <option value="Calibri">Calibri</option>
             <option value="Helvetica">Helvetica</option>
-            <option value="Montserrat">Montserrat</option>
+            <option value="Montserrat-Regular">Montserrat</option>
             <option value="Verdana">Verdana</option>
           </select>
           <label for="titleFont">Lettertype voor titel</label>
@@ -91,10 +90,10 @@
 
         <div class="settings-for-teachers">
           <select name="regularFont" id="regularFont">
-            <option value="Arial">Arial</option>
+            <option selected value="Arial">Arial</option>
             <option value="Calibri">Calibri</option>
             <option value="Helvetica">Helvetica</option>
-            <option value="Montserrat">Montserrat</option>
+            <option value="Montserrat-Regular">Montserrat</option>
             <option value="Verdana">Verdana</option>
           </select>
           <label for="regularFont">Standaardlettertype</label>
@@ -102,20 +101,20 @@
 
         <div class="settings-for-teachers">
           <select name="typeSpacing" id="typeSpacing">
-            <option value="onespacing">Enkelvoudige</option>
-            <option value="onehalfspacing">Anderhalve</option>
+            <option value="singlespacing">Enkelvoudige</option>
+            <option selected value="onehalfspacing">Anderhalve</option>
             <option value="doublespacing">Dubbele</option>
           </select>
           <label for="typeSpacing">Regeleinde</label>
         </div>
 
           <div class="settings-for-teachers">
-            <input type="number" placeholder="woord-spatiëring" name="word_spacing" id="word_spacing" max="100">
-            <label for="woord-spatiëring">Woord-spatiëring</label>
+            <input required type="number" placeholder="woord-spatiëring" name="word_spacing" id="word_spacing" max="3" value="0.5" step="0.1">
+            <label for="woord-spatiëring">Woord-spatiëring (in cm)</label>
           </div>
           <div class="settings-for-teachers">
-            <input type="number" name="margin" id="margin"min="50" max="200">
-            <label for="margin">Marge van document</label>
+            <input required type="number" name="margin" id="margin" min="1" max="15" step="0.1" value="3">
+            <label for="margin">Marge (in cm) van document</label>
           </div>
 
         </fieldset>
@@ -130,12 +129,12 @@
           <div class="settings-for-teachers"><input type="checkbox" id="vocabulary" name="simplified vocabulary"><label for="vocabulary">Moeilijke woordenschat vervangen</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="vocabulary" name="interpreted numbers in fulltext"><label for="vocabulary">Cijferwaarden interpreteren</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="syntax" name="no appositions" value="syntax"><label for="syntax">Tangconstructies aanpassen</label></div>
-          <div class="settings-for-teachers"><input type="number" id="length_sentence" name="length_sentence" min="5" max="15"><label for="length_sentence">Zinslengte</label></div>
+          <div hidden class="settings-for-teachers"><input type="number" id="length_sentence" name="length_sentence" min="5" max="15"><label for="length_sentence">Zinslengte</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="pronouns" name="no pronouns" value="pronouns"><label for="pronouns">Verwijswoorden aanpassen</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="prepositions" name="no prepositions" value="prepositions"><label for="prepositions">Voorzetseluitdrukkingen vervangen</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="compound_verbs" name="no compound verbs" value="compound_verbs"><label for="compound_verbs">Samengestelde werkwoorden vervangen</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="citation" name="keep citations" value="citation"><label for="citation">Bronvermelding behouden</label></div>
-          <div class="settings-for-teachers"><input type="number" id="length_paragraph" name="max length" min="10" max="250"><label for="summary_length">Lengte per paragraaf</label></div>
+          <div hidden class="settings-for-teachers"><input type="number" id="length_paragraph" name="max length" min="10" max="250"><label for="summary_length">Lengte per paragraaf</label></div>
         </fieldset>
 
         <h2>Gebruikte API-sleutels</h2>
@@ -161,7 +160,6 @@
 
 <script type="text/javascript" src={{ url_for('static', filename='TogglePosTags.js' )}}></script>
 <script type="text/javascript" src={{ url_for('static', filename='TeacherScripts.js' )}}></script>
-<script type="text/javascript" src={{ url_for('static', filename='Simplification.js' )}}></script>
 
 <script>
   function makeTitle(button) {
@@ -183,11 +181,11 @@
     const session_keys_response = await fetch(url, { method: 'POST' });
     result = await session_keys_response.json();
 
-    if (result.huggingface === undefined) {
+    if (result.hf_api_key === undefined) {
       document.getElementById('huggingface').innerHTML = 'Geen HuggingFace sleutel werd opgegeven. ';
       document.getElementById('huggingface').style.color = 'red';
     } else {
-      document.getElementById('huggingface').innerHTML = 'HuggingFace API-sleutel:\t' + result.huggingface;
+      document.getElementById('huggingface').innerHTML = 'HuggingFace API-sleutel:\t' + result.hf_api_key;
     }
     
     if (result.gpt3 === undefined) {

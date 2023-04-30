@@ -33,14 +33,13 @@ class HuggingFaceModels:
         except:
             huggingface_api_key = 'not_submitted'
 
-    """
-    """
+    """"""
     def query(self, payload, API_URL):
         headers = {"Authorization": f"Bearer {huggingface_api_key}"}
         response = requests.post(API_URL, headers=headers, json=payload)
         return response.json()
     
-
+    """"""
     def scientific_simplify(self, text, lm_key):
         length = len(text)
         API_URL = huggingfacemodels.get(lm_key)
@@ -51,18 +50,18 @@ class HuggingFaceModels:
         return result
 
     def summarize(self, text, lm_key):
-        soup = BeautifulSoup(text, 'html.parser')
         gt = Translator()        
-        h3_tags = soup.find_all('h3')
+        soup = BeautifulSoup(text, 'html.parser')
+        tags = soup.find_all(True)
         split_text = {}
-        for i, tag in enumerate(h3_tags):
-            key = tag.text
-            value = ""
-            for sibling in tag.next_siblings:
-                if sibling.name == 'h3':
-                    break
-                value += str(sibling.get_text()).replace('\n',' ')
-            split_text[key] = value
+        for tag in tags:
+            if tag.name == 'h3':
+                current_key = tag.text
+            if tag.name == 'p':
+                split_text[current_key] = tag.text
+
+        for key in split_text.keys():
+            split_text[key] = str(split_text[key]).strip('\n').replace('\n', ' ')
 
         result_dict = {}
         for key in split_text.keys():
@@ -110,9 +109,7 @@ class HuggingFaceModels:
             result_dict[key] = output
         return(result_dict)            
 
-    """
-    @returns 
-    """
+    """@returns a translated sentence"""
     def translate_sentence(self, sentence):
         translator  = Translator()
         result = translator.translate(

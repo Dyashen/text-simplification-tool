@@ -1,10 +1,10 @@
-/* --- */
+/* --- Scholar --- */
 document.addEventListener("DOMContentLoaded", () => {
   const spans = document.querySelectorAll(".verb, .adj, .noun, .aux");
   spans.forEach((span) => {
     span.addEventListener("click", async (event) => {
       const radioButton = document.querySelector("#explainWords");
-      if (!radioButton.checked) {
+      if (radioButton && !radioButton.checked) {
         return;
       }
       let leftSideTag = span.closest("p");
@@ -65,10 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   spans.forEach((span) => {
     span.addEventListener("click", async (event) => {
       const radioButton = document.querySelector("#simplifySentences"); // get reference to radio button
-      if (!radioButton.checked) {
-        return;
-      }
-
+      if (radioButton && !radioButton.checked) {return;}
       sentence_of_origin = span.closest(".sentence");
       var context = "";
       for (const child of sentence_of_origin.children) {
@@ -90,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-//
+
 async function personalizedSimplification() {
   let checkedValues = [];
   let checkboxes = document.querySelectorAll(
@@ -139,7 +136,6 @@ if (checkbox.checked) {checkedValues.push(checkbox.name);}});
     text.nodeValue = JSON.stringify(result.result[0]);
   }
 }
-
 
 async function askGPT() {
   var promptText = window.prompt("Wat wil je veranderen aan deze tekst? Start met 'Maak deze tekst...'")

@@ -16,6 +16,11 @@ body {
     text-align: left;
 }
 
+.extra-info{
+    width: 100%;
+    margin:auto;
+}
+
 .container {
     margin: auto;
     display: flex;
