@@ -132,14 +132,15 @@ class GPT():
     def look_up_word_gpt(self, word, context):
         try:
             prompt = f"""
-            give one easy Dutch synonym/explanation for '{word}'
-            context:
-            {context}
+            Give a simple Dutch explanation in one sentence for this word in the given context. Give the PoS-tag and Dutch definition: '{word}'
+            context: {context}
+            format: PoS-tag | definition
+            ///
             """
             result = openai.Completion.create(
                     prompt=prompt,
                     temperature=0,
-                    max_tokens=10,
+                    max_tokens=50,
                     model=COMPLETIONS_MODEL,
                     top_p=0.9,
                     stream=False

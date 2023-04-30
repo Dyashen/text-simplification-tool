@@ -26,16 +26,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.result == "error") {
         alert("Incorrect API key provided: " + result.word);
       } else {
+        var pos_tag = result.result.split('|')[0];
+        var definition = result.result.split('|')[1];
         let table = document.querySelector(".table-glossary");
         let newRow = table.insertRow(-1);
         let cell1 = newRow.insertCell(0);
         let cell2 = newRow.insertCell(1);
         let cell3 = newRow.insertCell(2);
         cell1.innerHTML = result.word;
-        cell2.innerHTML = 'noun';
-        cell3.innerHTML = result.result;
-        rightSideTag.innerHTML +=
-          "<b>" + result.word + "</b><br>" + result.result + "<br>";
+        cell2.innerHTML = pos_tag.lower();
+        cell3.innerHTML = definition.lower();
       }
     });
   });

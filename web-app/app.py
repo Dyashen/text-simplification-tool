@@ -208,6 +208,8 @@ def personalized_simplify_w_prompt():
 def look_up_word():
     word = request.json['word']
     sentence = request.json['sentence']
+
+    """
     pos, lemma = an.get_spacy_pos_tag_lemma(word, sentence)
 
     word_definition = wap.look_up(str(lemma))
@@ -222,7 +224,18 @@ def look_up_word():
         gpt = GPT(api_key)
         result, word, prompt = gpt.look_up_word_gpt(word=lemma, context=sentence)
         return jsonify(result=result, source='GPT-3', word=word)
-    
+    """
+
+    pos, lemma = an.get_spacy_pos_tag_lemma(word, sentence)
+
+    try:
+        api_key = session[GPT_API_KEY_SESSION_NAME]
+    except:
+        api_key = None
+
+    gpt = GPT(api_key)
+    result, word, prompt = gpt.look_up_word_gpt(word=lemma, context=sentence)
+    return jsonify(result=result, source='GPT-3', word=word)
         
     
 
