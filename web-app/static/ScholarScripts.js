@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function syntacticSimplification() {
   var selectedText = window.getSelection().toString();
   if (selectedText == "" || selectedText == null) {
+    alert('Markeer de tekst die u wilt vereenvoudigen.');
     return;
   }
 
@@ -103,10 +104,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function personalizedSimplification() {
+  var selectedText = window.getSelection().toString();
+  if (selectedText == "" || selectedText == null) {
+    alert('Markeer de tekst die u wilt vereenvoudigen.');
+    return;
+  }
+
   let checkedValues = [];
   let checkboxes = document.querySelectorAll(
     '.personalisation input[type="checkbox"]'
   );
+
   checkboxes.forEach((checkbox) => {
     if (checkbox.checked) {
       checkedValues.push(checkbox.name);
@@ -114,10 +122,10 @@ async function personalizedSimplification() {
   });
 
   if (checkedValues.length == 0) {
+    alert('Duidt één van de onderstaande opties aan.');
     return;
   }
 
-  var selectedText = window.getSelection().toString();
   var selectedChoices = checkedValues;
   var prompt = document.createTextNode("Gepersonaliseerde tekst ophalen...");
   var text = document.createTextNode("...");
@@ -139,6 +147,7 @@ async function personalizedSimplification() {
   result = await response.json();
 
   array = result.result;
+  console.log(array);
 
   if (array.length > 1) {
     prompt.nodeValue = JSON.stringify(result.prompt);
@@ -157,10 +166,16 @@ async function personalizedSimplification() {
 }
 
 async function askGPT() {
-  var promptText = window.prompt(
-    "Wat wil je veranderen aan deze tekst? Start met 'Maak deze tekst...'"
-  );
   var selectedText = window.getSelection().toString();
+  if (selectedText == "" || selectedText == null) {
+    alert('Markeer de tekst die u wilt vereenvoudigen.');
+    return;
+  }
+
+  var promptText = window.prompt(
+    "Wat wilt u doen met de geselecteerde tekst? Schrijf hier de prompt...'"
+  );
+
   var fullPrompt = promptText + "///\n" + selectedText;
   var prompt = document.createTextNode("Gepersonaliseerde tekst ophalen...");
   var text = document.createTextNode("");
