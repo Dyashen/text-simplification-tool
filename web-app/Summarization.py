@@ -132,7 +132,7 @@ class GPT():
     def look_up_word_gpt(self, word, context):
         try:
             prompt = f"""
-            Simplify the Dutch definition of '{word}'
+            give one easy Dutch synonym/explanation for '{word}'
             context:
             {context}
             """
@@ -146,7 +146,7 @@ class GPT():
                     )["choices"][0]["text"].strip(" \n")    
             return result, word, prompt
         except Exception as e:
-            return 'Open AI outage of problemen met API-sleutel', str(e)
+            return 'error', str(e), str(e)
         
     """ @returns prompt, result from gpt """
     def give_synonym(self, word, context):

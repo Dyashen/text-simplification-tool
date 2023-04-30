@@ -78,6 +78,7 @@
           </div>
 
           <div class="settings-for-teachers">
+            <label for="titleFont">Lettertype voor titel</label>
           <select name="titleFont" id="titleFont">
             <option selected value="Arial">Arial</option>
             <option value="Calibri">Calibri</option>
@@ -85,7 +86,7 @@
             <option value="Montserrat-Regular">Montserrat</option>
             <option value="Verdana">Verdana</option>
           </select>
-          <label for="titleFont">Lettertype voor titel</label>
+          
         </div>
 
         <div class="settings-for-teachers">
@@ -158,43 +159,9 @@
   </div>
 </body>
 
+
 <script type="text/javascript" src={{ url_for('static', filename='TogglePosTags.js' )}}></script>
 <script type="text/javascript" src={{ url_for('static', filename='TeacherScripts.js' )}}></script>
-
-<script>
-  function makeTitle(button) {
-    const titleText = document.getElementById('title').value;
-    const newTitle = document.createElement('h3');
-    newTitle.innerText = titleText;
-    const titleContainer = document.getElementById('title').parentElement;
-    titleContainer.replaceChild(newTitle, document.getElementById('title'));
-    button.parentNode.removeChild(button);
-  }
-
-  function deleteTitle(button) {
-    var parent = button.parentNode;
-    parent.parentNode.removeChild(parent);
-  }
-
-  window.onload = async function () {
-    var url = 'http://localhost:5000/get-session-keys';
-    const session_keys_response = await fetch(url, { method: 'POST' });
-    result = await session_keys_response.json();
-
-    if (result.hf_api_key === undefined) {
-      document.getElementById('huggingface').innerHTML = 'Geen HuggingFace sleutel werd opgegeven. ';
-      document.getElementById('huggingface').style.color = 'red';
-    } else {
-      document.getElementById('huggingface').innerHTML = 'HuggingFace API-sleutel:\t' + result.hf_api_key;
-    }
-    
-    if (result.gpt3 === undefined) {
-      document.getElementById('gpt3').innerHTML = 'Geen GPT-3 sleutel werd opgegeven.';
-      document.getElementById('gpt3').style.color = 'red';
-    } else {
-      document.getElementById('gpt3').innerHTML = 'GPT-3 API-sleutel: ' + result.gpt3;
-    }
-  }
-</script>
+<script type="text/javascript" src={{ url_for('static', filename='Onload.js' )}}></script>
 
 </html>

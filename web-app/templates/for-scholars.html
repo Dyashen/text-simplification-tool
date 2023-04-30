@@ -18,6 +18,19 @@
   </fieldset>
 
   <div class="text-container">
+
+    <h2>Woordenlijst</h2>
+    <div class="div-glossary">
+      <table class="table-glossary">
+        <tr>
+          <th style="width:15%">Woord</th>
+          <th style="width:15%">Type</th>
+          <th>Definitie</th>
+        </tr>
+      </table>
+    </div>
+
+    <h2>Tekst uit PDF</h2>
     <div class="page">
       {% for paragraph in pdf %}
       <p class="left-side">
@@ -31,9 +44,6 @@
         </span>
         {% endfor %}
       </p>
-      <div class="right-side">
-          <!--JS FILLS HERE-->
-      </div>
       {% endfor %}
 
     </div>
@@ -42,10 +52,10 @@
   <!--'chatbot'-->
   <div class="fixed-bottom">
     <div class="buttons">
-      <input class="btn" type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
-      <input class="btn" type="button" value="Schrijf dit eenvoudiger volgens checkboxes.."
+      <input class="btn-hf"   id="simple-syntactic-simplification"  type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
+      <input class="btn-gpt"  id="personalized-synt-simplification" type="button" value="Schrijf dit eenvoudiger volgens checkboxes.."
         onmousedown="personalizedSimplification()">
-      <input class="btn" type="button" value="Specifieke vraag stellen?"
+      <input class="btn-gpt" id="prompt-synt-simplification"        type="button" value="Specifieke vraag stellen?"
         onmousedown="askGPT()">
       <input class="btn" type="button" value="Verwijder adjectieven en stopwoorden." onmousedown="removeAdjectives()">
       <button id="deleteChat" class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
@@ -73,7 +83,7 @@
       <input type="checkbox" id="prepositions" name="preposition">
       <label for="checkbox5">Voorzetsels vervangen</label><br>
       <input type="checkbox" id="summary" name="summary">
-      <label for="checkbox5">Geef dit als opsomming</label><br>
+      <label for="checkbox5">Schrijf dit als opsomming</label><br>
     </div>
     
     <div class="dazzle">
@@ -85,7 +95,6 @@
   </div>
 </body>
 
-<script type="text/javascript" src={{ url_for('static', filename='Summarization.js' )}}></script>
 <script type="text/javascript" src={{ url_for('static', filename='ScholarScripts.js' )}}></script>
 <script type="text/javascript" src={{ url_for('static', filename='TogglePosTags.js' )}}></script>
 

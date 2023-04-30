@@ -1,5 +1,4 @@
 h1 {
-    font-family: "Montserrat";
     text-align: center;
     padding-bottom:5%;
 }
@@ -11,7 +10,7 @@ body {
     font-size: 12px;
     width: 90%;
     margin: auto;
-    background-color: #EDD1B0;
+    background-color: #fff;
     font-size: 10pt;
     text-align: left;
 }
@@ -119,14 +118,25 @@ body {
     margin: auto;
 }
 
-.btn {
-    background-color: #ccc;
+.btn, .btn-hf, .btn-gpt {
     color: #fff;
     padding: 10px 10px;
     cursor:pointer;
     border: none;
     margin:auto;
     width: 15%;
+}
+
+.btn{
+    background-color: #333;
+}
+
+.btn-hf{
+    background-color: #631501;
+}
+
+.btn-gpt{
+    background-color: #016306;
 }
 
 #explainWord.active,
@@ -165,6 +175,7 @@ span.adj:hover {
 
 .right-side {
     width: 20%;
+    padding: 5%;
     display: inline;
 }
 
@@ -181,10 +192,21 @@ fieldset{
 .settings-for-teachers input, select{width: 20%; text-align: center; margin:auto}
 .settings-for-teachers label{width: 30%;}
 
+.div-glossary{
+    width: 100%;
+    padding-bottom: 5%;
+}
 
-footer{
-    padding-top: 20%;
-    width:80%;
+.div-glossary table{
+    width: 80%;
     margin:auto;
-    text-align: justify;
+}
+
+.div-glossary th{
+    font-style: bold;
+    text-align: center;
+}
+
+.div-glossary th, td{
+    border: 1px solid #8a8a8a;
 }
