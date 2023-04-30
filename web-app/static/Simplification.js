@@ -121,8 +121,23 @@ if (checkbox.checked) {checkedValues.push(checkbox.name);}});
   });
 
   result = await response.json();
-  prompt.nodeValue = JSON.stringify(result.prompt);
-  text.nodeValue = JSON.stringify(result.result);
+
+  array = result.result;
+
+  if (array.length > 1){
+    prompt.nodeValue = JSON.stringify(result.prompt);
+    const ul = document.createElement('ul');
+        array.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            ul.appendChild(li);
+        });
+        text.remove;
+        p2.appendChild(ul);
+  } else {
+    prompt.nodeValue = JSON.stringify(result.prompt);
+    text.nodeValue = JSON.stringify(result.result[0]);
+  }
 }
 
 
@@ -131,7 +146,7 @@ async function askGPT() {
   var selectedText = window.getSelection().toString();
   var fullPrompt = promptText + '///\n' + selectedText; 
   var prompt = document.createTextNode("Gepersonaliseerde tekst ophalen...");
-  var text = document.createTextNode("...");
+  var text = document.createTextNode("");
   var dazzle = document.querySelector(".dazzle");
   var p = document.createElement("p");
   var p2 = document.createElement("p");

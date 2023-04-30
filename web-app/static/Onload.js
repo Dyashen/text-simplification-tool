@@ -10,12 +10,8 @@ window.onload = async function () {
     document.body.style.wordSpacing     = result.wordSpacing+'cm';
     document.body.style.textAlign       = result.textAlign;
 
-    console.log(result);
-    console.log(document.body.style.wordSpacing);
-
     /* --- */
     var url = 'http://localhost:5000/get-session-keys';
     const session_keys_response = await fetch(url, { method: 'POST' });
     result = await session_keys_response.json();
-    console.log(result);
   }

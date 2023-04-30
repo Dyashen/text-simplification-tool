@@ -174,11 +174,20 @@ class GPT():
 
 
     def personalised_simplify(self, sentence, personalisation):
-        prompt = f"""
-        Explain this in own Dutch words and {", ".join(personalisation)}
-        ///
-        {sentence}
-        """
+
+        if 'summary' in personalisation:
+            prompt = f"""
+            Simplify the sentences in the given text and {", ".join(personalisation)}
+            :return: A list of simplified sentences divided by a '|' sign
+            ///
+            {sentence}
+            """
+        else:
+            prompt = f"""
+            Explain this in own Dutch words and {", ".join(personalisation)}
+            ///
+            {sentence}
+            """
 
         try:
             result = openai.Completion.create(
@@ -189,6 +198,13 @@ class GPT():
                     top_p=0.9,
                     stream=False
             )["choices"][0]["text"].strip(" \n")
+
+
+            if 'summary' in personalisation:
+                result = result.split('|')
+            else:
+                result = [result]
+            
             return result, prompt
         except Exception as e:
             return str(e), prompt 
