@@ -172,7 +172,6 @@ class GPT():
 
 
     def personalised_simplify(self, sentence, personalisation):
-
         if 'summary' in personalisation:
             prompt = f"""
             Simplify the sentences in the given text and {", ".join(personalisation)}
@@ -248,19 +247,23 @@ class GPT():
 
             full_chunk_result = ""
             for chunk in text_to_prompt:
-                prompt = f"""
-                Explain this in own Dutch words and {", ".join(personalisation)}
-                ///
-                {chunk}
-                """
+                if 'summation' not in personalisation:
+                    prompt = f"""
+                    Rewrite this in Dutch words with {", ".join(personalisation)}
+                    ///
+                    {chunk}
+                    """
+                else:
+                    prompt = f"""
+                    Rewrite this as a list of simplified Dutch sentences with {", ".join(personalisation)}
+                    :return: A list of simplified sentences divided by a '|' sign
+                    ///
+                    {chunk}
+                    """
 
-                full_chunk_result += str(openai.Completion.create(prompt=prompt,temperature=0,max_tokens=400,model=COMPLETIONS_MODEL,top_p=0.9,stream=False)["choices"][0]["text"].strip(" \n"))
-
+                full_chunk_result += str(openai.Completion.create(prompt=prompt,temperature=0,max_tokens=500,model=COMPLETIONS_MODEL,top_p=0.9,stream=False)["choices"][0]["text"].strip(" \n"))
             new_text[title] = [full_chunk_result]
         return new_text
-    
-    def summarize_w_titles(full_text, personalisation):
-        pass
         
         
 class WordScraper():

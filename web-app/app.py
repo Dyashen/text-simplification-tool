@@ -141,13 +141,15 @@ def generate_simplification():
                     personalization_array.append(key)
             
             gpt = GPT(api_key)
+            full_text = gpt.summarize(full_text_dict=full_text, personalisation=personalization_array)
 
-            if 'self_generate_titles' not in settings:
-                full_text = gpt.summarize(full_text_dict=full_text, personalisation=personalization_array)
-            else:
-                full_text = gpt.summarize_w_titles(full_text=full_text, personalisation=personalization_array)
+        if 'summation' not in personalization_array:
+            print('zonder opsomming')
+            Creator().create_pdf(title=title, margin=margin, list=glossary, full_text=full_text, fonts=fonts, word_spacing=word_spacing, type_spacing=type_spacing, summation=False)
+        else:
+            print('met opsomming')
+            Creator().create_pdf(title=title, margin=margin, list=glossary, full_text=full_text, fonts=fonts, word_spacing=word_spacing, type_spacing=type_spacing, summation=True)
 
-        Creator().create_pdf(title=title, margin=margin, list=glossary, full_text=full_text, fonts=fonts, word_spacing=word_spacing, type_spacing=type_spacing)
         return send_file(path_or_file=ZIP_FILE_LOCATION, as_attachment=True)
     except Exception as e:
         return jsonify(error_msg = str(e))

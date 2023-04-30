@@ -11,43 +11,27 @@ header-includes:
 - \usepackage{setspace}
 - \onehalfspacing
 ---
----
-# Glossary
-| Woord | Soort | Definitie |
-| --- | --- | --- |
-| handhavingsmechanismen | NOUN | Enforcement mechanisms. |
-| algoritmen | NOUN | systeem voor berekeningen maken |
-| fragmentatie | NOUN | Definitie kon niet gevonden worden. |
-| algoritmische | ADJ | Algorithmic. |
-| mensenrechten | NOUN | basisrechten van alle mensen |
-| Transparantie | NOUN | doorzichtbaarheid. |
 
 
-## titel 8
+## Titel 1
 
-Controle- en handhavingsmechanismen staan onder druk door de snelle socio-technische ontwikkelingen. Algoritmische systemen maken gebruik van regels gebaseerde algoritmen om gegevens te classificeren, opslaan, combineren en doorzoeken. Daarnaast gebruiken ze machine-lerende algoritmen om patronen in grote datasets te voorspellen. Ondanks de toegenomen regelgeving lijkt dit het gebruik van deze systemen te stimuleren.
+Vraag: Of zijn huidige controlemechanismen voldoende om burgers te beschermen tegen mogelijke gevolgen van algoritmische surveillance door politie? Drie ontwikkelingen drukken op het traditionele kader: fragmentatie, privatisering, democratisering en toename van collectieve schade. Dit leidt tot verschuivingen van machtsverhoudingen, grootschalige surveillance, discriminatie en stigmatisering. Reflecteer ik over deze ontwikkelingen vanuit de lens van relationele ethiek? Is het huidige juridische kader voldoende? 
+
+Vraag: Zijn huidige controlemechanismen voldoende om burgers te beschermen tegen gevolgen van algoritmische surveillance door politie? Drie ontwikkelingen drukken op traditioneel kader: fragmentatie, privatisering, democratisering en toename collectieve schade. Dit leidt tot verschuivingen machtsverhoudingen, grootschalige surveillance, discriminatie en stigmatisering. Reflecteer ik over deze ontwikkelingen vanuit lens relationele ethiek? Is huidige juridisch kader voldoende? 
+
+Vraag: Zijn huidige controles voldoende om burgers te beschermen tegen gevolgen algoritmische surveillance door politie? Drie ontwikkelingen drukken op traditioneel kader: fragmentatie, privatisering, democratisering en toename collectieve schade. Dit leidt tot verschuivingen machtsverhoudingen, grootschalige surveillance, discriminatie en stigmatisering. Reflecteer ik over deze ontwikkelingen vanuit lens relationele ethiek? Is huidige juridisch kader voldoende? 
+
+Vraag: Zijn huidige controles voldoende om burgers te beschermen tegen gevolgen algoritmische surveillance door politie? Drie ontwik
 
 
 
-## titel 7
+## Titel 2
 
-De vraag of huidige controlemechanismen voldoende zijn om burgers te beschermen tegen mogelijke gevolgen van algoritmische surveillance door politie wordt opgeroepen. Er zijn drie socio-technische ontwikkelingen die druk zetten op het traditionele controle- en handhavingskader. Deze ontwikkelingen zijn fragmentatie van politiewerk, democratisering van surveillance en toename van collectieve schade en sociale gevolgen. Dit leidt tot verschuivingen van machtsverhoudingen, toename van grootschalige surveillance, discriminatie en stigmatisering. Om te bepalen of huidige controlemechanismen voldoende zijn, wordt er gekeken naar deze ontwikkelingen vanuit de lens van relationele ethiek. Hiervoor wordt het huidige juridische kader gebruikt.
-
-
-
-## titel 6
-
-Deze bijdrage laat zien dat de huidige regels voor gegevensbescherming en de instrumenten die daarbij worden gebruikt vaak beperkt zijn. Er wordt te weinig aandacht besteed aan het beschermen van fundamentele rechten. Daarnaast is de politie niet verplicht om DPIA's te publiceren, waardoor publieke controle moeilijker wordt. De EU heeft intussen een voorstel voor een AI-wet gepubliceerd met twee doelen: het beschermen van fundamentele rechten van individuen tegen nadelige gevolgen van AI en het harmoniseren van de regelgeving van lidstaten.
+Relatie-ethiek is gebaseerd op mensen die zich op een gemeenschappelijke manier tot elkaar verhouden. Schade en onrecht door algoritmes kunnen niet los worden gezien van filosofie, technologie, economie, politiek en sociale structuren. Om deze visie te verzoenen met politie en justitie die steeds meer surveillance vragen, moet politieopdracht worden herzien op een relatie-manier, als bescherming van collectieve veiligheid. Veiligheid is meer dan alleen bescherming tegen criminaliteit, maar ook tegen discriminatie, pesterijen, haat, geweld en disproportionele overheidscontrole. Daarnaast is encryptie cruciaal om mensenrechten en kwetsbaren te beschermen.
 
 
 
-## titel 5
+## Titel 5
 
-Er wordt een systeem opgezet om autonome AI-toepassingen met hoog risico te registreren in een openbare databank. Hoe deze beoordelingen precies toegepast en gehandhaafd worden, blijft echter vaag. De verordening slaagt er ook niet in om burgers of het middenveld te betrekken bij deze mechanismen. Er wordt gesuggereerd om algoritmische surveillance-controle mechanismen te herdenken door de lens van relationele ethiek. Dit vereist een fundamentele verschuiving in het denken over onrechtvaardigheid en bestuur AI.
-
-
-
-## titel 3
-
-Volgens de Europese Commissie (2020) is het belangrijk om te zorgen dat technologiebedrijven verantwoordelijkheid nemen voor hun acties en dat er een evenwichtige verdeling van macht is. Er moeten controlemechanismen worden ontwikkeld om rekening te houden met de asymmetrische machtsverhoudingen en de toenemende macht van technologiebedrijven. Er moet een democratische evidence-based proportionaliteitstoets worden uitgevoerd om burgers bij de beslissingen te betrekken. Daarnaast kan er gedacht worden aan een AI-coördinatiecentrum dat beleidsdirecties, toezichthouders en uitvoeringsorganisaties structuur biedt. Om de legitimiteit van de beslissingen te behouden, moet de bevolking ook betrokken worden bij de besluitvorming. Hiervoor kunnen methoden zoals publieke debatten, openbare raadplegingen, burgerjury's en citizen-science initiatieven worden gebruikt.
+Er moet nagedacht worden over hoe controlemechanismen herdacht kunnen worden om rekening te houden met asymmetrische machtsrelaties en de toenemende macht van technologiebedrijven. Er moet een democratische, evidence-based proportionaliteitstoets uitgevoerd worden om burgers bij de beslissingen te betrekken. Daarnaast kan er gedacht worden aan een AI-coördinatiecentrum dat beleidsdirecties, toezichthouders en uitvoeringsorganisaties structuur biedt. Ook moet de bevolking betrokken worden bij beslissingen om hun legitimiteit te bewaren. Methoden zoals publieke debatten, openbare raadplegingen, burgerjury's en citizen-science-initiatieven kunnen hiervoor gebruikt worden.
 
