@@ -123,5 +123,7 @@ window.onload = async function () {
       "GPT-3 API-sleutel: " + result.gpt3;
   }
 
-  alert("Sleutel(s) voor " + missing_keys.join(" & ") + " ontbreken.");
+  if (missing_keys.length > 0) {
+    alert("Sleutel(s) voor " + missing_keys.join(" & ") + " ontbreken.");
+  }
 };

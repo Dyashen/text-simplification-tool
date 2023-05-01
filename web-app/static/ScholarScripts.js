@@ -242,5 +242,7 @@ window.onload = async function () {
     document.querySelector(".personalisation").style.display = "none";
   }
 
-  alert("Sleutel(s) voor " + missing_keys.join(" & ") + " ontbreken.");
+  if (missing_keys.length > 0){
+    alert("Sleutel(s) voor " + missing_keys.join(" & ") + " ontbreken.");
+  }
 };
