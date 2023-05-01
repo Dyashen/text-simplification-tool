@@ -61,7 +61,7 @@ class HuggingFaceModels:
                 split_text[current_key] = tag.text
 
         for key in split_text.keys():
-            split_text[key] = str(split_text[key]).strip('\n').replace('\n', ' ')
+            split_text[key] = str(split_text[key]).strip('\n').replace('\n', ' ').replace('\\','')
 
         result_dict = {}
         for key in split_text.keys():
@@ -234,7 +234,8 @@ class GPT():
                 split_text[current_key] = tag.text
 
         for key in split_text.keys():
-            split_text[key] = str(split_text[key]).strip('\n').replace('\n', ' ')
+            split_text[key] = str(split_text[key]).strip('\n')\
+            .strip('\\').replace('\\','')
 
         new_text = {}
         for title in split_text.keys():
