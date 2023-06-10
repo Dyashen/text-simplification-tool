@@ -24,13 +24,14 @@
       <table class="table-glossary">
         <tr>
           <th style="width:15%">Woord</th>
-          <th style="width:15%">Type</th>
+          <th style="width:15%">PoS-tag</th>
           <th>Definitie</th>
+          <th>Lemma</th>
         </tr>
       </table>
     </div>
 
-    <h2>Tekst uit PDF</h2>
+    <h2>Oorspronkelijk artikel</h2>
     <div class="page">
       {% for paragraph in pdf %}
       <p class="left-side">
@@ -52,6 +53,7 @@
   <!--'chatbot'-->
   <div class="fixed-bottom">
     <div class="buttons">
+      <form class="form-buttons">
       <input class="btn-hf"   id="simple-syntactic-simplification"  type="button" value="Schrijf dit eenvoudiger." onmousedown="syntacticSimplification()">
       <input class="btn-gpt"  id="personalized-synt-simplification" type="button" value="Schrijf dit eenvoudiger volgens checkboxes.."
         onmousedown="personalizedSimplification()">
@@ -59,29 +61,31 @@
         onmousedown="askGPT()">
       <input class="btn" type="button" value="Verwijder adjectieven en stopwoorden." onmousedown="removeAdjectives()">
       <button id="deleteChat" class="btn" onmousedown="emptyChat()"><i class="fa fa-trash"></i></button>
+      <div><input type="radio" name="handling" id="explainWords"> Woord uitleggen</div>
+        <div><input type="radio" name="handling" id="simplifySentences"> Zin vereenvoudigen</div>
+        <div><input type="checkbox" id="verb-show">WW's tonen</div>
+        <div><input type="checkbox" id="noun-show">ZN's tonen</div>
+        <div><input type="checkbox" id="adj-show">Adjs tonen</div>
+    </form>
     </div>
 
     <!---->
     <div class="buttons">
-      <form>
-        <input type="radio" name="handling" id="explainWords"> Woorden uitleggen
-        <input type="radio" name="handling" id="simplifySentences"> Zinnen vereenvoudigen
-        <input type="checkbox" id="verb-show">WW's tonen
-        <input type="checkbox" id="noun-show">ZN's tonen
-        <input type="checkbox" id="adj-show">Adjs tonen
+      <form class="form-buttons">
+        
       </form>
     </div>
 
     <!---->
     <div class="personalisation">
-      <input type="checkbox" id="appositions" name="appositions">
-      <label for="checkbox1">Tangconstructies</label><br>
+      <input type="checkbox" id="active-voice" name="active-voice">
+      <label for="checkbox1">Actieve stem</label><br>
       <input type="checkbox" id="dif-to-read" name="difficult-to-read words">
-      <label for="checkbox2">Moeilijke woorden vervangen door eenvoudige synoniemen</label><br>
-      <input type="checkbox" id="pronouns" name="pronouns">
-      <label for="checkbox4">Voornaamwoorden</label><br>
-      <input type="checkbox" id="prepositions" name="preposition">
-      <label for="checkbox5">Voorzetsels vervangen</label><br>
+      <label for="checkbox2">Moeilijke woorden vervangen</label><br>
+      <input type="checkbox" id="less-syllables" name="less-syllables">
+      <label for="checkbox4">Woorden met minder lettergrepen</label><br>
+      <input type="checkbox" id="shorter-sentences" name="shorter-sentences">
+      <label for="checkbox5">Zinnen korter schrijven</label><br>
       <input type="checkbox" id="summary" name="summary">
       <label for="checkbox5">Herschrijven als opsomming</label><br>
     </div>

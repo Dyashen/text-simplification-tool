@@ -18,11 +18,7 @@
   <div class="container">
     <div class="left-container">
       <div class="page">
-        {% for paragraph in pdf %}
-        <div class="titleSelection">
-          <textarea name="title" id="title" cols="30" rows="10"></textarea><button onmousedown="makeTitle(this)">Titel
-            maken</button><button onmousedown="deleteTitle(this)">Titel weglaten</button>
-        </div>
+        {% for paragraph in pdf %} 
         <p>
           {% for sentence in paragraph %}
           <span class="sentence">
@@ -41,7 +37,7 @@
     <!---->
     <div class="right-container">
       <form action="/generate-simplification" method="post">
-        <div class="extra-info">
+      <div class="extra-info">
           <!--<p>Herkende talen:</p>
           <ul>{% for l in lang %}
             <li>{{ l }}</li>
@@ -126,15 +122,16 @@
 
         <!--Lexicale vereenvoudiging-->
         <fieldset class="personalized">
-          <div class="settings-for-teachers"><input type="checkbox" id="vocabulary" name="simplified vocabulary"><label for="vocabulary">Moeilijke woordenschat vervangen</label></div>
-          <div class="settings-for-teachers"><input type="checkbox" id="vocabulary" name="interpreted numbers in fulltext"><label for="vocabulary">Cijferwaarden interpreteren</label></div>
+          <div class="settings-for-teachers"><input type="checkbox" id="vocabulary" name="simplified vocabulary" value="simplified vocabulary"><label for="vocabulary">Moeilijke woordenschat vervangen</label></div>
+          <div class="settings-for-teachers"><input type="checkbox" id="vocabulary" name="interpreted numbers in fulltext" value="interpreted numbers"><label for="vocabulary">Cijferwaarden interpreteren</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="syntax" name="no appositions" value="syntax"><label for="syntax">Tangconstructies aanpassen</label></div>
-          <div hidden class="settings-for-teachers"><input type="number" id="length_sentence" name="length_sentence" min="5" max="15"><label for="length_sentence">Zinslengte</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="pronouns" name="no pronouns" value="pronouns"><label for="pronouns">Verwijswoorden aanpassen</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="prepositions" name="no prepositions" value="prepositions"><label for="prepositions">Voorzetseluitdrukkingen vervangen</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="compound_verbs" name="no compound verbs" value="compound_verbs"><label for="compound_verbs">Samengestelde werkwoorden vervangen</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="citation" name="keep citations" value="citation"><label for="citation">Bronvermelding behouden</label></div>
           <div class="settings-for-teachers"><input type="checkbox" id="summation" name="summation" value="summation"><label for="summation">Schrijven als opsomming</label></div>
+          <div class="settings-for-teachers"><input type="checkbox" id="table" name="table" value="table"><label for="table">Schrijven als tabel van twee kolommen</label></div>
+          <div class="settings-for-teachers"><input type="checkbox" id="table" name="glossary" value="glossary"><label for="table">Woordenlijst automatisch maken</label></div>
           <div hidden class="settings-for-teachers"><input type="number" id="length_paragraph" name="max length" min="10" max="250"><label for="summary_length">Lengte per paragraaf</label></div>
         </fieldset>
 
@@ -146,19 +143,13 @@
 
         <!--Glossary-->
         <h2>Woordenlijst</h2>
-        <fieldset hidden>
-          <textarea name="glossaryList" id="glossaryList" cols="30" rows="10"></textarea>
-          <button type="submit">Glossary-lijst genereren</button>
-        </fieldset>
-        <textarea hidden name="fullText" id="fullText" cols="30" rows="10"></textarea>
-        <button disabled type="submit" value="Samenvatten" id="summarize-with-presets-button">Volledig document
-          samenvatten</button>
-      </form>
-      <button value="Tekst toevoegen" onmousedown="addTextToTextArea()">Tekst indienen</button>
+        <fieldset hidden><textarea name="glossaryList" id="glossaryList" cols="30" rows="10"></textarea></fieldset>
+        <button type="button" value="vereenvoudigen" id="simplify-with-presets-button" onmousedown="simplifyWithPresets()">Gekozen teksten vereenvoudigen</button>
+        </form>
+      <button value="Tekst toevoegen aan lijst voor vereenvoudiging" onmousedown="addTextWithParagraph()">Tekst toevoegen met gepersonaliseerde keuzes</button>
     </div>
   </div>
 </body>
-
 
 <script type="text/javascript" src={{ url_for('static', filename='TogglePosTags.js' )}}></script>
 <script type="text/javascript" src={{ url_for('static', filename='TeacherScripts.js' )}}></script>

@@ -153,8 +153,12 @@ span.adj:hover {
 }
 
 #colors {
-    width: 50%;
-    margin: auto;
+    width: 40%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-buttons{
     display: flex;
     justify-content: space-between;
 }
@@ -200,13 +204,10 @@ fieldset{
 .div-glossary table{
     width: 80%;
     margin:auto;
+    border: 1px solid #8a8a8a;
 }
 
 .div-glossary th{
     font-style: bold;
     text-align: center;
-}
-
-.div-glossary th, td{
-    border: 1px solid #8a8a8a;
 }

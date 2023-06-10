@@ -84,8 +84,85 @@ function deleteTitle(button) {
   parent.parentNode.removeChild(parent);
 }
 
+function addTextWithParagraph() {
+  text = window.getSelection().toString();
+  if (text == "") {
+    return;
+  } else {
+    var fieldset = document.querySelector(".personalized");
+    var inputs = fieldset.querySelectorAll("input");
+    var values = [];
+    for (var i = 0; i < inputs.length; i++) {
+      if (inputs[i].type === "checkbox" && inputs[i].checked) {
+        values.push(inputs[i].value);
+      }
+    }
+
+
+    var selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      var range = selection.getRangeAt(0);
+      var commonAncestor = range.commonAncestorContainer;
+      var selectedElements = commonAncestor.getElementsByClassName("sentence");
+      var selectedTags = [];
+      for (var i = 0; i < selectedElements.length; i++) {
+        var elementRange = document.createRange();
+        elementRange.selectNodeContents(selectedElements[i]);
+
+        if (range.intersectsNode(selectedElements[i])) {
+          selectedTags.push(selectedElements[i]);
+        }
+      }
+    }
+
+    fullText = "";
+
+    for (var i = 0; i < selectedTags.length; i++) {
+      var tag = selectedTags[i];
+      if (values.includes('summation')) {
+        tag.style.backgroundColor = "#F0FFF0";
+      } else if (values.includes('glossary')){
+        tag.style.backgroundColor = "#F5DEB3";
+      } else if (values.includes('table')) {
+        tag.style.backgroundColor = "#FAFAD2";
+      } else {
+        tag.style.backgroundColor = "#F5F5DC";
+      }
+      
+      var tagText = tag.textContent;
+      tagText = tagText.split('\n').join('').replace(/:/g, "");
+      fullText += tagText;
+    }
+    localStorage.setItem(fullText, values);
+  }
+}
+
+function getAllLocalStorageValues() {
+  var localStorageValues = {};
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    var value = localStorage.getItem(key);
+    localStorageValues[key] = value;
+  }
+  return localStorageValues;
+}
+
+async function simplifyWithPresets() {
+  var form = document.querySelector('form');
+  var localStorageData = getAllLocalStorageValues();
+  console.log(localStorageData);
+
+  var input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'text';
+  input.value = JSON.stringify(localStorageData);
+  form.appendChild(input);
+  form.submit();
+}
+
 window.onload = async function () {
   /* --- */
+  localStorage.clear();
   var url = `http://localhost:5000/get-settings-user`;
   const response = await fetch(url, { method: "POST" });
   var result = await response.json();

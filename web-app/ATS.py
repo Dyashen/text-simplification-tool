@@ -6,14 +6,8 @@ from bs4 import BeautifulSoup
 
 huggingfacemodels = {
     'sc':"https://api-inference.huggingface.co/models/haining/scientific_abstract_simplification",
-    'bart':"https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
     'bart-sc': "https://api-inference.huggingface.co/models/sambydlo/bart-large-scientific-lay-summarisation",
-    't5':"https://api-inference.huggingface.co/models/mrm8488/t5-base-finetuned-summarize-news",
-    'kis': "https://api-inference.huggingface.co/models/philippelaban/keep_it_simple",
-    'gpt-2':'https://api-inference.huggingface.co/models/gpt2',
-    'gpt-2-ft': "https://api-inference.huggingface.co/models/gavin124/gpt2-finetuned-cnn-summarization-v2",
-    'peg':'https://api-inference.huggingface.co/models/google/pegasus-xsum',
-    'peg-par':'https://api-inference.huggingface.co/models/tuner007/pegasus_paraphrase'
+    'kis': "https://api-inference.huggingface.co/models/philippelaban/keep_it_simple"
 }
 
 max_length = 2000
@@ -129,22 +123,22 @@ class GPT():
             openai.api_key = key
 
     """ @returns prompt, result from gpt """
-    def look_up_word_gpt(self, word, context):
+    def look_up_word_gpt(self, word, context, lemma, pos):
         try:
             prompt = f"""
-            Give a simple Dutch explanation in one sentence for this word in the given context. Give the PoS-tag and Dutch definition: '{word}'
-            context: {context}
-            format: PoS-tag | definition
+            Geef een eenvoudige definitie:
+            woord: {word} /// lemma: {lemma} /// pos: {pos} /// context: {context}
             ///
             """
             result = openai.Completion.create(
+                    engine='gpt-3.5-turbo',
                     prompt=prompt,
                     temperature=0,
                     max_tokens=50,
-                    model=COMPLETIONS_MODEL,
                     top_p=0.9,
                     stream=False
-                    )["choices"][0]["text"].strip(" \n")    
+                    )["choices"][0]["text"].strip(" \n")   
+            
             return result, word, prompt
         except Exception as e:
             return 'error', str(e), str(e)
@@ -170,18 +164,28 @@ class GPT():
             return 'Open AI outage of problemen', str(e)
 
 
-
     def personalised_simplify(self, sentence, personalisation):
-        if 'summary' in personalisation:
+        if 'summation' in personalisation:
             prompt = f"""
-            Simplify the sentences in the given text and {", ".join(personalisation)}
-            :return: A list of simplified sentences divided by a '|' sign
+            Vereenvoudig deze zinnen volgens  {", ".join(personalisation)}. Scheidt de zinnen met een '|' teken. Gebruik geen signaalwoorden.
             ///
+            {sentence}
+            """
+
+        elif 'table' in personalisation:
+            prompt = f"""
+            Herschrijf de tekstinhoud maar in een tabel, gebruik twee kolommen naar keuze . Gebruik hiervoor markdowncode.
+            ///
+            {sentence}
+            """
+        elif 'glossary' in personalisation:
+            prompt = f"""
+            Maak een woordenlijst (max 5 woorden) in tabelvorm van moeilijke woorden uit deze tekst; schrijf dit in markdowncode. ///
             {sentence}
             """
         else:
             prompt = f"""
-            Explain this in own Dutch words and {", ".join(personalisation)}
+            Vereenvoudig de zinnen met de volgende kenmerken: {", ".join(personalisation)}
             ///
             {sentence}
             """
@@ -196,9 +200,10 @@ class GPT():
                     stream=False
             )["choices"][0]["text"].strip(" \n")
 
-
-            if 'summary' in personalisation:
+            if 'summation' in personalisation:
                 result = result.split('|')
+            elif 'table' in personalisation or 'glossary' in personalisation:
+                result = result
             else:
                 result = [result]
             
@@ -221,7 +226,7 @@ class GPT():
             return str(e), personalisation
         
         
-    def summarize(self, full_text_dict, personalisation):
+    def simplify(self, full_text_dict, personalisation=None):
         soup = BeautifulSoup(full_text_dict, 'html.parser')
         tags = soup.find_all(True)
         split_text = {}
@@ -250,13 +255,13 @@ class GPT():
             for chunk in text_to_prompt:
                 if 'summation' not in personalisation:
                     prompt = f"""
-                    Rewrite this in Dutch words with {", ".join(personalisation)}
+                    Vereenvoudig deze tekst volgens: {", ".join(personalisation)}
                     ///
                     {chunk}
                     """
                 else:
                     prompt = f"""
-                    Rewrite this as a list of simplified Dutch sentences with {", ".join(personalisation)}
+                    Vereenvoudig deze tekst als een opsomming volgens het formaat met {", ".join(personalisation)}
                     :return: A list of simplified sentences divided by a '|' sign
                     ///
                     {chunk}

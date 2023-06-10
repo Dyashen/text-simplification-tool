@@ -20,7 +20,6 @@ class Reader():
     output: format used for site
     """
     def get_full_text_dict(self, all_pages):
-        full_text = []
         total = ""
         for page_layout in all_pages:
             for element in page_layout:
@@ -48,7 +47,7 @@ class Reader():
 
         return " ".join(full_text)
 
-    def get_full_text_site(self, full_text):
+    def get_full_text_site(self, full_text, NUMBER_OF_SENTENCES=SENTENCES_PER_PARAGRAPH):
         try:
             lang = detect(full_text)
         except:
@@ -66,9 +65,11 @@ class Reader():
         for sentence in doc.sents:
             sentences.append(sentence)
 
-        pad_size = SENTENCES_PER_PARAGRAPH - (len(sentences) % SENTENCES_PER_PARAGRAPH)
+        int_number_of_sents = int(NUMBER_OF_SENTENCES)
+
+        pad_size = int_number_of_sents - (len(sentences) % int_number_of_sents)
         padded_a = np.pad(sentences, (0, pad_size), mode='empty')
-        paragraphs = padded_a.reshape(-1, SENTENCES_PER_PARAGRAPH)
+        paragraphs = padded_a.reshape(-1, int_number_of_sents)
 
         text_w_pos = []
         for paragraph in paragraphs:

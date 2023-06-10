@@ -13,7 +13,7 @@ from pdfminer.high_level import extract_pages
 from datetime import timedelta
 
 """"""
-from Summarization import HuggingFaceModels, GPT, WordScraper
+from ATS import HuggingFaceModels, GPT
 from Writer import Creator
 import Analysis as an
 
@@ -41,7 +41,11 @@ def setup_scholars_teachers(request):
                 langs = detect_langs(str(all_pages))
                 reader = Reader()
                 full_text = reader.get_full_text_dict(all_pages)
-                dict_text = reader.get_full_text_site(full_text)
+                if('personalized_settings' in session and 'numberOfSentencesForParagraphs' in session['personalized_settings']):
+                    numberOfParagraphs = session['personalized_settings']['numberOfSentencesForParagraphs']
+                    dict_text = reader.get_full_text_site(full_text, numberOfParagraphs)
+                else:
+                    dict_text = reader.get_full_text_site(full_text)
             else:
                 pdf = request.files['pdf']
                 pdf_data = pdf.read()
@@ -56,17 +60,11 @@ def setup_scholars_teachers(request):
 @app.before_request
 def pre_boot_up():
     session.permanent=True
-    global wap
-    wap = WordScraper()
 
-
-""""""
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
 
-
-""""""
 @app.route('/for-scholars', methods=['GET','POST'])
 def teaching_tool():
     try:
@@ -83,7 +81,6 @@ def analysing_choosing_for_teachers():
     except Exception as e:
         return render_template('error.html',error=str(e))
 
-""""""
 @app.route('/generate-simplification', methods=['POST'])
 def generate_simplification():
     try:
@@ -95,6 +92,9 @@ def generate_simplification():
         title = settings['titleOfPaper']
         wordlist = settings['glossaryList']
         wordlist = wordlist.strip(' ').split('\n')
+
+        api_key = session[GPT_API_KEY_SESSION_NAME]
+        gpt = GPT(api_key)
             
         glossary = {}
         if len(wordlist) > 0:
@@ -103,22 +103,46 @@ def generate_simplification():
                     try:
                         word_text = str(word).split(':')[0]
                         word_sentence = str(word).split(':')[1]
-
                         pos, lemma = an.get_spacy_pos_tag_lemma(word_text, word_sentence)
+                        api_key = session[GPT_API_KEY_SESSION_NAME]
+                        gpt = GPT(api_key)
+                        word_definition, word_text, prompt = gpt.look_up_word_gpt(word=word_text, context=word_text)
+                        glossary[word_text] = {'type':str(pos), 'definition': str(word_definition).replace('\n',' ').strip(' ')}
 
-                        word_definition = wap.look_up(str(lemma))
-                        if word_definition:
-                            word_definition = word_definition[0]
-                            glossary[word_text] = {'type':str(pos), 'definition':str(word_definition)}
-                        else:
-                            api_key = session[GPT_API_KEY_SESSION_NAME]
-                            gpt = GPT(api_key)
-                            word_definition, word_text, prompt = gpt.look_up_word_gpt(word=word_text, context=word_text)
-                            glossary[word_text] = {'type':str(pos), 'definition': str(word_definition).replace('\n',' ').strip(' ')}
                     except Exception as e:
                         glossary[word_text] = {'type':str(pos), 'definition':'Definitie kon niet gevonden worden.'}    
 
-        full_text = settings['fullText']  
+        full_text = eval(settings['text'])
+
+        
+            
+        doc_creator = Creator()
+        doc_creator.create_header(title='Vereenvoudigde tekst', margin=0.5, fontsize=14, chosen_font=fonts[0], chosen_title_font=fonts[1], word_spacing=word_spacing, type_spacing=type_spacing)
+        if 'glossaryList' in settings and not settings['glossaryList'] == '':
+            doc_creator.generate_glossary(list=settings['glossaryList'])
+
+        new_full_text = []
+        for key, value in full_text.items():
+            new_sentence = []
+            for word in key.split(" "):
+                if word != '':
+                    new_sentence.append(word)
+
+            sent = " ".join(new_sentence)
+            new_sent, prompt = gpt.personalised_simplify(sent, str(value).split(','))
+            
+            if 'summation' in str(value).split(','):
+                doc_creator.generate_summary_w_summation(new_sent)
+            elif 'table' in str(value).split(',') or 'glossary' in str(value).split(','):
+                doc_creator.generate_summary_w_table(new_sent)
+            else:
+                doc_creator.generate_summary(new_sent)
+            
+        doc_creator.create_pdf()
+
+        return send_file(path_or_file=ZIP_FILE_LOCATION, as_attachment=True)
+        
+        exit(1)
 
 
         # Result of checkbox. 
@@ -141,7 +165,7 @@ def generate_simplification():
                     personalization_array.append(key)
             
             gpt = GPT(api_key)
-            full_text = gpt.summarize(full_text_dict=full_text, personalisation=personalization_array)
+            full_text = gpt.simplify(full_text_dict=full_text, personalisation=personalization_array)
 
         if 'summation' not in personalization_array:
             Creator().create_pdf(title=title, margin=margin, list=glossary, full_text=full_text, fonts=fonts, word_spacing=word_spacing, type_spacing=type_spacing, summation=False)
@@ -157,11 +181,18 @@ def generate_simplification():
 @app.route('/simplify', methods=['POST'])
 def scientific_simplify():
     try:
-        text = request.json['text']
+        full_text = request.json['text']
         key = request.json['key']
-        simplifier = HuggingFaceModels(session[HF_API_KEY_SESSION_NAME])
-        result = simplifier.scientific_simplify(text=text, lm_key=key)
-        return jsonify(result=result)
+
+        try:
+            api_key = session[GPT_API_KEY_SESSION_NAME]
+        except:
+            api_key = None
+
+        gpt = GPT(api_key)
+        text = gpt.simplify(full_text_dict=full_text)
+
+        return jsonify(result=text)
     except Exception as e:
         return jsonify(result=str(e))
 
@@ -209,23 +240,6 @@ def look_up_word():
     word = request.json['word']
     sentence = request.json['sentence']
 
-    """
-    pos, lemma = an.get_spacy_pos_tag_lemma(word, sentence)
-
-    word_definition = wap.look_up(str(lemma))
-    if word_definition:
-        return jsonify(result=word_definition, source='Vertalen.nu', word=word)
-    else:
-        try:
-            api_key = session[GPT_API_KEY_SESSION_NAME]
-        except:
-            api_key = None
-
-        gpt = GPT(api_key)
-        result, word, prompt = gpt.look_up_word_gpt(word=lemma, context=sentence)
-        return jsonify(result=result, source='GPT-3', word=word)
-    """
-
     pos, lemma = an.get_spacy_pos_tag_lemma(word, sentence)
 
     try:
@@ -234,13 +248,10 @@ def look_up_word():
         api_key = None
 
     gpt = GPT(api_key)
-    result, word, prompt = gpt.look_up_word_gpt(word=lemma, context=sentence)
-    return jsonify(result=result, source='GPT-3', word=word)
+    result, word, prompt = gpt.look_up_word_gpt(word=lemma, context=sentence, lemma=lemma, pos=pos)
+    return jsonify(result=result, source='GPT-3', word=word, pos=pos, lemma=lemma)
         
     
-
-
-"""TODO combine these two"""
 @app.route('/change-settings', methods=['GET', 'POST'])
 def return_personal_settings_page():
     return render_template('settings.html')

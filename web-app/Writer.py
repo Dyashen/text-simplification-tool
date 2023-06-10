@@ -42,49 +42,36 @@ class Creator():
     """"""
     def generate_summary(self, full_text):
         with open(markdown_file,'a', encoding="utf-8", errors="surrogateescape") as f:
-            for key in full_text.keys():
-                title = str(key).replace('\n',' ')
-                text = full_text[key]
-                f.write('\n\n')
-                f.write(f'## {title}')
-                f.write('\n\n')
-                f.write(" ".join(text))
+            title = 'Hoofdstuk'
+            f.write('\n\n')
+            f.write(f'## {title}')
+            f.write('\n\n')
+            for text in full_text:
+                f.write(text)
                 f.write('\n\n')
 
 
     def generate_summary_w_summation(self, full_text):
         with open(markdown_file,'a', encoding="utf-8", errors="surrogateescape") as f:
-            for key in full_text.keys():
-                title = str(key).replace('\n',' ')
-                text = full_text[key][0].split('|')
+            title = 'Hoofdstuk'
+            f.write('\n\n')
+            f.write(f'## {title}')
+            for sentence in full_text:    
                 f.write('\n\n')
-                f.write(f'## {title}')
-                for sentence in text:    
-                    f.write('\n\n')
-                    f.write(f'* {sentence}')
-                    f.write('\n\n')
+                f.write(f'* {sentence}')
+                f.write('\n\n')
 
+    def generate_summary_w_table(self, full_text):
+        with open(markdown_file,'a', encoding="utf-8", errors="surrogateescape") as f:
+            title = 'Hoofdstuk'
+            f.write('\n\n')
+            f.write(f'## {title}')
+            f.write('\n\n')
+            f.write(f'{full_text}')
 
-    def create_pdf(self, title, margin, list, full_text, fonts, word_spacing, type_spacing, summation):
-        """YAML-header"""
-        if title is not None:
-            self.create_header(title=title, margin=margin, fontsize=14, chosen_font=fonts[0], chosen_title_font=fonts[1], word_spacing=word_spacing, type_spacing=type_spacing)
-        else:
-            self.create_header(title='Vereenvoudigde tekst', margin=0.5, fontsize=14, chosen_font=fonts[0], chosen_title_font=fonts[1], word_spacing=word_spacing, type_spacing=type_spacing)
-        
-        """GLOSSARY"""
-        if len(list) != 0:
-            self.generate_glossary(list=list)
-
-        """SUMMARY"""
-        if summation:
-            self.generate_summary_w_summation(full_text=full_text)
-        else:
-            self.generate_summary(full_text=full_text)
-        
-        """FILE_CREATION"""
-        pypandoc.convert_file(source_file=markdown_file, to='docx', outputfile=docx_file, extra_args=["-M2GB", "+RTS", "-K64m", "-RTS"])
-        pypandoc.convert_file(source_file=markdown_file, to='pdf', outputfile=pdf_file, extra_args=['--pdf-engine=xelatex'])
+    def create_pdf(self):
+        pypandoc.convert_file(source_file=markdown_file, to='docx', outputfile=docx_file,   extra_args=["-M2GB", "+RTS", "-K64m", "-RTS"])
+        pypandoc.convert_file(source_file=markdown_file, to='pdf',  outputfile=pdf_file,    extra_args=['--pdf-engine=xelatex'])
         with zipfile.ZipFile(zip_filename, 'w') as myzip:
             myzip.write(pdf_file)
             myzip.write(docx_file)

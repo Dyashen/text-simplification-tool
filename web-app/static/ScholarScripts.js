@@ -23,19 +23,21 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       result = await response.json();
 
+      console.log(result);
+
       if (result.result == "error") {
         alert("Incorrect API key provided: " + result.word);
       } else {
-        var pos_tag = result.result.split('|')[0];
-        var definition = result.result.split('|')[1];
         let table = document.querySelector(".table-glossary");
         let newRow = table.insertRow(-1);
         let cell1 = newRow.insertCell(0);
         let cell2 = newRow.insertCell(1);
         let cell3 = newRow.insertCell(2);
+        let cell4 = newRow.insertCell(3);
         cell1.innerHTML = result.word;
-        cell2.innerHTML = pos_tag.lower();
-        cell3.innerHTML = definition.lower();
+        cell2.innerHTML = result.pos;
+        cell3.innerHTML = result.result;
+        cell4.innerHTML = result.lemma;
       }
     });
   });
